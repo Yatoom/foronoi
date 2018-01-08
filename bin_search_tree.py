@@ -1,6 +1,7 @@
 # AVL Tree implementation
 # - This AVL Tree is partially based on https://www.geeksforgeeks.org/avl-tree-set-1-insertion/
 #   but we have modified it and added more functionality.
+# - We used some modified test cases to manually compare results from https://github.com/nlsdfnbch/Python-AVL-Tree/
 
 from typing import Union
 
@@ -342,7 +343,10 @@ class AVLTree(object):
         return node_list
 
 
+# Manual testing. Can be converted to unit tests when needed.
 if __name__ == '__main__':
+
+    # Left-left case
     tree = AVLTree()
 
     values = {
@@ -358,3 +362,49 @@ if __name__ == '__main__':
     assert (tree.find(7) is None)
 
     print(tree)
+    print(tree.get_balance_factor(tree.root.right))
+
+    # Right-right case
+    tree = AVLTree()
+
+    values = {
+        3: [3, 4],
+        5: [2, 5],
+        7: [7, 7]
+    }
+
+    for key, value in values.items():
+        tree.insert(key=key, value=value)
+
+    print(tree)
+    print(tree.get_balance_factor(tree.root.right))
+
+    # Left right case
+    tree = AVLTree()
+
+    values = {
+        5: [3, 5],
+        3: [2, 3],
+        4: [7, 4]
+    }
+
+    for key, value in values.items():
+        tree.insert(key=key, value=value)
+
+    print(tree)
+    print(tree.get_balance_factor(tree.root.right))
+
+    # Left right case
+    tree = AVLTree()
+
+    values = {
+        3: [3, 5],
+        5: [2, 3],
+        4: [7, 4]
+    }
+
+    for key, value in values.items():
+        tree.insert(key=key, value=value)
+
+    print(tree)
+    print(tree.get_balance_factor(tree.root.right))
