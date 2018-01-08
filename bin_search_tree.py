@@ -1,3 +1,7 @@
+# AVL Tree implementation
+# - This AVL Tree is partially based on https://www.geeksforgeeks.org/avl-tree-set-1-insertion/
+#   but we have modified it and added more functionality.
+
 from typing import Union
 
 
@@ -20,6 +24,9 @@ class Node(object):
 
 class AVLTree(object):
     def __init__(self):
+        """
+        Self-balancing Binary Search Tree.
+        """
         self.root = None
 
     def find(self, key: int):
@@ -98,7 +105,7 @@ class AVLTree(object):
         AVLTree.update_height(root)
 
         # Get the balance factor
-        balance = AVLTree.get_balance(root)
+        balance = AVLTree.get_balance_factor(root)
 
         # If the node is unbalanced, then try out the 4 cases
 
@@ -171,25 +178,25 @@ class AVLTree(object):
         :param root: (Node) The root node of the tree to balance
         :return: (Node) The new root of the sub tree
         """
-        balance = AVLTree.get_balance(root)
+        balance = AVLTree.get_balance_factor(root)
 
         # If the node is unbalanced, then try out the 4 cases
 
         # Case 1 - Left Left
-        if balance > 1 and AVLTree.get_balance(root.left) >= 0:
+        if balance > 1 and AVLTree.get_balance_factor(root.left) >= 0:
             return AVLTree.rotate_right(root)
 
         # Case 2 - Right Right
-        if balance < -1 and AVLTree.get_balance(root.right) <= 0:
+        if balance < -1 and AVLTree.get_balance_factor(root.right) <= 0:
             return AVLTree.rotate_left(root)
 
         # Case 3 - Left Right
-        if balance > 1 and AVLTree.get_balance(root.left) < 0:
+        if balance > 1 and AVLTree.get_balance_factor(root.left) < 0:
             root.left = AVLTree.rotate_left(root.left)
             return AVLTree.rotate_right(root)
 
         # Case 4 - Right Left
-        if balance < -1 and AVLTree.get_balance(root.right) > 0:
+        if balance < -1 and AVLTree.get_balance_factor(root.right) > 0:
             root.right = AVLTree.rotate_right(root.right)
             return AVLTree.rotate_left(root)
 
@@ -283,11 +290,19 @@ class AVLTree(object):
         return node.height
 
     @staticmethod
-    def get_balance(node):
-        if not node:
+    def get_balance_factor(root):
+        """
+        The balance factor is defined to be the height difference of its two child subtrees.
+        A binary tree is defined to be an AVL tree if the invariant BalanceFactor ∈ {–1,0,+1}
+        holds for every node N in the tree.
+
+        :param root: (Node) The root node to calculate balance for
+        :return: (int) The calculated balance factor
+        """
+        if not root:
             return 0
 
-        return AVLTree.get_height(node.left) - AVLTree.get_height(node.right)
+        return AVLTree.get_height(root.left) - AVLTree.get_height(root.right)
 
     @staticmethod
     def get_min_key_node(root: Union[Node, None]) -> Node:
