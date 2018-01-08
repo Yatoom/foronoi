@@ -19,13 +19,46 @@ class Node(object):
 
 
 class AVLTree(object):
+    def __init__(self):
+        self.root = None
+
+    def find(self, key: int):
+        """
+        Find a node by binary search in the tree.
+
+        :param key: (int) The key to search for
+        :return: (Node or None) The found node, or None if there was no result
+        """
+        return AVLTree.find_in_subtree(root=self.root, key=key)
+
+    def insert(self, key: int, value):
+        """
+        Insert a node in the tree
+
+        :param key: (int) The key to search for
+        :param value: The content of the node
+        :return: (Node or None) The found node, or None if there was no result
+        """
+        self.root = AVLTree.insert_in_subtree(root=self.root, key=key, value=value)
+
+    def delete(self, key: int):
+        """
+        Recursive function to delete a node with given key from the tree.
+
+        :param key: (int) The key of the node to search for and delete
+        :return: (Node) the root of the modified subtree
+        """
+        self.root = AVLTree.delete_in_subtree(root=self.root, key=key)
+
+    def __repr__(self):
+        return self.root.__repr__()
 
     @staticmethod
-    def find(key: int, root: Union[Node, None]) -> Node:
+    def find_in_subtree(root: Union[Node, None], key: int) -> Node:
         """
-        Find a node using binary search on a given key.
+        Find a node using binary search on a given key, within a subtree.
 
-        :param root: (Node) The root node of the tree
+        :param root: (Node) The root node of the subtree
         :param key: (int) The key to search for
         :return: (Node or None) The found node, or None if there was no result
         """
@@ -43,9 +76,9 @@ class AVLTree(object):
         return node
 
     @staticmethod
-    def insert(root: Union[Node, None], key: int, value) -> Node:
+    def insert_in_subtree(root: Union[Node, None], key: int, value) -> Node:
         """
-        Find a node using binary search on a given key.
+        Insert a node in a sub tree
 
         :param key: (int) The key to search for
         :param value: The content of the node
@@ -57,9 +90,9 @@ class AVLTree(object):
         if not root:
             return Node(key, value)
         elif key < root.key:
-            root.left = AVLTree.insert(root.left, key, value)
+            root.left = AVLTree.insert_in_subtree(root.left, key, value)
         else:
-            root.right = AVLTree.insert(root.right, key, value)
+            root.right = AVLTree.insert_in_subtree(root.right, key, value)
 
         # Update the height of the ancestor node
         AVLTree.update_height(root)
@@ -90,7 +123,7 @@ class AVLTree(object):
         return root
 
     @staticmethod
-    def delete(root: Union[Node, None], key: int) -> Node:
+    def delete_in_subtree(root: Union[Node, None], key: int) -> Node:
         """
         Recursive function to delete a node with given key from subtree with given root.
         :param root: (Node) The root of the (sub) tree
@@ -103,10 +136,10 @@ class AVLTree(object):
             return root
 
         elif key < root.key:
-            root.left = AVLTree.delete(root.left, key)
+            root.left = AVLTree.delete_in_subtree(root.left, key)
 
         elif key > root.key:
-            root.right = AVLTree.delete(root.right, key)
+            root.right = AVLTree.delete_in_subtree(root.right, key)
 
         else:
             if root.left is None:
@@ -117,7 +150,7 @@ class AVLTree(object):
 
             temp = AVLTree.get_min_key_node(root.right)
             root.key = temp.key
-            root.right = AVLTree.delete(root.right, temp.key)
+            root.right = AVLTree.delete_in_subtree(root.right, temp.key)
 
         # If the tree has only one node, simply return it
         if root is None:
@@ -296,7 +329,6 @@ class AVLTree(object):
 
 if __name__ == '__main__':
     tree = AVLTree()
-    root_node = None
 
     values = {
         5: [3, 5],
@@ -305,7 +337,9 @@ if __name__ == '__main__':
     }
 
     for key, value in values.items():
-        root_node = tree.insert(root_node, key=key, value=value)
+        tree.insert(key=key, value=value)
 
-    assert(AVLTree.find(5, root_node).value == [3, 5])
-    assert(AVLTree.find(7, root_node) is None)
+    assert (tree.find(5).value == [3, 5])
+    assert (tree.find(7) is None)
+
+    print(tree)
