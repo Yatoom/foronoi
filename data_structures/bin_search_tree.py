@@ -172,6 +172,9 @@ class AVLTree(object):
 
         return root
 
+    def balance(self):
+        return self.balance(self.root)
+
     @staticmethod
     def balance(root: Union[Node, None]) -> Node:
         """

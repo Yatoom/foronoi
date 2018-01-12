@@ -26,15 +26,15 @@ class Breakpoint:
     The internal nodes represent the breakpoints on the beach line.
     """
 
-    def __init__(self):
+    def __init__(self, breakpoint=(None, None), pointer=None):
         """
         The breakpoint is stored by an ordered tuple of sites (p_i, p_j) where p_i defines the parabola left of the
         breakpoint and p_j defines the parabola to the right. Furthermore, the internal node v has a pointer to the half
         edge in the doubly connected edge list of the Voronoi diagram. More precisely, v has a pointer to one of the
         half-edges of the edge being traced out by the breakpoint represented by v.
         """
-        self.breakpoint: tuple = (None, None)
-        self.pointer = None
+        self.breakpoint: tuple = breakpoint
+        self.pointer = pointer
 
     def get_intersection(self, l):
         """
@@ -80,7 +80,7 @@ class Breakpoint:
         return result
 
 
-class Arc:
+class Arc(Point):
     """
     Each leaf of beach line, representing an arc α, stores one pointer to a node in the event queue, namely, the node
     that represents the circle event in which α will disappear. This pointer is None if no circle event exists where α
@@ -99,6 +99,23 @@ class BeachLine(AVLTree):
         :return: (Node or None) The found node, or None if there was no result
         """
         return self.find_arc_in_subtree(root=self.root, key=point.x, sweep_line=sweep_line)
+
+    def replace_leaf(self, key, replacement_tree):
+        node = self.root
+        while node is not None:
+            if node.left is not None and node.left.key == node.key:
+                node.left = replacement_tree
+                break
+            elif node.right is not None and node.right.key == node.key:
+                node.right = replacement_tree
+                break
+            elif key < node.key:
+                node = node.left
+            else:
+                node = node.right
+
+        # Return node, None if not found
+        return node
 
     @staticmethod
     def find_arc_in_subtree(root: Union[Node, None], key: int, sweep_line: int) -> Node:

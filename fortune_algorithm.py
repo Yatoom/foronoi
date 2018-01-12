@@ -5,7 +5,7 @@ from typing import Union
 
 from data_structures.bin_search_tree import AVLTree, Node
 from data_structures.dcel import *
-from data_structures.types import BeachLine, Point, CirclePoint
+from data_structures.types import BeachLine, Point, CirclePoint, Breakpoint
 
 
 class Voronoi:
@@ -66,6 +66,15 @@ class Voronoi:
             else:
                 raise Exception("Not a Point or CirclePoint.")
 
+                # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
+                # of the Voronoi diagram.
+                # Compute a bounding box that contains all vertices of the Voronoi diagram in its interior,
+                # and attach the half-infinite edges to the bounding box by updating the doubly-connected
+                # edge list appropriately
+
+                # 8. Traverse the half-edges of the doubly connected edge list to cell records and the
+                # pointers to and from them.
+
     def handle_site_event(self, point):
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
@@ -78,35 +87,49 @@ class Voronoi:
         # the beach line, while the arcs are stored within the leaves
         arc = self.beach_line.find_arc_above_point(point=point, sweep_line=self.sweep_line)
 
-        # # 2.1 Search the beach line tree for the arc above point
-        # assert (self.beach_line.root is not None)
-        # arc = self.beach_line.find(point.x)
-        #
-        # # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
-        # #     alarm, and the it must be deleted from the event_queue
-        # if isinstance(arc, CirclePoint) and arc.leaf is not None and arc.leaf in self.event_queue.queue:
-        #     self.event_queue.queue.remove(arc.pointer)
-        #
-        # # 3. Replace the leaf that represents the arc with a subtree having three leaves.
-        # #    - The middle leaf stores the new site
-        # #    - The other two leaves store the site p_j that was originally stored with the arc
-        # #    - Store the tuples (p_j, p_i) and (p_i, p_j) representing the new breakpoints at the two internal nodes.
-        # point_i = point
-        # point_j = arc.pointer
-        # middle_leaf = Node(point_i.x, point_i)
-        # left_leaf = Node(point_j.x, point_j)
-        # right_leaf = Node(point_j.x, point_j)
-        # first_internal_node = Node(point_i.x, (point_i, point_j))
-        # second_internal_node = Node(point_j.x, (point_j, point_j.x))
+        # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
+        #     alarm, and the it must be deleted from the event_queue
+        if isinstance(arc, CirclePoint) and arc.leaf is not None and arc.leaf in self.event_queue.queue:
+            self.event_queue.queue.remove(arc.pointer)
+
+        # 3. Replace the leaf that represents the arc with a subtree having three leaves.
+        #    - The middle leaf stores the new site
+        #    - The other two leaves store the site p_j that was originally stored with the arc
+        #    - Store the tuples (p_j, p_i) and (p_i, p_j) representing the new breakpoints at the two internal nodes.
+
+        point_i = point
+        point_j = arc.pointer
+        middle_leaf = Node(point_i.x, point_i)
+        left_leaf = Node(point_j.x, point_j)
+        right_leaf = Node(point_j.x, point_j)
+        break_point_i_j = Node(None, Breakpoint(breakpoint=(point_i, point_j)))
+        break_point_j_i = Node(None, Breakpoint(breakpoint=(point_j, point_i)))
+
+        break_point_j_i.left = middle_leaf
+        break_point_j_i.right = right_leaf
+        break_point_i_j.left = left_leaf
+        break_point_i_j.right = break_point_j_i
+
+        self.beach_line.replace_leaf(key=arc.x, replacement_tree=break_point_i_j)
+        self.beach_line.balance()
+
+        # 4. Create new half-edge records in the Voronoi diagram structure for the
+        #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
+        #    breakpoints
+        half_edge_i = HalfEdge()
+        half_edge_i.origin = point_i
+        half_edge_j = HalfEdge()
+        half_edge_j.origin = point_j
+        half_edge_j.twin = half_edge_i
+        half_edge_i.twin = half_edge_j
+        self.doubly_connected_edge_list.append(half_edge_i)
+        self.doubly_connected_edge_list.append(half_edge_j)
+
+        # 5. Check the triple of consecutive arcs where the new arc for p i is the left arc
+        #    to see if the breakpoints converge. If so, insert the circle event into Q and
+        #    add pointers between the node in T and the node in Q. Do the same for the
+        #    triple where the new arc is the right arc.
+        pass
 
     def handle_circle_event(self, circle_point):
         raise NotImplementedError()
-
-        # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
-        # of the Voronoi diagram.
-        # Compute a bounding box that contains all vertices of the Voronoi diagram in its interior,
-        # and attach the half-infinite edges to the bounding box by updating the doubly-connected
-        # edge list appropriately
-
-        # 8. Traverse the half-edges of the doubly connected edge list to cell records and the
-        # pointers to and from them.
