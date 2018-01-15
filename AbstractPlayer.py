@@ -10,5 +10,5 @@ class Player(metaclass=abc.ABCMeta):
         self._gamestate = gamestate
 
     @abc.abstractmethod
-    def placepoints(self):
+    def _placepoints(self):
         pass
