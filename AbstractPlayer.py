@@ -9,5 +9,6 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         self._playernr = playernr
         self._gamestate = gamestate
 
+    @abc.abstractmethod
     def placepoints(self):
         pass
