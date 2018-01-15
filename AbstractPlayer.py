@@ -4,7 +4,7 @@ A template definition of a player, serving as the contract between different imp
 
 import abc
 
-class AbstractPlayer(metaclass=abc.ABCMeta):
+class Player(metaclass=abc.ABCMeta):
     def __init__(self, playernr, gamestate):
         self._playernr = playernr
         self._gamestate = gamestate
