@@ -1,5 +1,6 @@
 from RandomPlayer import RandomPlayer
 
+
 def main():
     # Instantiate the game state
     gamestate = {'width': 100, 'height': 100, 'm': 10, 'n': 5, 'points': []}

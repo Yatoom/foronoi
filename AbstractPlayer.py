@@ -4,11 +4,12 @@ A template definition of a player, serving as the contract between different imp
 
 import abc
 
+
 class Player(metaclass=abc.ABCMeta):
     def __init__(self, playernr, gamestate):
-        self._playernr = playernr
-        self._gamestate = gamestate
+        self.playernr = playernr
+        self.gamestate = gamestate
 
     @abc.abstractmethod
-    def _placepoints(self):
+    def placepoints(self):
         pass
