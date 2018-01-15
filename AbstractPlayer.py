@@ -5,5 +5,9 @@ A template definition of a player, serving as the contract between different imp
 import abc
 
 class AbstractPlayer(metaclass=abc.ABCMeta):
-    def some_player_interface(self):
+    def __init__(self, playernr, gamestate):
+        self._playernr = playernr
+        self._gamestate = gamestate
+
+    def placepoints(self):
         pass
