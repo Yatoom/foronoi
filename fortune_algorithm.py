@@ -60,8 +60,6 @@ class Voronoi:
 
         while not self.event_queue.empty():
             _, event = self.event_queue.get()
-            print("Event:", event)
-            print("Priority queue:", self.event_queue.queue)
 
             if isinstance(event, CirclePoint):
                 self.sweep_line = event.y
@@ -72,6 +70,8 @@ class Voronoi:
                 self.handle_site_event(event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
+
+            print("Beach line:", self.beach_line)
 
                 # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
                 # of the Voronoi diagram.
@@ -87,7 +87,6 @@ class Voronoi:
         if self.beach_line.root is None:
             arc = Arc(origin=point, pointer=None)
             self.beach_line.insert(arc, state=self.sweep_line)
-            print("Beach line:", self.beach_line)
             return
 
         # 2.1 Search the beach line tree for the arc above the point
@@ -123,21 +122,28 @@ class Voronoi:
         #                  /       \
         #                p_i       p_j
         root = Node(breakpoint_j_i)
-        root.left = Node(point_j)
+        root.left = Node(Arc(origin=point_j, pointer=None))
         root.right = Node(breakpoint_i_j)
-        root.right.left = point_i
-        root.right.right = point_j
+
+        root.right.left = Node(Arc(origin=point_i, pointer=None))
+        root.right.right = Node(Arc(origin=point_j, pointer=None))
+
+        # Set parents
+        root.left.parent = root
+        root.right.parent = root
+        root.right.left.parent = root.right
+        root.right.right.parent = root.right
 
         # Replace this in the tree
         if arc_node == self.beach_line.root:
-            self.beach_line.root = arc_node
+            self.beach_line.root = root
         elif arc_node == arc_node.parent.left:
             arc_node.parent.left = root
         else:
             arc_node.parent.right = root
 
-        # self.beach_line.replace_leaf(key=arc.x, replacement_tree=root)
-        # self.beach_line.balance()
+        # Balance the tree again
+        self.beach_line.balance()
 
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new

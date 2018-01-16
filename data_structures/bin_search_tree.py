@@ -193,15 +193,15 @@ class AVLTree(object):
         AVLTree.update_height(root)
 
         # Balance the tree
-        root = AVLTree.balance(root)
+        root = AVLTree._balance(root)
 
         return root
 
     def balance(self):
-        return self.balance(self.root)
+        return self._balance(self.root)
 
     @staticmethod
-    def balance(root: Union[Node, None]) -> Node:
+    def _balance(root: Union[Node, None]) -> Node:
         """
         Make the three balanced if it is unbalanced.
         :param root: (Node) The root node of the tree to balance

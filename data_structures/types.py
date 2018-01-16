@@ -69,7 +69,7 @@ class Breakpoint(Value):
     The internal nodes represent the breakpoints on the beach line.
     """
 
-    def __init__(self, breakpoint=(None, None), pointer=None):
+    def __init__(self, breakpoint=(None, None), half_edge=None):
         """
         The breakpoint is stored by an ordered tuple of sites (p_i, p_j) where p_i defines the parabola left of the
         breakpoint and p_j defines the parabola to the right. Furthermore, the internal node v has a pointer to the half
@@ -77,7 +77,10 @@ class Breakpoint(Value):
         half-edges of the edge being traced out by the breakpoint represented by v.
         """
         self.breakpoint: tuple = breakpoint
-        self.pointer = pointer
+        self.half_edge = half_edge
+
+    def __repr__(self):
+        return f"Breakpoint({self.breakpoint})"
 
     def get_key(self, state=None):
         return self.get_intersection(state).y
