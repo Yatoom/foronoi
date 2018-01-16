@@ -1,4 +1,5 @@
 from RandomPlayer import RandomPlayer
+from EdgePlayer import EdgePlayer
 
 
 def main():
