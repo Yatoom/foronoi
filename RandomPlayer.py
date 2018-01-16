@@ -10,5 +10,6 @@ class RandomPlayer(Player):
             self.gamestate['points'].append(
                 {
                     'x': random.uniform(0, self.gamestate['width']),
-                    'y': random.uniform(0, self.gamestate['height'])
+                    'y': random.uniform(0, self.gamestate['height']),
+                    'player': self.playernr
                 })
