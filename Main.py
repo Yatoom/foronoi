@@ -1,11 +1,12 @@
 from RandomPlayer import RandomPlayer
 from EdgePlayer import EdgePlayer
 from data_structures.types import GameState
+from fortune_algorithm import Voronoi
 
 
 def main():
     # Instantiate the game state
-    state = GameState(_, _, 10, 5)
+    state = GameState(m=10, n=5)
 
     # Initialize a concrete class for player 1 and run the place_points method
     player1 = RandomPlayer(1, state)
@@ -16,3 +17,5 @@ def main():
     state = player2.place_points
 
     # Visualize the result
+    voronoi = Voronoi()
+    v_diagram = voronoi.create_diagram(state.points)
