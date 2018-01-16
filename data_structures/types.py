@@ -4,14 +4,28 @@ from typing import Union
 from data_structures.bin_search_tree import AVLTree, Node
 
 
+class GameState:
+    """
+    The current state of the game.
+    It will hold the settings of the gameboard and a list of place points
+    """
+    points = []
+
+    def __init__(self, width: int = 100, height: int = 100, m: int = None, n: int = None):
+        self.width = width
+        self.height = height
+        self.m = m
+        self.n = n
+
+
 class Point:
     """
     A simple point
     """
-    def __init__(self, x=None, y=None, player=None):
+    def __init__(self, x=None, y=None, player: int = None):
         self.x = x
-        self.y = None
-        self.player: int = None
+        self.y = y
+        self.player = player
 
 
 class CirclePoint(Point):
@@ -20,7 +34,8 @@ class CirclePoint(Point):
     It has a pointer to the leaf in the beach line that represents the arc that will disappear in the event.
     """
     def __init__(self, pointer=None):
-        self.pointer = None
+        super().__init__()
+        self.pointer = pointer
 
 
 class Breakpoint:
