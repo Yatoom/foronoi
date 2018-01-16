@@ -38,14 +38,14 @@ class AVLTree(object):
         """
         return AVLTree.find_in_subtree(root=self.root, key=key, state=state)
 
-    def find_arc(self, x, y):
+    def find_arc_node(self, x, y):
         node = self.root
         key = x
         state = y
 
         while node is not None:
             if isinstance(node.value, Arc):
-                return node.value  # TODO: check what to do with the other return statement
+                return node
             if key == node.value.get_key(state):
                 break
             elif key < node.value.get_key(state):

@@ -94,7 +94,8 @@ class Voronoi:
         # In other words, we shoot a ray up from the point that we found at the sweep line. So, we need to see where
         # the breakpoints of the arcs are (where they intersect). The breakpoints are stored in the internal nodes of
         # the beach line, while the arcs are stored within the leaves
-        arc = self.beach_line.find_arc(x=point.x, y=self.sweep_line)
+        arc_node = self.beach_line.find_arc_node(x=point.x, y=self.sweep_line)
+        arc = arc_node.value
         # arc = self.beach_line.find_arc_above_point(point=point, sweep_line=self.sweep_line)
 
         # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
@@ -127,7 +128,13 @@ class Voronoi:
         root.right.left = point_i
         root.right.right = point_j
 
-        # TODO: Replace this in the tree
+        # Replace this in the tree
+        if arc_node == self.beach_line.root:
+            self.beach_line.root = arc_node
+        elif arc_node == arc_node.parent.left:
+            arc_node.parent.left = root
+        else:
+            arc_node.parent.right = root
 
         # self.beach_line.replace_leaf(key=arc.x, replacement_tree=root)
         # self.beach_line.balance()
