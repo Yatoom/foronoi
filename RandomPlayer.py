@@ -7,10 +7,11 @@ from data_structures.types import Point
 class RandomPlayer(Player):
 
     @property
-    def placepoints(self):
-        for _ in range(self.gamestate.m if self.playernr == 1 else self.gamestate.n):
-            self.gamestate.points.append(Point(
-                random.uniform(0, self.gamestate.width),
-                random.uniform(0, self.gamestate.height),
-                self.playernr))
-        return self.gamestate
+    def place_points(self):
+        for _ in range(self.state.m if self.player_nr == 1 else self.state.n):
+            self.state.points.append(Point(
+                random.uniform(0, self.state.width),
+                random.uniform(0, self.state.height),
+                self.player_nr
+            ))
+        return self.state

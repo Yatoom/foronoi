@@ -4,21 +4,21 @@ from AbstractPlayer import Player
 from fortune_algorithm import Voronoi
 
 
-class EdgePlayer(Player):
-    def calculatedistance(self, x1, y1, x2, y2):
-        dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-        return dist
+def calculatedistance(x1, y1, x2, y2):
+    dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return dist
 
-    def placepoints(self, weight_edge_length, weight_inner_point_distance):
+
+class EdgePlayer(Player):
+
+    def place_points(self, weight_edge_length, weight_inner_point_distance):
 
         # Check whether currently player 2 is playing (if not then return error)
-        if self.playernr == 2:
+        if self.player_nr != 2:
+            print('The EDGE-PLAYER STRATEGY only works for Player 2')
+        else:
             # Create a list with only points for player 1
-            points_player1 = []
-
-            for point in self.gamestate['points']:
-                if point.get('player') == 1:
-                    points_player1.append(point)
+            points_player1 = filter((lambda point: point.player == 1), self.state.points)
 
             # Construct a Voronoi for the points of player 1
             voronoi_player1 = Voronoi.create_diagram(points_player1)
@@ -37,9 +37,3 @@ class EdgePlayer(Player):
                                                             inner_point2.x, inner_point2.y)
                 desireabilityOfEdge = weight_edge_length * edge_length \
                                         + weight_inner_point_distance * inner_point_distance
-
-
-
-        else:
-            print('The EDGE-PLAYER STRATEGY only works for Player 2')
-

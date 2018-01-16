@@ -5,14 +5,14 @@ from data_structures.types import GameState
 
 def main():
     # Instantiate the game state
-    gamestate = GameState(_,_,10,5)
+    state = GameState(_, _, 10, 5)
 
-    # Initialize a concrete class for player 1 and run the placepoints method
-    player1 = RandomPlayer(1, gamestate)
-    gamestate = player1.placepoints
+    # Initialize a concrete class for player 1 and run the place_points method
+    player1 = RandomPlayer(1, state)
+    state = player1.place_points
 
-    # Initialize a concrete class for player 2 and run the placepoints method
-    player2 = RandomPlayer(2, gamestate)
-    gamestate = player2.placepoints
+    # Initialize a concrete class for player 2 and run the place_points method
+    player2 = RandomPlayer(2, state)
+    state = player2.place_points
 
     # Visualize the result
