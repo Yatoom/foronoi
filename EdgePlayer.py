@@ -60,7 +60,8 @@ class EdgePlayer(Player):
 
                     # If the midway point is closer to the start of the edge than the halfway-point,
                     # then the edge should be reversed
-                    if calculate_distance(edge_midpoint, edge_start) < calculate_distance(edge_halfwaypoint, edge_start):
+                    if calculate_distance(edge_midpoint, edge_start) \
+                            < calculate_distance(edge_halfwaypoint, edge_start):
                         edge_start, edge_end = edge_end, edge_start
                         inner_point1, inner_point2 = inner_point2, inner_point1
 
