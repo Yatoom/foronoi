@@ -99,18 +99,24 @@ class Voronoi:
 
         point_i = point
         point_j = arc.pointer
-        middle_leaf = Node(point_i.x, point_i)
-        left_leaf = Node(point_j.x, point_j)
-        right_leaf = Node(point_j.x, point_j)
-        break_point_i_j = Node(None, Breakpoint(breakpoint=(point_i, point_j)))
-        break_point_j_i = Node(None, Breakpoint(breakpoint=(point_j, point_i)))
 
-        break_point_j_i.left = middle_leaf
-        break_point_j_i.right = right_leaf
-        break_point_i_j.left = left_leaf
-        break_point_i_j.right = break_point_j_i
+        # Create a tree with two breakpoints and three arcs.
+        #
+        #            (p_j, p_i)
+        #              /     \
+        #             /       \
+        #           p_j    (p_i, p_j)
+        #                   /     \
+        #                  /       \
+        #                p_i       p_j
 
-        self.beach_line.replace_leaf(key=arc.x, replacement_tree=break_point_i_j)
+        root = Node(None, Breakpoint(breakpoint=(point_j, point_i)))
+        root.left = Node(point_j.x, point_j)
+        root.right = Node(None, Breakpoint(breakpoint=(point_i, point_j)))
+        root.right.left = point_i
+        root.right.right = point_j
+
+        self.beach_line.replace_leaf(key=arc.x, replacement_tree=root)
         self.beach_line.balance()
 
         # 4. Create new half-edge records in the Voronoi diagram structure for the
