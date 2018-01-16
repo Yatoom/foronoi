@@ -7,7 +7,7 @@ from data_structures.bin_search_tree import AVLTree, Node
 class GameState:
     """
     The current state of the game.
-    It will hold the settings of the gameboard and a list of place points
+    It will hold the settings of the game board and a list of place points
     """
     points = []
 
