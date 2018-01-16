@@ -5,7 +5,7 @@ from typing import Union
 
 from data_structures.bin_search_tree import AVLTree, Node
 from data_structures.dcel import *
-from data_structures.types import BeachLine, Point, CirclePoint, Breakpoint
+from data_structures.types import Point, CirclePoint, Breakpoint, Arc
 
 
 class Voronoi:
@@ -39,7 +39,7 @@ class Voronoi:
         #   - Finally, every internal node has a pointer to a half-edge in the doubly connected edge list
         #     of the Voronoi diagram. (v has a pointer to one of the half edges of the edge being traced out
         #     by the breakpoint represented by v)
-        self.beach_line = BeachLine()
+        self.beach_line = AVLTree()
 
         # Doubly connected edge list
         self.doubly_connected_edge_list = []
@@ -48,13 +48,20 @@ class Voronoi:
         self.sweep_line = float("inf")
 
     def create_diagram(self, points: list):
+        # Sort points on y-value (high to low)
+        # points = sorted(points, key=lambda p: p.y, reverse=True)
+
         # Initialize event queue with all site events.
         for point in points:
-            priority = point.y
-            self.event_queue.put((priority, point))
+
+            self.event_queue.put((point.priority(), point))
+
+        print("Initial priority queue:", self.event_queue.queue)
 
         while not self.event_queue.empty():
-            priority, event = self.event_queue.get()
+            _, event = self.event_queue.get()
+            print("Event:", event)
+            print("Priority queue:", self.event_queue.queue)
 
             if isinstance(event, CirclePoint):
                 self.sweep_line = event.y
@@ -78,18 +85,21 @@ class Voronoi:
     def handle_site_event(self, point):
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
-            self.beach_line.insert(point.x, point)
+            arc = Arc(origin=point, pointer=None)
+            self.beach_line.insert(arc, state=self.sweep_line)
+            print("Beach line:", self.beach_line)
             return
 
         # 2.1 Search the beach line tree for the arc above the point
         # In other words, we shoot a ray up from the point that we found at the sweep line. So, we need to see where
         # the breakpoints of the arcs are (where they intersect). The breakpoints are stored in the internal nodes of
         # the beach line, while the arcs are stored within the leaves
-        arc = self.beach_line.find_arc_above_point(point=point, sweep_line=self.sweep_line)
+        arc = self.beach_line.find_arc(x=point.x, y=self.sweep_line)
+        # arc = self.beach_line.find_arc_above_point(point=point, sweep_line=self.sweep_line)
 
         # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
         #     alarm, and the it must be deleted from the event_queue
-        if isinstance(arc, CirclePoint) and arc.leaf is not None and arc.leaf in self.event_queue.queue:
+        if arc.pointer is not None and isinstance(arc.pointer, CirclePoint) and arc.pointer in self.event_queue:
             self.event_queue.queue.remove(arc.pointer)
 
         # 3. Replace the leaf that represents the arc with a subtree having three leaves.
@@ -98,7 +108,9 @@ class Voronoi:
         #    - Store the tuples (p_j, p_i) and (p_i, p_j) representing the new breakpoints at the two internal nodes.
 
         point_i = point
-        point_j = arc.pointer
+        point_j = arc.origin
+        breakpoint_j_i = Breakpoint(breakpoint=(point_j, point_i))
+        breakpoint_i_j = Breakpoint(breakpoint=(point_i, point_j))
 
         # Create a tree with two breakpoints and three arcs.
         #
@@ -109,23 +121,27 @@ class Voronoi:
         #                   /     \
         #                  /       \
         #                p_i       p_j
-
-        root = Node(None, Breakpoint(breakpoint=(point_j, point_i)))
-        root.left = Node(point_j.x, point_j)
-        root.right = Node(None, Breakpoint(breakpoint=(point_i, point_j)))
+        root = Node(breakpoint_j_i)
+        root.left = Node(point_j)
+        root.right = Node(breakpoint_i_j)
         root.right.left = point_i
         root.right.right = point_j
 
-        self.beach_line.replace_leaf(key=arc.x, replacement_tree=root)
-        self.beach_line.balance()
+        # TODO: Replace this in the tree
+
+        # self.beach_line.replace_leaf(key=arc.x, replacement_tree=root)
+        # self.beach_line.balance()
 
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
-        #    breakpoints
-        origin_i = None
-        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, origin_i)
+        #    breakpoints.
+        #    Note: The origins are breakpoints, but those breakpoints are still moving, so we don't know
+        #    where exactly the start or end of a Voronoi edge is.
+        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j)
         self.doubly_connected_edge_list.append(half_edge_i)
         self.doubly_connected_edge_list.append(half_edge_j)
+
+        # TODO: Something with origin
 
         # 5. Check the triple of consecutive arcs where the new arc for p i is the left arc
         #    to see if the breakpoints converge. If so, insert the circle event into Q and
@@ -133,15 +149,14 @@ class Voronoi:
         #    triple where the new arc is the right arc.
         pass
 
+        # TODO: Implement this
+
     @staticmethod
-    def create_half_edges(point_i, point_j, origin_i):
+    def create_half_edges(point_i, point_j):
 
         # Create half edges
         half_edge_i = HalfEdge()
         half_edge_j = HalfEdge()
-
-        # Set the origin for the i-edge. The other one doesn't have one yet.
-        half_edge_i.origin = origin_i
 
         # Set inner points
         half_edge_i.inner_point = point_i
@@ -154,4 +169,5 @@ class Voronoi:
         return half_edge_i, half_edge_j
 
     def handle_circle_event(self, circle_point):
+        # TODO: Implement this
         raise NotImplementedError()

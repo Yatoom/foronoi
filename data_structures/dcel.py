@@ -1,4 +1,4 @@
-from voronoi_diagram import Point
+from data_structures.types import Point
 
 
 class HalfEdge:

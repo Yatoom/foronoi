@@ -1,7 +1,23 @@
 import math
-from typing import Union
+from abc import ABCMeta, abstractmethod
 
-from data_structures.bin_search_tree import AVLTree, Node
+
+class Value(metaclass=ABCMeta):
+    @abstractmethod
+    def get_key(self, state):
+        return NotImplemented
+
+
+class SimpleValue(Value):
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def get_key(self, state):
+        return self.key
+
+    def __repr__(self):
+        return f"{self.key}: {self.value}"
 
 
 class GameState:
@@ -22,10 +38,35 @@ class Point:
     """
     A simple point
     """
+
     def __init__(self, x=None, y=None, player: int = None):
-        self.x = x
-        self.y = y
+        self.x: float = x
+        self.y: float = y
         self.player = player
+
+    def __repr__(self):
+        return f"Point(x={self.x}, y={self.y}, pl={self.player})"
+
+    # Methods below are solely so that the queue can sort these well
+    def priority(self):
+        return - int(1000 * round(self.y, 3))
+        # def __lt__(self, other):
+        #     return self.y < self.y
+        #
+        # def __le__(self, other):
+        #     return other.y <= self.y
+        #
+        # def __eq__(self, other):
+        #     return other.y == self.y
+        #
+        # def __ne__(self, other):
+        #     return other.y != self.y
+        #
+        # def __gt__(self, other):
+        #     return other.y > self.y
+        #
+        # def __ge__(self, other):
+        #     return other.y >= self.y
 
 
 class CirclePoint(Point):
@@ -33,12 +74,13 @@ class CirclePoint(Point):
     A point that represents the lowest point of a circle.
     It has a pointer to the leaf in the beach line that represents the arc that will disappear in the event.
     """
+
     def __init__(self, pointer=None):
         super().__init__()
         self.pointer = pointer
 
 
-class Breakpoint:
+class Breakpoint(Value):
     """
     A breakpoint between two arcs.
     The internal nodes represent the breakpoints on the beach line.
@@ -53,6 +95,9 @@ class Breakpoint:
         """
         self.breakpoint: tuple = breakpoint
         self.pointer = pointer
+
+    def get_key(self, state=None):
+        return self.get_intersection(state)
 
     def get_intersection(self, l):
         """
@@ -98,73 +143,87 @@ class Breakpoint:
         return result
 
 
-class Arc(Point):
+class Arc(Value):
     """
     Each leaf of beach line, representing an arc α, stores one pointer to a node in the event queue, namely, the node
     that represents the circle event in which α will disappear. This pointer is None if no circle event exists where α
     will disappear, or this circle event has not been detected yet.
     """
-    pointer = None
 
-
-class BeachLine(AVLTree):
-    def find_arc_above_point(self, point, sweep_line):
-        """
-        Find an arc in the beach line.
-
-        :param point: (Node) The root node of the subtree
-        :param sweep_line: (float) The y-position of the sweep line
-        :return: (Node or None) The found node, or None if there was no result
-        """
-        return self.find_arc_in_subtree(root=self.root, key=point.x, sweep_line=sweep_line)
-
-    def replace_leaf(self, key, replacement_tree):
-        node = self.root
-        while node is not None:
-            if node.left is not None and node.left.key == node.key:
-                node.left = replacement_tree
-                break
-            elif node.right is not None and node.right.key == node.key:
-                node.right = replacement_tree
-                break
-            elif key < node.key:
-                node = node.left
-            else:
-                node = node.right
-
-        # Return node, None if not found
-        return node
-
-    @staticmethod
-    def find_arc_in_subtree(root: Union[Node, None], key: int, sweep_line: int) -> Node:
-        """
-        Find a node using binary search on a given key, within a subtree.
-
-        :param root: (Node) The root node of the subtree
-        :param key: (int) The key to search for
-        :param sweep_line: (float) The y-position of the sweep line
-        :return: (Node or None) The found node, or None if there was no result
+    def __init__(self, origin, pointer=None):
         """
 
-        node = root
-        while node is not None:
+        :param origin: The point that caused the arc
+        :param pointer:
+        """
+        self.origin: Point = origin
+        self.pointer = pointer
 
-            # Calculate x-coordinate of breakpoint
-            node_key = node.key
-            if isinstance(node.value, Breakpoint):
-                node_key = node.value.get_intersection(sweep_line)
+    def get_key(self, state=None):
+        return self.origin.x
 
-            # Found the arc
-            if node.left is None and node.right is None:
-                return node
+    def __repr__(self):
+        return f"Arc(origin={self.origin}, pointer={self.pointer})"
 
-            # Keep searching
-            if key == node_key:
-                break
-            elif key < node_key:
-                node = node.left
-            else:
-                node = node.right
-
-        # Return node, None if not found
-        return node
+        # class BeachLine(AVLTree):
+        #     pass
+        # def find_arc_above_point(self, point, sweep_line):
+        #     """
+        #     Find an arc in the beach line.
+        #
+        #     :param point: (Node) The root node of the subtree
+        #     :param sweep_line: (float) The y-position of the sweep line
+        #     :return: (Node or None) The found node, or None if there was no result
+        #     """
+        #     return self.find_arc_in_subtree(root=self.root, key=point.x, sweep_line=sweep_line)
+        #
+        # def replace_leaf(self, key, replacement_tree):
+        #     node = self.root
+        #     while node is not None:
+        #         if node.left is not None and node.left.key == node.key:
+        #             node.left = replacement_tree
+        #             break
+        #         elif node.right is not None and node.right.key == node.key:
+        #             node.right = replacement_tree
+        #             break
+        #         elif key < node.key:
+        #             node = node.left
+        #         else:
+        #             node = node.right
+        #
+        #     # Return node, None if not found
+        #     return node
+        #
+        # @staticmethod
+        # def find_arc_in_subtree(root: Union[Node, None], key: int, sweep_line: int) -> Node:
+        #     """
+        #     Find a node using binary search on a given key, within a subtree.
+        #
+        #     :param root: (Node) The root node of the subtree
+        #     :param key: (int) The key to search for
+        #     :param sweep_line: (float) The y-position of the sweep line
+        #     :return: (Node or None) The found node, or None if there was no result
+        #     """
+        #
+        #     node = root
+        #     while node is not None:
+        #
+        #         # Calculate x-coordinate of breakpoint
+        #         node_key = node.key
+        #         if isinstance(node.value, Breakpoint):
+        #             node_key = node.value.get_intersection(sweep_line)
+        #
+        #         # Found the arc
+        #         if node.left is None and node.right is None:
+        #             return node
+        #
+        #         # Keep searching
+        #         if key == node_key:
+        #             break
+        #         elif key < node_key:
+        #             node = node.left
+        #         else:
+        #             node = node.right
+        #
+        #     # Return node, None if not found
+        #     return node
