@@ -33,10 +33,11 @@ class EdgePlayer(Player):
             print('The EDGE-PLAYER STRATEGY only works for Player 2')
         else:
             # Create a list with only points for player 1
-            points_player1 = filter((lambda point: point.player == 1), self.state.points)
+            points_player1 = list(filter((lambda point: point.player == 1), self.state.points))
 
             # Construct a Voronoi for the points of player 1
-            voronoi_player1 = Voronoi.create_diagram(points_player1)
+            voronoi = Voronoi()
+            voronoi_player1 = voronoi.create_diagram(points_player1)
 
             # Check all edges in Voronoi of player 1
             edges_seen = []
