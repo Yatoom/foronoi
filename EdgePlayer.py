@@ -68,8 +68,7 @@ class EdgePlayer(Player):
                     edge_length = calculate_distance(edge_start, edge_end)
                     inner_point_distance = calculate_distance(inner_point1, inner_point2)
 
-                    # Calculate the desirability of the edge,
-                    # and store the edge in a tree if the twin has not already been stored.
+                    # Calculate the desirability of the edge
                     desirability_of_point = self.weight_edge_length * edge_length \
                         + self.weight_inner_point_distance * inner_point_distance
 
