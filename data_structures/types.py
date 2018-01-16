@@ -50,23 +50,6 @@ class Point:
     # Methods below are solely so that the queue can sort these well
     def priority(self):
         return - int(1000 * round(self.y, 3))
-        # def __lt__(self, other):
-        #     return self.y < self.y
-        #
-        # def __le__(self, other):
-        #     return other.y <= self.y
-        #
-        # def __eq__(self, other):
-        #     return other.y == self.y
-        #
-        # def __ne__(self, other):
-        #     return other.y != self.y
-        #
-        # def __gt__(self, other):
-        #     return other.y > self.y
-        #
-        # def __ge__(self, other):
-        #     return other.y >= self.y
 
 
 class CirclePoint(Point):
@@ -97,7 +80,7 @@ class Breakpoint(Value):
         self.pointer = pointer
 
     def get_key(self, state=None):
-        return self.get_intersection(state)
+        return self.get_intersection(state).y
 
     def get_intersection(self, l):
         """
@@ -115,6 +98,14 @@ class Breakpoint(Value):
         result = Point()
         p: Point = i
 
+        # First we replace some stuff to make it easier
+        a = i.x
+        b = i.y
+        c = j.x
+        d = j.y
+        u = 2 * (b - l)
+        v = 2 * (d - l)
+
         # Handle the case where the two points have the same y-coordinate (breakpoint is in the middle)
         if i.y == j.y:
             result.x = (i.x + j.x) / 2
@@ -126,19 +117,22 @@ class Breakpoint(Value):
         elif j.y == l:
             result.x = j.x
         else:
+            # We now need to solve for x
+            # 1/u * (x**2 - 2*a*x + a**2 + b**2 - l**2) = 1/v * (x**2 - 2*c*x + c**2 + d**2 - l**2)
+            # Then we let Wolfram alpha do the heavy work for us, and we put it here in the code :D
+            x = -(math.sqrt(
+                v * (a ** 2 * u - 2 * a * c * u + b ** 2 * (u - v) + c ** 2 * u) + d ** 2 * u * (v - u) + l ** 2 * (
+                u - v) ** 2) + a * v - c * u) / (u - v)
+            result.x = x
 
-            # Use quadratic formula to solve the problem
-            z0 = 2 * (i.y - l)
-            z1 = 2 * (i.y - l)
+        # We have to re-evaluate this, since the point might have been changed
+        a = p.x
+        b = p.y
+        x = result.x
+        u = 2 * (b - l)
 
-            a = 1 / z0 - 1 / z1
-            b = -2 * (i.x / z0 - j.x / z1)
-            c = (i.x ** 2 + i.y ** 2 - l ** 2) / z0 - (j.x ** 2 + j.y ** 2 - l ** 2) / z1
-
-            result.x = (-b - math.sqrt(b ** 2 - 4 * a * c) / (2 * a))
-
-        # Calculate the y-coordinate from the x coordinate
-        result.y = (p.y ** 2 + (p.x - result.x) ** 2 - l ** 2) / (2 * p.y - 2 * l)
+        # And we put everything back in y
+        result.y = 1 / u * (x ** 2 - 2 * a * x + a ** 2 + b ** 2 - l ** 2)
 
         return result
 
@@ -165,65 +159,3 @@ class Arc(Value):
     def __repr__(self):
         return f"Arc(origin={self.origin}, pointer={self.pointer})"
 
-        # class BeachLine(AVLTree):
-        #     pass
-        # def find_arc_above_point(self, point, sweep_line):
-        #     """
-        #     Find an arc in the beach line.
-        #
-        #     :param point: (Node) The root node of the subtree
-        #     :param sweep_line: (float) The y-position of the sweep line
-        #     :return: (Node or None) The found node, or None if there was no result
-        #     """
-        #     return self.find_arc_in_subtree(root=self.root, key=point.x, sweep_line=sweep_line)
-        #
-        # def replace_leaf(self, key, replacement_tree):
-        #     node = self.root
-        #     while node is not None:
-        #         if node.left is not None and node.left.key == node.key:
-        #             node.left = replacement_tree
-        #             break
-        #         elif node.right is not None and node.right.key == node.key:
-        #             node.right = replacement_tree
-        #             break
-        #         elif key < node.key:
-        #             node = node.left
-        #         else:
-        #             node = node.right
-        #
-        #     # Return node, None if not found
-        #     return node
-        #
-        # @staticmethod
-        # def find_arc_in_subtree(root: Union[Node, None], key: int, sweep_line: int) -> Node:
-        #     """
-        #     Find a node using binary search on a given key, within a subtree.
-        #
-        #     :param root: (Node) The root node of the subtree
-        #     :param key: (int) The key to search for
-        #     :param sweep_line: (float) The y-position of the sweep line
-        #     :return: (Node or None) The found node, or None if there was no result
-        #     """
-        #
-        #     node = root
-        #     while node is not None:
-        #
-        #         # Calculate x-coordinate of breakpoint
-        #         node_key = node.key
-        #         if isinstance(node.value, Breakpoint):
-        #             node_key = node.value.get_intersection(sweep_line)
-        #
-        #         # Found the arc
-        #         if node.left is None and node.right is None:
-        #             return node
-        #
-        #         # Keep searching
-        #         if key == node_key:
-        #             break
-        #         elif key < node_key:
-        #             node = node.left
-        #         else:
-        #             node = node.right
-        #
-        #     # Return node, None if not found
-        #     return node
