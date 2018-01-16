@@ -8,8 +8,10 @@ class Point:
     """
     A simple point
     """
-    x = None
-    y = None
+    def __init__(self, x=None, y=None, player=None):
+        self.x = x
+        self.y = None
+        self.player: int = None
 
 
 class CirclePoint(Point):
@@ -17,7 +19,8 @@ class CirclePoint(Point):
     A point that represents the lowest point of a circle.
     It has a pointer to the leaf in the beach line that represents the arc that will disappear in the event.
     """
-    pointer = None
+    def __init__(self, pointer=None):
+        self.pointer = None
 
 
 class Breakpoint:

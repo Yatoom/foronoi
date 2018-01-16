@@ -116,12 +116,8 @@ class Voronoi:
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
         #    breakpoints
-        half_edge_i = HalfEdge()
-        half_edge_i.origin = point_i
-        half_edge_j = HalfEdge()
-        half_edge_j.origin = point_j
-        half_edge_j.twin = half_edge_i
-        half_edge_i.twin = half_edge_j
+        origin_i = None
+        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, origin_i)
         self.doubly_connected_edge_list.append(half_edge_i)
         self.doubly_connected_edge_list.append(half_edge_j)
 
@@ -130,6 +126,26 @@ class Voronoi:
         #    add pointers between the node in T and the node in Q. Do the same for the
         #    triple where the new arc is the right arc.
         pass
+
+    @staticmethod
+    def create_half_edges(point_i, point_j, origin_i):
+
+        # Create half edges
+        half_edge_i = HalfEdge()
+        half_edge_j = HalfEdge()
+
+        # Set the origin for the i-edge. The other one doesn't have one yet.
+        half_edge_i.origin = origin_i
+
+        # Set inner points
+        half_edge_i.inner_point = point_i
+        half_edge_j.inner_point = point_j
+
+        # Set twins
+        half_edge_j.twin = half_edge_i
+        half_edge_i.twin = half_edge_j
+
+        return half_edge_i, half_edge_j
 
     def handle_circle_event(self, circle_point):
         raise NotImplementedError()
