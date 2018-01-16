@@ -35,7 +35,8 @@ class IntersectionPlayer(Player):
             points_player1 = filter((lambda point: point.player == 1), self.state.points)
 
             # Construct a Voronoi for the points of player 1
-            voronoi_player1 = Voronoi.create_diagram(points_player1)
+            voronoi = Voronoi()
+            voronoi_player1 = voronoi.create_diagram(points_player1)
 
             # Check all intersections in Voronoi of player 1
             half_edges_seen = []
