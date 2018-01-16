@@ -1,19 +1,26 @@
 import svgwrite
 
+from data_structures.types import GameState
+from fortune_algorithm import Voronoi
+
 
 class Visualization:
 
-    colour_bounding_box     = svgwrite.rgb(0, 0, 0, '%')
-    colour_edges            = svgwrite.rgb(64, 64, 64, '%')
+    def __init__(self, player_nr: int, state: GameState):
+        self.player_nr = player_nr
+        self.state = state
+
+    colour_bounding_box = svgwrite.rgb(0, 0, 0, '%')
+    colour_edges = svgwrite.rgb(64, 64, 64, '%')
     colour_polygon_player_1 = svgwrite.rgb(255, 51, 51, '%')
-    colour_point_player_1   = svgwrite.rgb(153, 0, 0, '%')
+    colour_point_player_1 = svgwrite.rgb(153, 0, 0, '%')
     colour_polygon_player_2 = svgwrite.rgb(102, 178, 255, '%')
-    colour_point_player_2   = svgwrite.rgb(0, 76, 153, '%')
-    colour_polygon_unknown  = svgwrite.rgb(160, 160, 160, '%')
-    colour_point_unknown    = svgwrite.rgb(255, 255, 255, '%')
+    colour_point_player_2 = svgwrite.rgb(0, 76, 153, '%')
+    colour_polygon_unknown = svgwrite.rgb(160, 160, 160, '%')
+    colour_point_unknown = svgwrite.rgb(255, 255, 255, '%')
 
     strokewidth_bounding_box = '5'
-    strokewidth_edges        = '5'
+    strokewidth_edges = '5'
 
     size_point = '1'
 
