@@ -21,6 +21,18 @@ class Node(object):
     def __repr__(self):
         return f"Node({self.value}, left={self.left}, right={self.right})"
 
+    @property
+    def is_left_child(self):
+        if self.parent is None:
+            return False
+        return self.parent.left == self
+
+    @property
+    def is_right_child(self):
+        if self.parent is None:
+            return False
+        return self.parent.right == self
+
 
 class AVLTree(object):
     def __init__(self):
@@ -55,6 +67,78 @@ class AVLTree(object):
 
         # Return node, None if not found
         return node
+
+    @staticmethod
+    def get_rightmost_leaf(root):
+
+        node = root
+        while node.right is not None:
+            node = node.right
+
+        return node
+
+    @staticmethod
+    def get_leftmost_leaf(root):
+
+        node = root
+        while node.left is not None:
+            node = node.left
+
+        return node
+
+    def get_left_arc(self, arc_node):
+        node = arc_node
+
+        # Keep walking up until the node is a right child
+        while node.is_right_child:
+            node = node.parent
+
+            # If there is no parent, we return None
+            if node is None:
+                return None
+
+        # Once we are a right child, we check if we can switch to the left
+        if node.parent is None or node.parent.left is None:
+            return None
+
+        # We are now on the left
+        node = node.parent.left
+
+        # Let's get the right most leaf from here
+        node = self.get_rightmost_leaf(node)
+
+        # Check if this is not the same node as we started with
+        if node == arc_node:
+            return None
+
+        return self.get_rightmost_leaf(node)
+
+    def get_right_arc(self, arc_node):
+        node = arc_node
+
+        # Keep walking up until the node is a left child
+        while node.is_right_child:
+            node = node.parent
+
+            # If there is no parent, we return None
+            if node is None:
+                return None
+
+        # Once we are a left child, we check if we can switch to the right
+        if node.parent is None or node.parent.right is None:
+            return None
+
+        # We are now on the right
+        node = node.parent.right
+
+        # Let's get the right most leaf from here
+        node = self.get_leftmost_leaf(node)
+
+        # Check if this is not the same node as we started with
+        if node == arc_node:
+            return None
+
+        return self.get_leftmost_leaf(node)
 
     def insert(self, value: Value, state):
         """

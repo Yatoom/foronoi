@@ -148,24 +148,41 @@ class Voronoi:
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
         #    breakpoints.
-        #    Note: The origins are breakpoints, but those breakpoints are still moving, so we don't know
-        #    where exactly the start or end of a Voronoi edge is.
-        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j)
+        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, breakpoint_i_j, breakpoint_j_i)
         self.doubly_connected_edge_list.append(half_edge_i)
         self.doubly_connected_edge_list.append(half_edge_j)
-
-        # TODO: Something with origin
 
         # 5. Check the triple of consecutive arcs where the new arc for p i is the left arc
         #    to see if the breakpoints converge. If so, insert the circle event into Q and
         #    add pointers between the node in T and the node in Q. Do the same for the
         #    triple where the new arc is the right arc.
-        pass
+        #
+        #            (p_j, p_i)
+        #  \           /     \
+        #   \         /       \
+        # arc_a ... arc_b   (p_i, p_j)
+        #                   /     \              /
+        #                  /       \            /
+        #                arc_i      arc_c ... arc_d
+        #
+        arc_b = root.left
+        arc_i = root.right.left
+        arc_c = root.right.right
+        arc_a = self.beach_line.get_left_arc(arc_b)
+        arc_d = self.beach_line.get_right_arc(arc_c)
 
-        # TODO: Implement this
+        # At this moment, the breakpoints for (p_j, p_i) and (p_i, p_j) are the same right?
+        # So we check (p_j, p_i) with the rightmost breakpoint on the left, and the leftmost breakpoint on the right.
+        if arc_a is not None:
+            print("a:", arc_a.parent.value.get_intersection(self.sweep_line))
+            print("i:", arc_i.parent.value.get_intersection(self.sweep_line))
+
+        if arc_d is not None:
+            print("d:", arc_d.parent.value.get_intersection(self.sweep_line))
+            print("i", arc_i.parent.value.get_intersection(self.sweep_line))
 
     @staticmethod
-    def create_half_edges(point_i, point_j):
+    def create_half_edges(point_i, point_j, breakpoint_i_j, breakpoint_j_i):
 
         # Create half edges
         half_edge_i = HalfEdge()
@@ -178,6 +195,19 @@ class Voronoi:
         # Set twins
         half_edge_j.twin = half_edge_i
         half_edge_i.twin = half_edge_j
+
+        # The o is the origin of a half edge. The origins are the breakpoints of the arcs of i and j.
+        # The half-edges point in clock-wise order.
+        #                     o
+        #             *j     //
+        #                   //
+        #                  //      *i
+        #                  o
+        # Remember that the left breakpoint is (j, i) and the right breakpoint is (i, j)
+        # The origin for j will therefore be the breakpoint (i, j) and the origin for i is (j, i)
+        # Once they have been traced out, the breakpoints should be replaced by fixed points.
+        half_edge_i.origin = breakpoint_j_i
+        half_edge_j.origin = breakpoint_i_j
 
         return half_edge_i, half_edge_j
 
