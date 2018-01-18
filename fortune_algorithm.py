@@ -53,7 +53,6 @@ class Voronoi:
 
         # Initialize event queue with all site events.
         for point in points:
-
             self.event_queue.put((point.priority(), point))
 
         print("Initial priority queue:", self.event_queue.queue)
@@ -73,14 +72,14 @@ class Voronoi:
 
             print("Beach line:", self.beach_line)
 
-                # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
-                # of the Voronoi diagram.
-                # Compute a bounding box that contains all vertices of the Voronoi diagram in its interior,
-                # and attach the half-infinite edges to the bounding box by updating the doubly-connected
-                # edge list appropriately
+            # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
+            # of the Voronoi diagram.
+            # Compute a bounding box that contains all vertices of the Voronoi diagram in its interior,
+            # and attach the half-infinite edges to the bounding box by updating the doubly-connected
+            # edge list appropriately
 
-                # 8. Traverse the half-edges of the doubly connected edge list to cell records and the
-                # pointers to and from them.
+            # 8. Traverse the half-edges of the doubly connected edge list to cell records and the
+            # pointers to and from them.
 
     def handle_site_event(self, point):
         # 1. If the beach line tree is empty, we insert point
@@ -171,15 +170,48 @@ class Voronoi:
         arc_a = self.beach_line.get_left_arc(arc_b)
         arc_d = self.beach_line.get_right_arc(arc_c)
 
-        # At this moment, the breakpoints for (p_j, p_i) and (p_i, p_j) are the same right?
-        # So we check (p_j, p_i) with the rightmost breakpoint on the left, and the leftmost breakpoint on the right.
+        # Check if it converges with the left
         if arc_a is not None:
-            print("a:", arc_a.parent.value.get_intersection(self.sweep_line))
-            print("i:", arc_i.parent.value.get_intersection(self.sweep_line))
+            lower_point_left = self.get_lower_point(arc_a.value.origin, arc_b.value.origin, arc_i.value.origin)
+            if lower_point_left < arc_i.value.origin.y:
+                # IT converges :D
+                pass
 
+        # Check if it converts with the right
         if arc_d is not None:
-            print("d:", arc_d.parent.value.get_intersection(self.sweep_line))
-            print("i", arc_i.parent.value.get_intersection(self.sweep_line))
+            lower_point_right = self.get_lower_point(arc_i.value.origin, arc_c.value.origin, arc_d.value.origin)
+            if lower_point_right < arc_i.value.origin.y:
+                # It converges :D
+                pass
+
+
+
+    @staticmethod
+    def get_lower_point(a, b, c):
+        x, y, radius = Voronoi.create_circle(a, b, c)
+        return y - radius
+
+    @staticmethod
+    def create_circle(a, b, c):
+        # Algorithm from O'Rourke 2ed p. 189
+        q = b.x - a.x
+        r = b.y - a.y
+        s = c.x - a.x
+        t = c.y - a.y
+        u = q * (a.x + b.x) + r * (a.y + b.y)
+        v = s * (a.x + c.x) + t * (a.y + c.y)
+        w = 2 * (q * (c.y - b.y) - r * (c.x - b.x))
+
+        if w == 0:
+            # Points are all on one line (collinear), so no circle can be made
+            pass
+
+        # Center and radius of the circle
+        x = (t * u - r * v) / w
+        y = (q * v - s * u) / w
+        radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
+
+        return x, y, radius
 
     @staticmethod
     def create_half_edges(point_i, point_j, breakpoint_i_j, breakpoint_j_i):
