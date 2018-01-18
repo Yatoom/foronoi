@@ -5,7 +5,7 @@ from typing import Union
 
 from data_structures.bin_search_tree import AVLTree, Node
 from data_structures.dcel import *
-from data_structures.types import Point, CirclePoint, Breakpoint, Arc
+from data_structures.types import Point, CirclePoint, Breakpoint, Arc, CircleEvent, SiteEvent
 
 
 class Voronoi:
@@ -48,25 +48,24 @@ class Voronoi:
         self.sweep_line = float("inf")
 
     def create_diagram(self, points: list):
-        # Sort points on y-value (high to low)
-        # points = sorted(points, key=lambda p: p.y, reverse=True)
-
         # Initialize event queue with all site events.
         for point in points:
-            self.event_queue.put((point.priority(), point))
+            site_event = SiteEvent(point=point)
+            self.event_queue.put((site_event.priority(), site_event))
 
         print("Initial priority queue:", self.event_queue.queue)
 
         while not self.event_queue.empty():
             _, event = self.event_queue.get()
 
-            if isinstance(event, CirclePoint):
-                self.sweep_line = event.y
-                leaf = event.pointer
-                self.handle_circle_event(leaf)
-            elif isinstance(event, Point):
-                self.sweep_line = event.y
-                self.handle_site_event(event)
+            if isinstance(event, CircleEvent):
+                arc_node = event.arc_pointer
+                self.sweep_line = event.point.y
+                self.handle_circle_event(arc_node)
+            elif isinstance(event, SiteEvent):
+                point = event.point
+                self.sweep_line = event.point.y
+                self.handle_site_event(point)
             else:
                 raise Exception("Not a Point or CirclePoint.")
 
@@ -174,17 +173,15 @@ class Voronoi:
         if arc_a is not None:
             lower_point_left = self.get_lower_point(arc_a.value.origin, arc_b.value.origin, arc_i.value.origin)
             if lower_point_left < arc_i.value.origin.y:
-                # IT converges :D
-                pass
+                circle_event = CircleEvent(point=lower_point_left, arc_node=arc_b)
+                self.event_queue.put((circle_event.priority(), circle_event))
 
         # Check if it converts with the right
         if arc_d is not None:
             lower_point_right = self.get_lower_point(arc_i.value.origin, arc_c.value.origin, arc_d.value.origin)
             if lower_point_right < arc_i.value.origin.y:
-                # It converges :D
-                pass
-
-
+                circle_event = CircleEvent(point=lower_point_right, arc_node=arc_c)
+                self.event_queue.put((circle_event.priority(), circle_event))
 
     @staticmethod
     def get_lower_point(a, b, c):

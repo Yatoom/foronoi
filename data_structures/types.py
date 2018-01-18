@@ -1,6 +1,8 @@
 import math
 from abc import ABCMeta, abstractmethod
 
+from binory_tree import Node
+
 
 class Value(metaclass=ABCMeta):
     @abstractmethod
@@ -50,6 +52,33 @@ class Point:
     # Methods below are solely so that the queue can sort these well
     def priority(self):
         return - int(1000 * round(self.y, 3))
+
+
+class SiteEvent:
+    def __init__(self, point: Point):
+        """
+
+        :param point:
+        """
+        self.point = point
+
+    def priority(self):
+        return self.point.priority()
+
+
+class CircleEvent:
+    def __init__(self, point: Point, arc_node: Node):
+        """
+        Circle event.
+
+        :param point: Lowest point on the circle
+        :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
+        """
+        self.point = point
+        self.arc_pointer = arc_node
+
+    def priority(self):
+        return self.point.priority()
 
 
 class CirclePoint(Point):
@@ -125,7 +154,7 @@ class Breakpoint(Value):
             # Then we let Wolfram alpha do the heavy work for us, and we put it here in the code :D
             x = -(math.sqrt(
                 v * (a ** 2 * u - 2 * a * c * u + b ** 2 * (u - v) + c ** 2 * u) + d ** 2 * u * (v - u) + l ** 2 * (
-                u - v) ** 2) + a * v - c * u) / (u - v)
+                    u - v) ** 2) + a * v - c * u) / (u - v)
             result.x = x
 
         # We have to re-evaluate this, since the point might have been changed
@@ -161,4 +190,3 @@ class Arc(Value):
 
     def __repr__(self):
         return f"Arc(origin={self.origin}, pointer={self.pointer})"
-
