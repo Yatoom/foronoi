@@ -5,7 +5,7 @@ from typing import Union
 
 from data_structures.bin_search_tree import AVLTree, Node
 from data_structures.dcel import *
-from data_structures.types import Point, CirclePoint, Breakpoint, Arc, CircleEvent, SiteEvent
+from data_structures.types import Point, Breakpoint, Arc, CircleEvent, SiteEvent
 
 
 class Voronoi:
@@ -60,7 +60,7 @@ class Voronoi:
 
             if isinstance(event, CircleEvent):
                 arc_node = event.arc_pointer
-                self.sweep_line = event.point.y
+                self.sweep_line = event.y
                 self.handle_circle_event(arc_node)
             elif isinstance(event, SiteEvent):
                 point = event.point
@@ -133,12 +133,14 @@ class Voronoi:
         root.right.right.parent = root.right
 
         # Replace this in the tree
-        if arc_node == self.beach_line.root:
-            self.beach_line.root = root
-        elif arc_node == arc_node.parent.left:
-            arc_node.parent.left = root
-        else:
-            arc_node.parent.right = root
+        arc_node.replace(root, self.beach_line)
+        # arc_node.replace()
+        # if arc_node == self.beach_line.root:
+        #     self.beach_line.root = root
+        # elif arc_node == arc_node.parent.left:
+        #     arc_node.parent.left = root
+        # else:
+        #     arc_node.parent.right = root
 
         # Balance the tree again
         self.beach_line.balance()
@@ -173,14 +175,14 @@ class Voronoi:
         if arc_a is not None:
             lower_point_left = self.get_lower_point(arc_a.value.origin, arc_b.value.origin, arc_i.value.origin)
             if lower_point_left < arc_i.value.origin.y:
-                circle_event = CircleEvent(point=lower_point_left, arc_node=arc_b)
+                circle_event = CircleEvent(y=lower_point_left, arc_node=arc_b)
                 self.event_queue.put((circle_event.priority(), circle_event))
 
         # Check if it converts with the right
         if arc_d is not None:
             lower_point_right = self.get_lower_point(arc_i.value.origin, arc_c.value.origin, arc_d.value.origin)
             if lower_point_right < arc_i.value.origin.y:
-                circle_event = CircleEvent(point=lower_point_right, arc_node=arc_c)
+                circle_event = CircleEvent(y=lower_point_right, arc_node=arc_c)
                 self.event_queue.put((circle_event.priority(), circle_event))
 
     @staticmethod

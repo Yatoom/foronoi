@@ -33,6 +33,19 @@ class Node(object):
             return False
         return self.parent.right == self
 
+    def replace(self, replacement, tree):
+        replacement.parent = self.parent
+
+        if self.is_left_child:
+            self.parent.left = replacement
+            return tree
+        elif self.is_right_child:
+            self.parent.right = replacement
+            return tree
+
+        tree.root = replacement
+        return tree
+
 
 class AVLTree(object):
     def __init__(self):

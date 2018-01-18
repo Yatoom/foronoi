@@ -51,7 +51,11 @@ class Point:
 
     # Methods below are solely so that the queue can sort these well
     def priority(self):
-        return - int(1000 * round(self.y, 3))
+        return self.calc_priority(self.y)
+
+    @staticmethod
+    def calc_priority(y):
+        return - int(1000 * round(y, 3))
 
 
 class SiteEvent:
@@ -65,31 +69,23 @@ class SiteEvent:
     def priority(self):
         return self.point.priority()
 
+    def __repr__(self):
+        return f"SiteEvent(x={self.point.x}, y={self.point.y}, pl={self.point.player})"
+
 
 class CircleEvent:
-    def __init__(self, point: Point, arc_node: Node):
+    def __init__(self, y: int, arc_node: Node):
         """
         Circle event.
 
-        :param point: Lowest point on the circle
+        :param y: Lowest point on the circle
         :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
         """
-        self.point = point
+        self.y = y
         self.arc_pointer = arc_node
 
     def priority(self):
-        return self.point.priority()
-
-
-class CirclePoint(Point):
-    """
-    A point that represents the lowest point of a circle.
-    It has a pointer to the leaf in the beach line that represents the arc that will disappear in the event.
-    """
-
-    def __init__(self, pointer=None):
-        super().__init__()
-        self.pointer = pointer
+        return Point.calc_priority(self.y)
 
 
 class Breakpoint(Value):
