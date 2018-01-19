@@ -1,6 +1,5 @@
 import math
 from abc import ABCMeta, abstractmethod
-
 from binory_tree import Node
 
 
@@ -100,6 +99,7 @@ class CircleEvent:
         return Point.calc_priority(self.y)
 
     def remove(self):
+        print(f"Circle event for {self.y} removed.")
         self.is_valid = False
 
 
@@ -201,3 +201,18 @@ class Arc(Value):
 
     def __repr__(self):
         return f"Arc(origin={self.origin}, circle_event={self.circle_event})"
+
+    def get_plot(self, x, l):
+        l = l
+        i = self.origin
+
+        if i.y - l == 0:
+            return None
+
+        # Calculate the y value for each element of the x vector
+
+        u = 2 * (i.y - l)
+        v = (x**2 - 2*i.x * x + i.x**2 + i.y**2 - l**2)
+        y = v/u
+
+        return y

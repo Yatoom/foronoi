@@ -2,7 +2,11 @@ from queue import PriorityQueue
 
 import math
 from typing import Union
-
+import matplotlib.pyplot as plt
+import numpy as np
+from sympy.geometry import Triangle
+from sympy.geometry import Point as P
+import numpy as np
 from data_structures.bin_search_tree import AVLTree, Node
 from data_structures.dcel import *
 from data_structures.types import Point, Breakpoint, Arc, CircleEvent, SiteEvent
@@ -10,6 +14,8 @@ from data_structures.types import Point, Breakpoint, Arc, CircleEvent, SiteEvent
 
 class Voronoi:
     def __init__(self):
+
+        self.arc_list = []
 
         # Event queue
         # -----------
@@ -56,6 +62,7 @@ class Voronoi:
         print("Initial priority queue:", self.event_queue.queue)
 
         while not self.event_queue.empty():
+            self.plot_arcs(self.sweep_line)
             _, event = self.event_queue.get()
 
             if isinstance(event, CircleEvent) and event.is_valid:
@@ -66,6 +73,7 @@ class Voronoi:
                 self.handle_site_event(event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
+
 
             # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
             # of the Voronoi diagram.
@@ -84,6 +92,7 @@ class Voronoi:
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
             arc = Arc(origin=point, circle_event=None)
+            self.arc_list.append(arc)
             self.beach_line.insert(arc, state=self.sweep_line)
             return
 
@@ -123,7 +132,9 @@ class Voronoi:
         root.left = Node(Arc(origin=point_j, circle_event=None))
         root.right = Node(breakpoint_i_j)
 
-        root.right.left = Node(Arc(origin=point_i, circle_event=None))
+        new_arc = Arc(origin=point_i, circle_event=None)
+        self.arc_list.append(new_arc)
+        root.right.left = Node(new_arc)
         root.right.right = Node(Arc(origin=point_j, circle_event=None))
 
         # Set parents
@@ -198,7 +209,7 @@ class Voronoi:
         return half_edge_i, half_edge_j
 
     def handle_circle_event(self, event: CircleEvent):
-        print(f"Circle event at {event.y} with center {event.center}")
+        print(f"Handle circle event at {event.y} with center {event.center}")
 
         # Get the arc node
         arc_node = event.arc_pointer
@@ -258,33 +269,66 @@ class Voronoi:
             return None
 
         x, y, radius = self.create_circle(left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin)
-        if y - radius < self.sweep_line:
-            print(f"Inserted circle event at {self.sweep_line}")
-            circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc)
-            self.event_queue.put((circle_event.priority, circle_event))
+        circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc)
+        # if circle_event.y < self.sweep_line:
+        print(f"Sweep line reached {self.sweep_line}. Circle event inserted for {circle_event.y}.")
+        print(f"\t Arcs: {left_arc.value.origin}, {middle_arc.value.origin}, {right_arc.value.origin}")
+        self.event_queue.put((circle_event.priority, circle_event))
 
-            return circle_event
-
-        return None
+        return circle_event
+        #
+        # return None
 
     @staticmethod
     def create_circle(a, b, c):
-        # Algorithm from O'Rourke 2ed p. 189
-        q = b.x - a.x
-        r = b.y - a.y
-        s = c.x - a.x
-        t = c.y - a.y
-        u = q * (a.x + b.x) + r * (a.y + b.y)
-        v = s * (a.x + c.x) + t * (a.y + c.y)
-        w = 2 * (q * (c.y - b.y) - r * (c.x - b.x))
+        t = Triangle(P(a.x, a.y), P(b.x, b.y), P(c.x, c.y))
+        x, y = t.circumcenter
 
-        if w == 0:
+        # Algorithm from O'Rourke 2ed p. 189
+        A = b.x - a.x
+        B = b.y - a.y
+        C = c.x - a.x
+        D = c.y - a.y
+        E = A * (a.x + b.x) + B * (a.y + b.y)
+        F = C * (a.x + c.x) + D * (a.y + c.y)
+        G = 2 * (A * (c.y - b.y) - B * (c.x - b.x))
+
+        if G == 0:
             # Points are all on one line (collinear), so no circle can be made
             pass
 
         # Center and radius of the circle
-        x = (t * u - r * v) / w
-        y = (q * v - s * u) / w
+        x = (D * E - B * F) / G
+        y = (A * F - C * E) / G
         radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
-
         return x, y, radius
+
+    def plot_arcs(self, y):
+        # Create 1000 equally spaced points between -10 and 10
+        x = np.linspace(-25, 25, 100)
+        fig, ax = plt.subplots()
+        plt.ylim((0, 25))
+        plt.xlim((0, 25))
+
+        # Plot the sweep line
+        ax.plot(x, x + y - x, color='black')
+
+        # Plot all arcs
+        for arc in self.arc_list:
+            plot_line = arc.get_plot(x, y)
+
+            # Plot the parabola if possible, otherwise place a vertical line
+            if plot_line is None:
+                plt.axvline(x=arc.origin.x)
+            else:
+                ax.plot(x, plot_line)
+
+        # Plot circle events
+        for priority, event in self.event_queue.queue:
+            if isinstance(event, CircleEvent):
+                x, y = event.center.x, event.center.y
+                radius = event.radius
+                circle = plt.Circle((x, y), radius, color='b', fill=False)
+                ax.add_artist(circle)
+
+        plt.show()
