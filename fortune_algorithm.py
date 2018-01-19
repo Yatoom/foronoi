@@ -51,7 +51,7 @@ class Voronoi:
         # Initialize event queue with all site events.
         for point in points:
             site_event = SiteEvent(point=point)
-            self.event_queue.put((site_event.priority(), site_event))
+            self.event_queue.put((site_event.priority, site_event))
 
         print("Initial priority queue:", self.event_queue.queue)
 
@@ -62,7 +62,7 @@ class Voronoi:
                 self.sweep_line = event.y
                 self.handle_circle_event(event)
             elif isinstance(event, SiteEvent):
-                self.sweep_line = event.point.y
+                self.sweep_line = event.y
                 self.handle_site_event(event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
@@ -223,7 +223,8 @@ class Voronoi:
         #   three new records to the half-edge records that end at the vertex.
 
         # TODO
-        vertex = Vertex(x=event.x, y=event.y)
+        vertex = Vertex(x=event.center.x, y=event.center.y)
+
 
         # 3. Check the new triple of consecutive arcs that has the former left neighbor
         #    of α as its middle arc to see if the two breakpoints of the triple converge.
@@ -256,19 +257,14 @@ class Voronoi:
         if left_arc is None or right_arc is None or middle_arc is None:
             return None
 
-        x, y = self.get_lower_point(left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin)
+        x, y, radius = self.create_circle(left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin)
         if y < middle_arc.value.origin.y:
-            circle_event = CircleEvent(x=x, y=y, arc_node=middle_arc)
-            self.event_queue.put((circle_event.priority(), circle_event))
+            circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc)
+            self.event_queue.put((circle_event.priority, circle_event))
 
             return circle_event
 
         return None
-
-    @staticmethod
-    def get_lower_point(a, b, c):
-        x, y, radius = Voronoi.create_circle(a, b, c)
-        return x, y - radius
 
     @staticmethod
     def create_circle(a, b, c):

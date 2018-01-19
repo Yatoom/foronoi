@@ -66,6 +66,11 @@ class SiteEvent:
         """
         self.point = point
 
+    @property
+    def y(self):
+        return self.point.y
+
+    @property
     def priority(self):
         return self.point.priority()
 
@@ -74,23 +79,28 @@ class SiteEvent:
 
 
 class CircleEvent:
-    def __init__(self, x: int, y: int, arc_node: Node):
+    def __init__(self, center: Point, radius: float, arc_node: Node):
         """
         Circle event.
 
         :param y: Lowest point on the circle
         :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
         """
-        self.x = x
-        self.y = y
+        self.center = center
+        self.radius = radius
         self.arc_pointer = arc_node
         self.is_valid = True
 
-    def remove(self):
-        self.is_valid = False
+    @property
+    def y(self):
+        return self.center.y - self.radius
 
+    @property
     def priority(self):
         return Point.calc_priority(self.y)
+
+    def remove(self):
+        self.is_valid = False
 
 
 class Breakpoint(Value):
