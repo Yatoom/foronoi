@@ -67,8 +67,6 @@ class Voronoi:
             else:
                 raise Exception("Not a Point or CirclePoint.")
 
-            print("Beach line:", self.beach_line)
-
             # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
             # of the Voronoi diagram.
             # Compute a bounding box that contains all vertices of the Voronoi diagram in its interior,
@@ -79,6 +77,8 @@ class Voronoi:
             # pointers to and from them.
 
     def handle_site_event(self, event: SiteEvent):
+        print(f"Site event at {event.y} with point {event.point}")
+
         point = event.point
 
         # 1. If the beach line tree is empty, we insert point
@@ -198,6 +198,7 @@ class Voronoi:
         return half_edge_i, half_edge_j
 
     def handle_circle_event(self, event: CircleEvent):
+        print(f"Circle event at {event.y} with center {event.center}")
 
         # Get the arc node
         arc_node = event.arc_pointer
@@ -224,7 +225,6 @@ class Voronoi:
 
         # TODO
         vertex = Vertex(x=event.center.x, y=event.center.y)
-
 
         # 3. Check the new triple of consecutive arcs that has the former left neighbor
         #    of α as its middle arc to see if the two breakpoints of the triple converge.
@@ -258,7 +258,8 @@ class Voronoi:
             return None
 
         x, y, radius = self.create_circle(left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin)
-        if y < middle_arc.value.origin.y:
+        if y - radius < self.sweep_line:
+            print(f"Inserted circle event at {self.sweep_line}")
             circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc)
             self.event_queue.put((circle_event.priority, circle_event))
 
