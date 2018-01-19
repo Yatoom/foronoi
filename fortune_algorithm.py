@@ -165,34 +165,7 @@ class Voronoi:
         self.insert_circle_event(arc_a, arc_b, arc_i)
 
         # Check if it converts with the right
-        self.insert_circle_event(arc_a, arc_b, arc_i)
-
-    @staticmethod
-    def get_lower_point(a, b, c):
-        x, y, radius = Voronoi.create_circle(a, b, c)
-        return x, y - radius
-
-    @staticmethod
-    def create_circle(a, b, c):
-        # Algorithm from O'Rourke 2ed p. 189
-        q = b.x - a.x
-        r = b.y - a.y
-        s = c.x - a.x
-        t = c.y - a.y
-        u = q * (a.x + b.x) + r * (a.y + b.y)
-        v = s * (a.x + c.x) + t * (a.y + c.y)
-        w = 2 * (q * (c.y - b.y) - r * (c.x - b.x))
-
-        if w == 0:
-            # Points are all on one line (collinear), so no circle can be made
-            pass
-
-        # Center and radius of the circle
-        x = (t * u - r * v) / w
-        y = (q * v - s * u) / w
-        radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
-
-        return x, y, radius
+        self.insert_circle_event(arc_i, arc_c, arc_d)
 
     @staticmethod
     def create_half_edges(point_i, point_j, breakpoint_i_j, breakpoint_j_i):
@@ -289,3 +262,30 @@ class Voronoi:
             return circle_event
 
         return None
+
+    @staticmethod
+    def get_lower_point(a, b, c):
+        x, y, radius = Voronoi.create_circle(a, b, c)
+        return x, y - radius
+
+    @staticmethod
+    def create_circle(a, b, c):
+        # Algorithm from O'Rourke 2ed p. 189
+        q = b.x - a.x
+        r = b.y - a.y
+        s = c.x - a.x
+        t = c.y - a.y
+        u = q * (a.x + b.x) + r * (a.y + b.y)
+        v = s * (a.x + c.x) + t * (a.y + c.y)
+        w = 2 * (q * (c.y - b.y) - r * (c.x - b.x))
+
+        if w == 0:
+            # Points are all on one line (collinear), so no circle can be made
+            pass
+
+        # Center and radius of the circle
+        x = (t * u - r * v) / w
+        y = (q * v - s * u) / w
+        radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
+
+        return x, y, radius
