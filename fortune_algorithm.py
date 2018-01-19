@@ -232,16 +232,18 @@ class Voronoi:
         #    the triple where the former right neighbor is the middle arc.
 
         # Check if it converges with the left [find] [predecessor] [arc_node]
-        right_arc = arc_node
-        middle_arc = predecessor
-        left_arc = self.beach_line.get_left_arc(middle_arc)
-        self.insert_circle_event(left_arc, middle_arc, right_arc)
+        if predecessor is not None:
+            right_arc = arc_node
+            middle_arc = predecessor
+            left_arc = self.beach_line.get_left_arc(middle_arc)
+            self.insert_circle_event(left_arc, middle_arc, right_arc)
 
         # Check if it converts with the right
-        left_arc = arc_node
-        middle_arc = successor
-        right_arc = self.beach_line.get_right_arc(middle_arc)
-        self.insert_circle_event(left_arc, middle_arc, right_arc)
+        if successor is not None:
+            left_arc = arc_node
+            middle_arc = successor
+            right_arc = self.beach_line.get_right_arc(middle_arc)
+            self.insert_circle_event(left_arc, middle_arc, right_arc)
 
     def insert_circle_event(self, left_arc: Node, middle_arc: Node, right_arc: Node):
         """
