@@ -22,6 +22,10 @@ class Node(object):
         return f"Node({self.value}, left={self.left}, right={self.right})"
 
     @property
+    def children(self):
+        return self.left, self.right
+
+    @property
     def is_left_child(self):
         if self.parent is None:
             return False
@@ -135,6 +139,31 @@ class AVLTree(object):
 
         # Return node, None if not found
         return node
+
+    def visualize(self):
+        """
+        Simple visualization in text form.
+        :return: (str) String of textual visualization.
+        """
+        result = ""
+        nodes = [self.root]
+        level_num = 0
+        while len(nodes) > 0:
+            level = []
+            result += f"Level {level_num}\n"
+            for position, node in enumerate(nodes):
+                children = None
+                if node is not None:
+                    a, b = node.children
+                    level.append(a)
+                    level.append(b)
+                    children = (len(level) - 2, len(level) - 1)
+                result += f"{position} {node.value if node is not None else None} --> {children}\n"
+            level_num += 1
+            result += "\n"
+
+            nodes = level
+        return result
 
     @staticmethod
     def get_rightmost_leaf(root):
