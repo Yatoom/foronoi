@@ -58,7 +58,7 @@ class Voronoi:
         while not self.event_queue.empty():
             _, event = self.event_queue.get()
 
-            if isinstance(event, CircleEvent):
+            if isinstance(event, CircleEvent) and event.is_valid:
                 arc_node = event.arc_pointer
                 self.sweep_line = event.y
                 self.handle_circle_event(arc_node)
@@ -83,7 +83,7 @@ class Voronoi:
     def handle_site_event(self, point):
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
-            arc = Arc(origin=point, pointer=None)
+            arc = Arc(origin=point, circle_event=None)
             self.beach_line.insert(arc, state=self.sweep_line)
             return
 
@@ -92,13 +92,13 @@ class Voronoi:
         # the breakpoints of the arcs are (where they intersect). The breakpoints are stored in the internal nodes of
         # the beach line, while the arcs are stored within the leaves
         arc_node = self.beach_line.find_arc_node(x=point.x, y=self.sweep_line)
-        arc = arc_node.value
+        arc: Arc = arc_node.value
         # arc = self.beach_line.find_arc_above_point(point=point, sweep_line=self.sweep_line)
 
         # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
         #     alarm, and the it must be deleted from the event_queue
-        if arc.pointer is not None and isinstance(arc.pointer, CirclePoint) and arc.pointer in self.event_queue:
-            self.event_queue.queue.remove(arc.pointer)
+        if arc.circle_event is not None:
+            arc.circle_event.remove()
 
         # 3. Replace the leaf that represents the arc with a subtree having three leaves.
         #    - The middle leaf stores the new site
@@ -120,11 +120,11 @@ class Voronoi:
         #                  /       \
         #                p_i       p_j
         root = Node(breakpoint_j_i)
-        root.left = Node(Arc(origin=point_j, pointer=None))
+        root.left = Node(Arc(origin=point_j, circle_event=None))
         root.right = Node(breakpoint_i_j)
 
-        root.right.left = Node(Arc(origin=point_i, pointer=None))
-        root.right.right = Node(Arc(origin=point_j, pointer=None))
+        root.right.left = Node(Arc(origin=point_i, circle_event=None))
+        root.right.right = Node(Arc(origin=point_j, circle_event=None))
 
         # Set parents
         root.left.parent = root
@@ -134,16 +134,6 @@ class Voronoi:
 
         # Replace this in the tree
         arc_node.replace(root, self.beach_line)
-        # arc_node.replace()
-        # if arc_node == self.beach_line.root:
-        #     self.beach_line.root = root
-        # elif arc_node == arc_node.parent.left:
-        #     arc_node.parent.left = root
-        # else:
-        #     arc_node.parent.right = root
-
-        # Balance the tree again
-        self.beach_line.balance()
 
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
@@ -242,6 +232,21 @@ class Voronoi:
 
         return half_edge_i, half_edge_j
 
-    def handle_circle_event(self, circle_point):
+    def handle_circle_event(self, arc_node: Node):
+
+        # Delete node from tree
+        arc_node.disconnect(self.beach_line)
+        arc: Arc = arc_node.value
+
+        # Get predecessor and successor
+        predecessor: Arc = self.beach_line.get_left_arc(arc_node)
+        successor: Arc = self.beach_line.get_right_arc(arc_node)
+
+        # Delete all circle events involving arc from the event queue.
+        if predecessor is not None and successor.circle_event is not None:
+            predecessor.circle_event.remove()
+        if successor is not None and successor.circle_event is not None:
+            predecessor.circle_event.remove()
+
         # TODO: Implement this
-        raise NotImplementedError()
+        pass

@@ -47,7 +47,7 @@ class Point:
         self.player = player
 
     def __repr__(self):
-        return f"Point(x={self.x}, y={self.y}, pl={self.player})"
+        return f"Point({self.x}, {self.y})"
 
     # Methods below are solely so that the queue can sort these well
     def priority(self):
@@ -83,6 +83,10 @@ class CircleEvent:
         """
         self.y = y
         self.arc_pointer = arc_node
+        self.is_valid = True
+
+    def remove(self):
+        self.is_valid = False
 
     def priority(self):
         return Point.calc_priority(self.y)
@@ -185,4 +189,4 @@ class Arc(Value):
         return self.origin.x
 
     def __repr__(self):
-        return f"Arc(origin={self.origin}, pointer={self.circle_event})"
+        return f"Arc(origin={self.origin}, circle_event={self.circle_event})"
