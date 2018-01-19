@@ -162,18 +162,10 @@ class Voronoi:
         arc_d = self.beach_line.get_right_arc(arc_c)
 
         # Check if it converges with the left
-        if arc_a is not None:
-            x, y = self.get_lower_point(arc_a.value.origin, arc_b.value.origin, arc_i.value.origin)
-            if y < arc_i.value.origin.y:
-                circle_event = CircleEvent(x=x, y=y, arc_node=arc_b)
-                self.event_queue.put((circle_event.priority(), circle_event))
+        self.insert_circle_event(arc_a, arc_b, arc_i)
 
         # Check if it converts with the right
-        if arc_d is not None:
-            x, y = self.get_lower_point(arc_i.value.origin, arc_c.value.origin, arc_d.value.origin)
-            if y < arc_i.value.origin.y:
-                circle_event = CircleEvent(x=x, y=y, arc_node=arc_c)
-                self.event_queue.put((circle_event.priority(), circle_event))
+        self.insert_circle_event(arc_a, arc_b, arc_i)
 
     @staticmethod
     def get_lower_point(a, b, c):
@@ -256,7 +248,9 @@ class Voronoi:
         #   Create two half-edge records corresponding to the new breakpoint
         #   of the beach line. Set the pointers between them appropriately. Attach the
         #   three new records to the half-edge records that end at the vertex.
-        Vertex(x=event.x, y=event.y)
+
+        # TODO
+        vertex = Vertex(x=event.x, y=event.y)
 
         # 3. Check the new triple of consecutive arcs that has the former left neighbor
         #    of α as its middle arc to see if the two breakpoints of the triple converge.
@@ -264,3 +258,34 @@ class Voronoi:
         #    the new circle event in Q and the corresponding leaf of T. Do the same for
         #    the triple where the former right neighbor is the middle arc.
 
+        # Check if it converges with the left [find] [predecessor] [arc_node]
+        right_arc = arc_node
+        middle_arc = predecessor
+        left_arc = self.beach_line.get_left_arc(middle_arc)
+        self.insert_circle_event(left_arc, middle_arc, right_arc)
+
+        # Check if it converts with the right
+        left_arc = arc_node
+        middle_arc = successor
+        right_arc = self.beach_line.get_right_arc(middle_arc)
+        self.insert_circle_event(left_arc, middle_arc, right_arc)
+
+    def insert_circle_event(self, left_arc: Node, middle_arc: Node, right_arc: Node):
+        """
+        Checks if the breakpoints converge, and inserts circle event if required.
+        :param left_arc: The node that represents the arc on the left
+        :param middle_arc: The node that represents the arc on the middle
+        :param right_arc: The node that represents the arc on the right
+        :return: The circle event or None if no circle event needs to be inserted
+        """
+        if left_arc is None or right_arc is None or middle_arc is None:
+            return None
+
+        x, y = self.get_lower_point(left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin)
+        if y < middle_arc.value.origin.y:
+            circle_event = CircleEvent(x=x, y=y, arc_node=middle_arc)
+            self.event_queue.put((circle_event.priority(), circle_event))
+
+            return circle_event
+
+        return None
