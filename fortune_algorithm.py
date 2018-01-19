@@ -59,13 +59,11 @@ class Voronoi:
             _, event = self.event_queue.get()
 
             if isinstance(event, CircleEvent) and event.is_valid:
-                arc_node = event.arc_pointer
                 self.sweep_line = event.y
-                self.handle_circle_event(arc_node)
+                self.handle_circle_event(event)
             elif isinstance(event, SiteEvent):
-                point = event.point
                 self.sweep_line = event.point.y
-                self.handle_site_event(point)
+                self.handle_site_event(event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
 
@@ -80,7 +78,9 @@ class Voronoi:
             # 8. Traverse the half-edges of the doubly connected edge list to cell records and the
             # pointers to and from them.
 
-    def handle_site_event(self, point):
+    def handle_site_event(self, event: SiteEvent):
+        point = event.point
+
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
             arc = Arc(origin=point, circle_event=None)
@@ -163,22 +163,22 @@ class Voronoi:
 
         # Check if it converges with the left
         if arc_a is not None:
-            lower_point_left = self.get_lower_point(arc_a.value.origin, arc_b.value.origin, arc_i.value.origin)
-            if lower_point_left < arc_i.value.origin.y:
-                circle_event = CircleEvent(y=lower_point_left, arc_node=arc_b)
+            x, y = self.get_lower_point(arc_a.value.origin, arc_b.value.origin, arc_i.value.origin)
+            if y < arc_i.value.origin.y:
+                circle_event = CircleEvent(x=x, y=y, arc_node=arc_b)
                 self.event_queue.put((circle_event.priority(), circle_event))
 
         # Check if it converts with the right
         if arc_d is not None:
-            lower_point_right = self.get_lower_point(arc_i.value.origin, arc_c.value.origin, arc_d.value.origin)
-            if lower_point_right < arc_i.value.origin.y:
-                circle_event = CircleEvent(y=lower_point_right, arc_node=arc_c)
+            x, y = self.get_lower_point(arc_i.value.origin, arc_c.value.origin, arc_d.value.origin)
+            if y < arc_i.value.origin.y:
+                circle_event = CircleEvent(x=x, y=y, arc_node=arc_c)
                 self.event_queue.put((circle_event.priority(), circle_event))
 
     @staticmethod
     def get_lower_point(a, b, c):
         x, y, radius = Voronoi.create_circle(a, b, c)
-        return y - radius
+        return x, y - radius
 
     @staticmethod
     def create_circle(a, b, c):
@@ -232,21 +232,35 @@ class Voronoi:
 
         return half_edge_i, half_edge_j
 
-    def handle_circle_event(self, arc_node: Node):
+    def handle_circle_event(self, event: CircleEvent):
+
+        # Get the arc node
+        arc_node = event.arc_pointer
 
         # Delete node from tree
         arc_node.disconnect(self.beach_line)
         arc: Arc = arc_node.value
 
         # Get predecessor and successor
-        predecessor: Arc = self.beach_line.get_left_arc(arc_node)
-        successor: Arc = self.beach_line.get_right_arc(arc_node)
+        predecessor: Node = self.beach_line.get_left_arc(arc_node)
+        successor: Node = self.beach_line.get_right_arc(arc_node)
 
         # Delete all circle events involving arc from the event queue.
-        if predecessor is not None and successor.circle_event is not None:
-            predecessor.circle_event.remove()
-        if successor is not None and successor.circle_event is not None:
-            predecessor.circle_event.remove()
+        if predecessor is not None and predecessor.value.circle_event is not None:
+            predecessor.value.circle_event.remove()
+        if successor is not None and successor.value.circle_event is not None:
+            predecessor.value.circle_event.remove()
 
-        # TODO: Implement this
-        pass
+        # 2. Add the center of the circle causing the event as a vertex record to the
+        #   doubly-connected edge list D storing the Voronoi diagram under construction.
+        #   Create two half-edge records corresponding to the new breakpoint
+        #   of the beach line. Set the pointers between them appropriately. Attach the
+        #   three new records to the half-edge records that end at the vertex.
+        Vertex(x=event.x, y=event.y)
+
+        # 3. Check the new triple of consecutive arcs that has the former left neighbor
+        #    of α as its middle arc to see if the two breakpoints of the triple converge.
+        #    If so, insert the corresponding circle event into Q. and set pointers between
+        #    the new circle event in Q and the corresponding leaf of T. Do the same for
+        #    the triple where the former right neighbor is the middle arc.
+

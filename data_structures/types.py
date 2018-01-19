@@ -74,13 +74,14 @@ class SiteEvent:
 
 
 class CircleEvent:
-    def __init__(self, y: int, arc_node: Node):
+    def __init__(self, x: int, y: int, arc_node: Node):
         """
         Circle event.
 
         :param y: Lowest point on the circle
         :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
         """
+        self.x = x
         self.y = y
         self.arc_pointer = arc_node
         self.is_valid = True
