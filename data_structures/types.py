@@ -172,17 +172,17 @@ class Arc(Value):
     will disappear, or this circle event has not been detected yet.
     """
 
-    def __init__(self, origin, pointer=None):
+    def __init__(self, origin: Point, circle_event: CircleEvent = None):
         """
 
         :param origin: The point that caused the arc
-        :param pointer:
+        :param circle_event: The pointer to the circle event in which the arc will disappear
         """
         self.origin: Point = origin
-        self.pointer = pointer
+        self.circle_event: CircleEvent = circle_event
 
     def get_key(self, state=None):
         return self.origin.x
 
     def __repr__(self):
-        return f"Arc(origin={self.origin}, pointer={self.pointer})"
+        return f"Arc(origin={self.origin}, pointer={self.circle_event})"

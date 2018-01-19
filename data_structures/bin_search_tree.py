@@ -33,17 +33,72 @@ class Node(object):
             return False
         return self.parent.right == self
 
+    def minimum(self):
+        """
+        Returns the node with the smallest key in the subtree rooted by this node.
+        """
+        current = self
+        while current.left is not None:
+            current = current.left
+        return current
+
+    def maximum(self):
+        """
+        Returns the node with the smallest key in the subtree rooted by this node.
+        """
+        current = self
+        while current.right is not None:
+            current = current.right
+        return current
+
+    @property
+    def successor(self):
+        """
+        Returns the node with the smallest key larger than this node's key, or None if this has the largest key in
+        the tree.
+        """
+        if self.right is not None:
+            return self.right.minimum()
+
+        current = self
+        while current.is_right_child:
+            current = current.parent
+        return current.parent
+
+    @property
+    def predecessor(self):
+        """
+        Returns the node with the largest key smaller than this node's key, or None if this has the largest key in
+        the tree.
+        """
+        if self.left is not None:
+            return self.left.maximum()
+
+        current = self
+        while current.is_left_child:
+            current = current.parent
+        return current.parent
+
     def replace(self, replacement, tree):
         replacement.parent = self.parent
 
         if self.is_left_child:
             self.parent.left = replacement
-            return tree
         elif self.is_right_child:
             self.parent.right = replacement
-            return tree
+        else:
+            tree.root = replacement
 
-        tree.root = replacement
+        tree.balance()
+        return tree
+
+    def disconnect(self, tree):
+        if self.is_right_child:
+            self.parent.right = None
+        elif self.is_left_child:
+            self.parent.left = None
+
+        tree.balance()
         return tree
 
 
