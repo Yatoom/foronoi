@@ -97,37 +97,34 @@ class Voronoi:
     def handle_site_event(self, event: SiteEvent):
         print(f"Site event at {event.y} with point {event.point}")
 
-        point = event.point
+        # Create a new arc
+        new_point = event.point
+        new_arc = Arc(origin=new_point)
 
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
-            arc = Arc(origin=point, circle_event=None)
-            self.arc_list.append(arc)
-            self.beach_line.insert(arc, state=self.sweep_line)
+            self.arc_list.append(new_arc)
+            self.beach_line.insert(new_arc, state=self.sweep_line)
             return
 
         # 2.1 Search the beach line tree for the arc above the point
-        # In other words, we shoot a ray up from the point that we found at the sweep line. So, we need to see where
-        # the breakpoints of the arcs are (where they intersect). The breakpoints are stored in the internal nodes of
-        # the beach line, while the arcs are stored within the leaves
-        arc_node = self.beach_line.find_arc_node(x=point.x, y=self.sweep_line)
-        arc: Arc = arc_node.value
-        # arc = self.beach_line.find_arc_above_point(point=point, sweep_line=self.sweep_line)
+        arc_node_above_point = self.beach_line.find_arc_node(x=new_point.x, y=self.sweep_line)
+        arc_above_point: Arc = arc_node_above_point.value
 
         # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
         #     alarm, and the it must be deleted from the event_queue
-        if arc.circle_event is not None:
-            arc.circle_event.remove()
+        if arc_above_point.circle_event is not None:
+            arc_above_point.circle_event.remove()
 
         # 3. Replace the leaf that represents the arc with a subtree having three leaves.
         #    - The middle leaf stores the new site
         #    - The other two leaves store the site p_j that was originally stored with the arc
         #    - Store the tuples (p_j, p_i) and (p_i, p_j) representing the new breakpoints at the two internal nodes.
 
-        point_i = point
-        point_j = arc.origin
-        breakpoint_j_i = Breakpoint(breakpoint=(point_j, point_i))
-        breakpoint_i_j = Breakpoint(breakpoint=(point_i, point_j))
+        point_i = new_point
+        point_j = arc_above_point.origin
+        breakpoint_left = Breakpoint(breakpoint=(point_j, point_i))
+        breakpoint_right = Breakpoint(breakpoint=(point_i, point_j))
 
         # Create a tree with two breakpoints and three arcs.
         #
@@ -138,28 +135,23 @@ class Voronoi:
         #                   /     \
         #                  /       \
         #                p_i       p_j
-        root = Node(breakpoint_j_i)
+        root = Node(breakpoint_left)
         root.left = Node(Arc(origin=point_j, circle_event=None))
-        root.right = Node(breakpoint_i_j)
+        root.right = Node(breakpoint_right)
 
         new_arc = Arc(origin=point_i, circle_event=None)
         self.arc_list.append(new_arc)
         root.right.left = Node(new_arc)
         root.right.right = Node(Arc(origin=point_j, circle_event=None))
 
-        # Set parents
-        root.left.parent = root
-        root.right.parent = root
-        root.right.left.parent = root.right
-        root.right.right.parent = root.right
-
         # Replace this in the tree
-        arc_node.replace(root, self.beach_line)
+        arc_node_above_point.replace(root, self.beach_line)
 
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
         #    breakpoints.
-        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, breakpoint_i_j, breakpoint_j_i)
+
+        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, breakpoint_right, breakpoint_left)
         self.doubly_connected_edge_list.append(half_edge_i)
         self.doubly_connected_edge_list.append(half_edge_j)
 

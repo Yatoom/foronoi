@@ -13,13 +13,33 @@ class Node(object):
         :param value: The content of the node
         """
         self.value: Value = value
-        self.left = None
-        self.right = None
+        self._left = None
+        self._right = None
         self.height = 1
         self.parent = None
 
     def __repr__(self):
         return f"Node({self.value}, left={self.left}, right={self.right})"
+
+    @property
+    def left(self):
+        return self._left
+
+    @property
+    def right(self):
+        return self._right
+
+    @left.setter
+    def left(self, left):
+        self._left = left
+        if left is not None:
+            self._left.parent = self
+
+    @right.setter
+    def right(self, right):
+        self._right = right
+        if right is not None:
+            self._right.parent = self
 
     @property
     def children(self):
@@ -298,10 +318,8 @@ class AVLTree(object):
             return Node(value)
         elif key < root.value.get_key(state):
             root.left = AVLTree.insert_in_subtree(root.left, key, value, state)
-            root.left.parent = root
         else:
             root.right = AVLTree.insert_in_subtree(root.right, key, value, state)
-            root.right.parent = root
 
         # Update the height of the ancestor node
         AVLTree.update_height(root)
@@ -322,13 +340,11 @@ class AVLTree(object):
         # Case 3 - Left Right
         if balance > 1 and key > root.left.value.get_key(state):
             root.left = AVLTree.rotate_left(root.left)
-            root.left.parent = root
             return AVLTree.rotate_right(root)
 
         # Case 4 - Right Left
         if balance < -1 and key < root.right.value.get_key(state):
             root.right = AVLTree.rotate_right(root.right)
-            root.right.parent = root
             return AVLTree.rotate_left(root)
 
         return root
@@ -348,11 +364,9 @@ class AVLTree(object):
 
         elif key < root.value.get_key():
             root.left = AVLTree.delete_in_subtree(root.left, key)
-            root.left.parent = root
 
         elif key > root.value.get_key():
             root.right = AVLTree.delete_in_subtree(root.right, key)
-            root.right.parent = root
 
         else:
             if root.left is None:
@@ -364,7 +378,6 @@ class AVLTree(object):
             temp = AVLTree.get_min_key_node(root.right)
             root.value = temp.value
             root.right = AVLTree.delete_in_subtree(root.right, temp.value.get_key())
-            root.right.parent = root
 
         # If the tree has only one node, simply return it
         if root is None:
@@ -403,13 +416,11 @@ class AVLTree(object):
         # Case 3 - Left Right
         if balance > 1 and AVLTree.get_balance_factor(root.left) < 0:
             root.left = AVLTree.rotate_left(root.left)
-            root.left.parent = root
             return AVLTree.rotate_right(root)
 
         # Case 4 - Right Left
         if balance < -1 and AVLTree.get_balance_factor(root.right) > 0:
             root.right = AVLTree.rotate_right(root.right)
-            root.right.parent = root
             return AVLTree.rotate_left(root)
 
         return root
@@ -438,13 +449,6 @@ class AVLTree(object):
         # Perform rotation
         y.left = z
         z.right = T2
-
-        # Set parents
-        if y.left is not None:
-            y.left.parent = y
-
-        if z.right is not None:
-            z.right.parent = z
 
         # Update heights
         AVLTree.update_height(z)
@@ -477,13 +481,6 @@ class AVLTree(object):
         # Perform rotation
         y.right = z
         z.left = T3
-
-        # Set parents
-        if z.left is not None:
-            z.left.parent = z
-
-        if y.right is not None:
-            y.right.parent = y
 
         # Update heights
         AVLTree.update_height(z)
