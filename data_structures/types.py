@@ -8,6 +8,10 @@ class Value(metaclass=ABCMeta):
     def get_key(self, state):
         return NotImplemented
 
+    @abstractmethod
+    def get_name(self):
+        return NotImplemented
+
 
 class SimpleValue(Value):
     def __init__(self, key, value):
@@ -15,6 +19,9 @@ class SimpleValue(Value):
         self.value = value
 
     def get_key(self, state):
+        return self.key
+
+    def get_name(self):
         return self.key
 
     def __repr__(self):
@@ -40,12 +47,15 @@ class Point:
     A simple point
     """
 
-    def __init__(self, x=None, y=None, player: int = None):
+    def __init__(self, x=None, y=None, player: int = None, name=None):
         self.x: float = x
         self.y: float = y
         self.player = player
+        self.name = name
 
     def __repr__(self):
+        if self.name is not None:
+            return f"Point_{self.name}"
         return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
     # Methods below are solely so that the queue can sort these well
@@ -134,6 +144,9 @@ class Breakpoint(Value):
     def __repr__(self):
         return f"Breakpoint({self.breakpoint})"
 
+    def get_name(self):
+        return f"{self.breakpoint[0].name}{self.breakpoint[1].name}"
+
     def get_key(self, state=None):
         return self.get_intersection(state).y
 
@@ -213,6 +226,9 @@ class Arc(Value):
 
     def __repr__(self):
         return f"Arc(origin={self.origin}, circle_event={self.circle_event})"
+
+    def get_name(self):
+        return f"{self.origin.name}"
 
     def get_plot(self, x, l):
         l = l

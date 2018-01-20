@@ -3,6 +3,10 @@
 #   but we have modified it and added more functionality.
 # - We used some modified test cases to manually compare results from https://github.com/nlsdfnbch/Python-AVL-Tree/
 from typing import Union
+
+import pydot
+from subprocess import Popen
+
 from data_structures.types import Arc, Value, SimpleValue
 
 
@@ -75,6 +79,9 @@ class Node(object):
             current = current.right
         return current
 
+    def get_name(self):
+        return self.value.name
+
     @property
     def successor(self):
         """
@@ -87,7 +94,11 @@ class Node(object):
         current = self
         while current.is_right_child:
             current = current.parent
-        return current.parent
+
+        if current.parent is None or current.parent.right is None:
+            return None
+
+        return current.parent.right.minimum()
 
     @property
     def predecessor(self):
@@ -101,7 +112,11 @@ class Node(object):
         current = self
         while current.is_left_child:
             current = current.parent
-        return current.parent
+
+        if current.parent is None or current.parent.left is None:
+            return None
+
+        return current.parent.left.maximum()
 
     def replace(self, replacement, tree):
         replacement.parent = self.parent
@@ -165,6 +180,7 @@ class AVLTree(object):
         Simple visualization in text form.
         :return: (str) String of textual visualization.
         """
+        graph = "digraph G {\n"
         result = ""
         nodes = [self.root]
         level_num = 0
@@ -175,6 +191,10 @@ class AVLTree(object):
                 children = None
                 if node is not None:
                     a, b = node.children
+                    if a is not None:
+                        graph += f"{node.value.get_name()}->{a.value.get_name()}\n"
+                    if b is not None:
+                        graph += f"{node.value.get_name()}->{b.value.get_name()}\n"
                     level.append(a)
                     level.append(b)
                     children = (len(level) - 2, len(level) - 1)
@@ -183,6 +203,10 @@ class AVLTree(object):
             result += "\n"
 
             nodes = level
+        graph += "}"
+        f = open("graph.dot", 'w')
+        f.write(graph)
+        Popen(["dot", "-Tpng", "-o", "graph.png", "graph.dot"])
         return result
 
     @staticmethod
@@ -203,7 +227,7 @@ class AVLTree(object):
 
         return node
 
-    def get_left_arc(self, arc_node):
+    def get_left_arc_node(self, arc_node):
         node = arc_node
 
         # Keep walking up until the node is a right child
@@ -230,7 +254,7 @@ class AVLTree(object):
 
         return self.get_rightmost_leaf(node)
 
-    def get_right_arc(self, arc_node):
+    def get_right_arc_node(self, arc_node):
         node = arc_node
 
         # Keep walking up until the node is a left child
@@ -392,7 +416,8 @@ class AVLTree(object):
         return root
 
     def balance(self):
-        return self._balance(self.root)
+        # return self._balance(self.root)
+        return self.root
 
     @staticmethod
     def _balance(root: Union[Node, None]) -> Node:

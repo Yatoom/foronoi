@@ -59,7 +59,8 @@ class Voronoi:
     def create_diagram(self, points: list, visualize=True):
         # Initialize event queue with all site events.
         self.points = points
-        for point in points:
+        for index, point in enumerate(points):
+            point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]  # Easy for debugging
             site_event = SiteEvent(point=point)
             self.event_queue.put((site_event.priority, site_event))
 
@@ -68,7 +69,6 @@ class Voronoi:
         while not self.event_queue.empty():
 
             _, event = self.event_queue.get()
-
             if isinstance(event, CircleEvent) and event.is_valid:
                 self.sweep_line = event.y
                 if visualize:
@@ -81,6 +81,9 @@ class Voronoi:
                     self.visualize(self.sweep_line, current_event=event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
+
+            if visualize:
+                self.beach_line.visualize()
 
 
 
@@ -100,10 +103,10 @@ class Voronoi:
         # Create a new arc
         new_point = event.point
         new_arc = Arc(origin=new_point)
+        self.arc_list.append(new_arc)  # For visualization
 
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line.root is None:
-            self.arc_list.append(new_arc)
             self.beach_line.insert(new_arc, state=self.sweep_line)
             return
 
@@ -125,6 +128,10 @@ class Voronoi:
         point_j = arc_above_point.origin
         breakpoint_left = Breakpoint(breakpoint=(point_j, point_i))
         breakpoint_right = Breakpoint(breakpoint=(point_i, point_j))
+        breakpoint_left.left_arc = arc_above_point
+        breakpoint_left.right_arc = new_arc
+        breakpoint_right.left_arc = new_arc
+        breakpoint_right.right_arc = arc_above_point
 
         # Create a tree with two breakpoints and three arcs.
         #
@@ -138,9 +145,6 @@ class Voronoi:
         root = Node(breakpoint_left)
         root.left = Node(Arc(origin=point_j, circle_event=None))
         root.right = Node(breakpoint_right)
-
-        new_arc = Arc(origin=point_i, circle_event=None)
-        self.arc_list.append(new_arc)
         root.right.left = Node(new_arc)
         root.right.right = Node(Arc(origin=point_j, circle_event=None))
 
@@ -150,10 +154,20 @@ class Voronoi:
         # 4. Create new half-edge records in the Voronoi diagram structure for the
         #    edge separating V(p i ) and V(p j ), which will be traced out by the two new
         #    breakpoints.
-
-        half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, breakpoint_right, breakpoint_left)
-        self.doubly_connected_edge_list.append(half_edge_i)
-        self.doubly_connected_edge_list.append(half_edge_j)
+        #            /
+        #           /| <-- right breakpoint moves to the right
+        #          / | <-- somewhere in middle is the origin of the half edges
+        # \       /  |
+        #  \     /|  | <-- left breakpoint moves to the left
+        #   \___/  \/
+        #
+        # intersection = breakpoint_left.get_intersection(self.sweep_line)
+        # half_edge_right = HalfEdge(origin=intersection, )
+        # half_edge_left = HalfEdge(origin=intersection, )
+        #
+        # half_edge_i, half_edge_j = self.create_half_edges(point_i, point_j, breakpoint_right, breakpoint_left)
+        # self.doubly_connected_edge_list.append(half_edge_i)
+        # self.doubly_connected_edge_list.append(half_edge_j)
 
         # 5. Check the triple of consecutive arcs where the new arc for p i is the left arc
         #    to see if the breakpoints converge. If so, insert the circle event into Q and
@@ -171,8 +185,8 @@ class Voronoi:
         arc_b = root.left
         arc_i = root.right.left
         arc_c = root.right.right
-        arc_a = self.beach_line.get_left_arc(arc_b)
-        arc_d = self.beach_line.get_right_arc(arc_c)
+        arc_a = self.beach_line.get_left_arc_node(arc_b)
+        arc_d = self.beach_line.get_right_arc_node(arc_c)
 
         # Check if it converges with the left
         self.insert_circle_event(arc_a, arc_b, arc_i)
@@ -214,15 +228,24 @@ class Voronoi:
         print(f"Handle circle event at {event.y} with center {event.center}")
 
         # Get the arc node
-        arc_node = event.arc_pointer
+        arc_node: Node = event.arc_pointer
+        predecessor = arc_node.predecessor
+        successor = arc_node.successor
 
-        # Delete node from tree
-        arc_node.disconnect(self.beach_line)
-        arc: Arc = arc_node.value
+        # Say we have three arcs a, b and c. Arc a is in the middle, b on the right and c on the left. Arc a was found
+        # first, b was the second and c the third. Arcs c and b are now going to move towards each other. That means
+        # that the part between (c, a) and (a, b) is going to disappear: arc a, which is now stored as `arc_node`.
+        # To get (c, a) we take the parent of the leaf. To get (a, b), we need to go up in the tree to find it.
+        grandfather = arc_node.parent.parent
+        ancestor = grandfather.parent
 
-        # Get predecessor and successor
-        predecessor: Node = self.beach_line.get_left_arc(arc_node)
-        successor: Node = self.beach_line.get_right_arc(arc_node)
+        # The arc that moves over the breakpoints from the left
+        overlapping_arc = arc_node.parent.left
+        grandfather.right = overlapping_arc
+
+        # Update the (a, b) node to be (c, b)
+        left, right = ancestor.value.breakpoint
+        ancestor.value.breakpoint = (overlapping_arc.value.origin, right)
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.value.circle_event is not None:
@@ -244,19 +267,21 @@ class Voronoi:
         #    If so, insert the corresponding circle event into Q. and set pointers between
         #    the new circle event in Q and the corresponding leaf of T. Do the same for
         #    the triple where the former right neighbor is the middle arc.
+        former_left = predecessor
+        former_right = successor
 
         # Check if it converges with the left [find] [predecessor] [arc_node]
-        if predecessor is not None:
-            right_arc = arc_node
-            middle_arc = predecessor
-            left_arc = self.beach_line.get_left_arc(middle_arc)
+        if former_left is not None:
+            middle_arc = former_left
+            left_arc = former_left.predecessor
+            right_arc = former_left.successor
             self.insert_circle_event(left_arc, middle_arc, right_arc)
 
         # Check if it converts with the right
-        if successor is not None:
-            left_arc = arc_node
-            middle_arc = successor
-            right_arc = self.beach_line.get_right_arc(middle_arc)
+        if former_right is not None:
+            middle_arc = former_right
+            left_arc = former_right.predecessor
+            right_arc = former_right.successor
             self.insert_circle_event(left_arc, middle_arc, right_arc)
 
     def insert_circle_event(self, left_arc: Node, middle_arc: Node, right_arc: Node):
@@ -273,18 +298,15 @@ class Voronoi:
         a, b, c = left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin
         x, y, radius = self.create_circle(a, b, c)
         circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc, triple=(a, b, c))
-        # if circle_event.y < self.sweep_line:
-        print(f"Sweep line reached {self.sweep_line}. Circle event inserted for {circle_event.y}.")
-        print(f"\t Arcs: {left_arc.value.origin}, {middle_arc.value.origin}, {right_arc.value.origin}")
-        self.event_queue.put((circle_event.priority, circle_event))
+        if circle_event.y < self.sweep_line:
+            print(f"Sweep line reached {self.sweep_line}. Circle event inserted for {circle_event.y}.")
+            print(f"\t Arcs: {left_arc.value.origin}, {middle_arc.value.origin}, {right_arc.value.origin}")
+            self.event_queue.put((circle_event.priority, circle_event))
 
         return circle_event
 
     @staticmethod
     def create_circle(a, b, c):
-        t = Triangle(P(a.x, a.y), P(b.x, b.y), P(c.x, c.y))
-        x, y = t.circumcenter
-
         # Algorithm from O'Rourke 2ed p. 189
         A = b.x - a.x
         B = b.y - a.y
