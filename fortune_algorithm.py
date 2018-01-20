@@ -324,14 +324,16 @@ class Voronoi:
         ax.plot(x, x + y - x, color='black')
 
         # Plot all arcs
+        plot_lines = []
         for arc in self.arc_list:
             plot_line = arc.get_plot(x, y)
-
-            # Plot the parabola if possible, otherwise place a vertical line
             if plot_line is None:
                 ax.axvline(x=arc.origin.x)
             else:
-                ax.plot(x, plot_line)
+                ax.plot(x, plot_line, linestyle="--")
+                plot_lines.append(plot_line)
+        if len(plot_lines) > 0:
+            ax.plot(x, np.min(plot_lines, axis=0), color="black")
 
         # Plot circle events
         def plot_circle(evt):
