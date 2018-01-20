@@ -46,7 +46,7 @@ class Point:
         self.player = player
 
     def __repr__(self):
-        return f"Point({self.x}, {self.y})"
+        return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
     # Methods below are solely so that the queue can sort these well
     def priority(self):
@@ -78,17 +78,22 @@ class SiteEvent:
 
 
 class CircleEvent:
-    def __init__(self, center: Point, radius: float, arc_node: Node):
+    def __init__(self, center: Point, radius: float, arc_node: Node, triple=None):
         """
         Circle event.
 
         :param y: Lowest point on the circle
         :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
+        :param triple: The tuple of points that caused the event
         """
         self.center = center
         self.radius = radius
         self.arc_pointer = arc_node
         self.is_valid = True
+        self.triple = triple
+
+    def __repr__(self):
+        return f"CircleEvent({self.center}, {round(self.radius, 3)})"
 
     @property
     def y(self):
@@ -97,6 +102,13 @@ class CircleEvent:
     @property
     def priority(self):
         return Point.calc_priority(self.y)
+
+    def get_triangle(self):
+        return (
+            (self.triple[0].x, self.triple[0].y),
+            (self.triple[1].x, self.triple[1].y),
+            (self.triple[2].x, self.triple[2].y),
+        )
 
     def remove(self):
         print(f"Circle event for {self.y} removed.")

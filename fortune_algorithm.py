@@ -53,8 +53,12 @@ class Voronoi:
         # Position of the sweep line, initialized at the max
         self.sweep_line = float("inf")
 
-    def create_diagram(self, points: list):
+        # Store points for visualization
+        self.points = None
+
+    def create_diagram(self, points: list, visualize=True):
         # Initialize event queue with all site events.
+        self.points = points
         for point in points:
             site_event = SiteEvent(point=point)
             self.event_queue.put((site_event.priority, site_event))
@@ -62,17 +66,23 @@ class Voronoi:
         print("Initial priority queue:", self.event_queue.queue)
 
         while not self.event_queue.empty():
-            self.plot_arcs(self.sweep_line)
+
             _, event = self.event_queue.get()
 
             if isinstance(event, CircleEvent) and event.is_valid:
                 self.sweep_line = event.y
+                if visualize:
+                    self.visualize(self.sweep_line, current_event=event)
                 self.handle_circle_event(event)
             elif isinstance(event, SiteEvent):
                 self.sweep_line = event.y
                 self.handle_site_event(event)
+                if visualize:
+                    self.visualize(self.sweep_line, current_event=event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
+
+
 
 
             # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
@@ -268,16 +278,15 @@ class Voronoi:
         if left_arc is None or right_arc is None or middle_arc is None:
             return None
 
-        x, y, radius = self.create_circle(left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin)
-        circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc)
+        a, b, c = left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin
+        x, y, radius = self.create_circle(a, b, c)
+        circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc, triple=(a, b, c))
         # if circle_event.y < self.sweep_line:
         print(f"Sweep line reached {self.sweep_line}. Circle event inserted for {circle_event.y}.")
         print(f"\t Arcs: {left_arc.value.origin}, {middle_arc.value.origin}, {right_arc.value.origin}")
         self.event_queue.put((circle_event.priority, circle_event))
 
         return circle_event
-        #
-        # return None
 
     @staticmethod
     def create_circle(a, b, c):
@@ -303,10 +312,11 @@ class Voronoi:
         radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
         return x, y, radius
 
-    def plot_arcs(self, y):
+    def visualize(self, y, current_event):
         # Create 1000 equally spaced points between -10 and 10
         x = np.linspace(-25, 25, 100)
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(7, 7))
+        plt.title(current_event)
         plt.ylim((0, 25))
         plt.xlim((0, 25))
 
@@ -319,16 +329,29 @@ class Voronoi:
 
             # Plot the parabola if possible, otherwise place a vertical line
             if plot_line is None:
-                plt.axvline(x=arc.origin.x)
+                ax.axvline(x=arc.origin.x)
             else:
                 ax.plot(x, plot_line)
 
         # Plot circle events
+        def plot_circle(evt):
+            x, y = evt.center.x, evt.center.y
+            radius = evt.radius
+            circle = plt.Circle((x, y), radius, color='b', fill=False)
+            triangle = plt.Polygon(evt.get_triangle(), fill=False)
+            ax.add_artist(circle)
+            ax.add_artist(triangle)
+
+        if isinstance(current_event, CircleEvent):
+            plot_circle(current_event)
+
         for priority, event in self.event_queue.queue:
             if isinstance(event, CircleEvent):
-                x, y = event.center.x, event.center.y
-                radius = event.radius
-                circle = plt.Circle((x, y), radius, color='b', fill=False)
-                ax.add_artist(circle)
+                plot_circle(event)
+
+        # Plot points
+        for point in self.points:
+            x, y = point.x, point.y
+            ax.scatter(x=[x], y=[y], s=100)
 
         plt.show()
