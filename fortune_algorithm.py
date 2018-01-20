@@ -330,7 +330,7 @@ class Voronoi:
             if plot_line is None:
                 ax.axvline(x=arc.origin.x)
             else:
-                ax.plot(x, plot_line, linestyle="--")
+                ax.plot(x, plot_line, linestyle="--", color='gray')
                 plot_lines.append(plot_line)
         if len(plot_lines) > 0:
             ax.plot(x, np.min(plot_lines, axis=0), color="black")
@@ -339,8 +339,8 @@ class Voronoi:
         def plot_circle(evt):
             x, y = evt.center.x, evt.center.y
             radius = evt.radius
-            circle = plt.Circle((x, y), radius, color='b', fill=False)
-            triangle = plt.Polygon(evt.get_triangle(), fill=False)
+            circle = plt.Circle((x, y), radius, fill=False, color="#1f77b4", linewidth=1.2)
+            triangle = plt.Polygon(evt.get_triangle(), fill=False, color="#ff7f0e", linewidth=1.2)
             ax.add_artist(circle)
             ax.add_artist(triangle)
 
@@ -354,6 +354,6 @@ class Voronoi:
         # Plot points
         for point in self.points:
             x, y = point.x, point.y
-            ax.scatter(x=[x], y=[y], s=100)
+            ax.scatter(x=[x], y=[y], s=50, color="black")
 
         plt.show()
