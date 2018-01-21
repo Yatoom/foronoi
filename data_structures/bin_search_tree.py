@@ -25,6 +25,22 @@ class Node(object):
     def __repr__(self):
         return f"Node({self.value}, left={self.left}, right={self.right})"
 
+    def visualize(self, depth=0):
+        ret = ""
+
+        # Print right branch
+        if self.right is not None:
+            ret += self.right.visualize(depth + 1)
+
+        # Print own value
+        ret += "\n" + ("    "*depth) + str(self.value.get_name())
+
+        # Print left branch
+        if self.left is not None:
+            ret += self.left.visualize(depth + 1)
+
+        return ret
+
     @property
     def left(self):
         return self._left
@@ -156,6 +172,24 @@ class AVLTree(object):
         :return: (Node or None) The found node, or None if there was no result
         """
         return AVLTree.find_in_subtree(root=self.root, key=key, state=state)
+
+    def find_value(self, value: Value, state):
+        node = self.root
+        while node is not None:
+            if value.get_key(state) == node.value.get_key(state):
+                break
+            elif value == node.value:
+                break
+            elif value.get_key(state) < node.value.get_key(state):
+                node = node.left
+            else:
+                node = node.right
+
+        # Return node, None if not found
+        return node
+
+    def visualize_tree(self):
+        print(self.root.visualize())
 
     def find_arc_node(self, x, y):
         node = self.root
