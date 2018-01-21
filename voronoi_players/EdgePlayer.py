@@ -1,6 +1,6 @@
 import math
 
-from AbstractPlayer import Player
+from voronoi_players.abstract_player import Player
 from fortune_algorithm import Voronoi
 
 
