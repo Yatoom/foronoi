@@ -33,7 +33,7 @@ class Node(object):
             ret += self.right.visualize(depth + 1)
 
         # Print own value
-        ret += "\n" + ("    "*depth) + str(self.value.get_name())
+        ret += "\n" + ("    "*depth) + str(self.value.get_label())
 
         # Print left branch
         if self.left is not None:
@@ -214,7 +214,6 @@ class AVLTree(object):
         Simple visualization in text form.
         :return: (str) String of textual visualization.
         """
-        graph = "digraph G {\n"
         result = ""
         nodes = [self.root]
         level_num = 0
@@ -225,10 +224,6 @@ class AVLTree(object):
                 children = None
                 if node is not None:
                     a, b = node.children
-                    if a is not None:
-                        graph += f"{node.value.get_name()}->{a.value.get_name()}\n"
-                    if b is not None:
-                        graph += f"{node.value.get_name()}->{b.value.get_name()}\n"
                     level.append(a)
                     level.append(b)
                     children = (len(level) - 2, len(level) - 1)
@@ -237,83 +232,7 @@ class AVLTree(object):
             result += "\n"
 
             nodes = level
-        graph += "}"
-        f = open("graph.dot", 'w')
-        f.write(graph)
-        Popen(["dot", "-Tpng", "-o", "graph.png", "graph.dot"])
         return result
-
-    @staticmethod
-    def get_rightmost_leaf(root):
-
-        node = root
-        while node.right is not None:
-            node = node.right
-
-        return node
-
-    @staticmethod
-    def get_leftmost_leaf(root):
-
-        node = root
-        while node.left is not None:
-            node = node.left
-
-        return node
-
-    def get_left_arc_node(self, arc_node):
-        node = arc_node
-
-        # Keep walking up until the node is a right child
-        while node.is_right_child:
-            node = node.parent
-
-            # If there is no parent, we return None
-            if node is None:
-                return None
-
-        # Once we are a right child, we check if we can switch to the left
-        if node.parent is None or node.parent.left is None:
-            return None
-
-        # We are now on the left
-        node = node.parent.left
-
-        # Let's get the right most leaf from here
-        node = self.get_rightmost_leaf(node)
-
-        # Check if this is not the same node as we started with
-        if node == arc_node:
-            return None
-
-        return self.get_rightmost_leaf(node)
-
-    def get_right_arc_node(self, arc_node):
-        node = arc_node
-
-        # Keep walking up until the node is a left child
-        while node.is_right_child:
-            node = node.parent
-
-            # If there is no parent, we return None
-            if node is None:
-                return None
-
-        # Once we are a left child, we check if we can switch to the right
-        if node.parent is None or node.parent.right is None:
-            return None
-
-        # We are now on the right
-        node = node.parent.right
-
-        # Let's get the right most leaf from here
-        node = self.get_leftmost_leaf(node)
-
-        # Check if this is not the same node as we started with
-        if node == arc_node:
-            return None
-
-        return self.get_leftmost_leaf(node)
 
     def insert(self, value: Value, state):
         """
@@ -450,8 +369,7 @@ class AVLTree(object):
         return root
 
     def balance(self):
-        # return self._balance(self.root)
-        return self.root
+        return self._balance(self.root)
 
     @staticmethod
     def _balance(root: Union[Node, None]) -> Node:

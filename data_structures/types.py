@@ -9,7 +9,7 @@ class Value(metaclass=ABCMeta):
         return NotImplemented
 
     @abstractmethod
-    def get_name(self):
+    def get_label(self):
         return NotImplemented
 
 
@@ -21,7 +21,7 @@ class SimpleValue(Value):
     def get_key(self, state):
         return self.key
 
-    def get_name(self):
+    def get_label(self):
         return self.key
 
     def __repr__(self):
@@ -144,7 +144,7 @@ class Breakpoint(Value):
     def __repr__(self):
         return f"Breakpoint({self.breakpoint})"
 
-    def get_name(self):
+    def get_label(self):
         return f"{self.breakpoint[0].name}{self.breakpoint[1].name}"
 
     def get_key(self, state=None):
@@ -227,7 +227,7 @@ class Arc(Value):
     def __repr__(self):
         return f"Arc(origin={self.origin}, circle_event={self.circle_event})"
 
-    def get_name(self):
+    def get_label(self):
         return f"{self.origin.name}"
 
     def get_plot(self, x, l):
