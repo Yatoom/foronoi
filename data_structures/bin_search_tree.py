@@ -189,7 +189,8 @@ class AVLTree(object):
         return node
 
     def visualize_tree(self):
-        print(self.root.visualize())
+        if self.root is not None:
+            print(self.root.visualize())
 
     def find_arc_node(self, x, y):
         node = self.root

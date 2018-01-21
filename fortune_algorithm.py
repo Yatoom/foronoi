@@ -67,23 +67,23 @@ class Voronoi:
         print("Initial priority queue:", self.event_queue.queue)
 
         while not self.event_queue.empty():
-
             _, event = self.event_queue.get()
             if isinstance(event, CircleEvent) and event.is_valid:
                 self.sweep_line = event.y
-                if visualize:
-                    self.visualize(self.sweep_line, current_event=event)
+                print(f"-> Handle circle event at {event.y} with center {event.center}")
                 self.handle_circle_event(event)
+                if visualize:
+                    self.beach_line.visualize_tree()
+                    self.visualize(self.sweep_line, current_event=event)
             elif isinstance(event, SiteEvent):
                 self.sweep_line = event.y
+                print(f"-> Handle site event at {event.y} with point {event.point}")
                 self.handle_site_event(event)
                 if visualize:
+                    self.beach_line.visualize_tree()
                     self.visualize(self.sweep_line, current_event=event)
             else:
                 raise Exception("Not a Point or CirclePoint.")
-
-            if visualize:
-                self.beach_line.visualize_tree()
 
             # 7. The internal nodes still present in the beach line correspond to the half-infinite edges
             # of the Voronoi diagram.
@@ -95,10 +95,11 @@ class Voronoi:
             # pointers to and from them.
 
     def handle_site_event(self, event: SiteEvent):
-        print(f"Site event at {event.y} with point {event.point}")
 
         # Create a new arc
         new_point = event.point
+        if new_point.name == "E":
+            pass
         new_arc = Arc(origin=new_point)
         self.arc_list.append(new_arc)  # For visualization
 
@@ -110,6 +111,7 @@ class Voronoi:
         # 2.1 Search the beach line tree for the arc above the point
         arc_node_above_point = self.beach_line.find_arc_node(x=new_point.x, y=self.sweep_line)
         arc_above_point: Arc = arc_node_above_point.value
+        print(f"Arc above point: {arc_above_point}")
 
         # 2.2 If the leaf representing the arc has a pointer to a circle event in the event_queue, we have a false
         #     alarm, and the it must be deleted from the event_queue
@@ -223,7 +225,6 @@ class Voronoi:
         return half_edge_i, half_edge_j
 
     def handle_circle_event(self, event: CircleEvent):
-        print(f"Handle circle event at {event.y} with center {event.center}")
 
         # Get the arc node that is going to disappear
         arc_node: Node = event.arc_pointer
@@ -239,7 +240,10 @@ class Voronoi:
         # One of the breakpoints is the father, which we will remove, including the arc itself.
         if arc_node.is_left_child:
             # If the arc node is a left child, then its parent is the breakpoint on the right
-            arc_node.parent.parent.left = arc_node.parent.right
+            if arc_node.parent.is_left_child:
+                arc_node.parent.parent.left = arc_node.parent.right
+            else:
+                arc_node.parent.parent.right = arc_node.parent.right
 
             # Find the left breakpoint
             breakpoint = self.beach_line.find_value(left_breakpoint, self.sweep_line)
@@ -249,7 +253,10 @@ class Voronoi:
                 breakpoint.value.breakpoint = (breakpoint.value.breakpoint[0], successor.value.origin)
         else:
             # If the arc node is a right child, then its parent is the breakpoint on the left
-            arc_node.parent.parent.right = arc_node.parent.left
+            if arc_node.parent.is_right_child:
+                arc_node.parent.parent.right = arc_node.parent.left
+            else:
+                arc_node.parent.parent.left = arc_node.parent.left
 
             # Find the right breakpoint
             breakpoint = self.beach_line.find_value(right_breakpoint, self.sweep_line)

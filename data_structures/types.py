@@ -148,7 +148,7 @@ class Breakpoint(Value):
         return f"{self.breakpoint[0].name}{self.breakpoint[1].name}"
 
     def get_key(self, state=None):
-        return self.get_intersection(state).y
+        return self.get_intersection(state).x
 
     def get_intersection(self, l):
         """
