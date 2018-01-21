@@ -1,6 +1,5 @@
 import math
 from abc import ABCMeta, abstractmethod
-from data_structures.bin_search_tree import Node
 
 
 class Value(metaclass=ABCMeta):
@@ -88,7 +87,7 @@ class SiteEvent:
 
 
 class CircleEvent:
-    def __init__(self, center: Point, radius: float, arc_node: Node, triple=None):
+    def __init__(self, center: Point, radius: float, arc_node: "Node", triple=None):
         """
         Circle event.
 
