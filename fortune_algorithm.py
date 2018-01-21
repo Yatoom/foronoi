@@ -83,7 +83,7 @@ class Voronoi:
                 raise Exception("Not a Point or CirclePoint.")
 
             if visualize:
-                self.beach_line.visualize()
+                self.beach_line.visualize_tree()
 
 
 
@@ -128,10 +128,10 @@ class Voronoi:
         point_j = arc_above_point.origin
         breakpoint_left = Breakpoint(breakpoint=(point_j, point_i))
         breakpoint_right = Breakpoint(breakpoint=(point_i, point_j))
-        breakpoint_left.left_arc = arc_above_point
-        breakpoint_left.right_arc = new_arc
-        breakpoint_right.left_arc = new_arc
-        breakpoint_right.right_arc = arc_above_point
+        # breakpoint_left.left_arc = arc_above_point
+        # breakpoint_left.right_arc = new_arc
+        # breakpoint_right.left_arc = new_arc
+        # breakpoint_right.right_arc = arc_above_point
 
         # Create a tree with two breakpoints and three arcs.
         #
@@ -185,14 +185,20 @@ class Voronoi:
         arc_b = root.left
         arc_i = root.right.left
         arc_c = root.right.right
-        arc_a = self.beach_line.get_left_arc_node(arc_b)
-        arc_d = self.beach_line.get_right_arc_node(arc_c)
+        arc_a = arc_b.predecessor
+        arc_d = arc_c.successor
+        # arc_a = self.beach_line.get_left_arc_node(arc_b)
+        # arc_d = self.beach_line.get_right_arc_node(arc_c)
 
         # Check if it converges with the left
-        self.insert_circle_event(arc_a, arc_b, arc_i)
+        circle_event_left = self.create_circle_event(arc_a, arc_b, arc_i)
+        if circle_event_left is not None:
+            self.event_queue.put((circle_event_left.priority, circle_event_left))
 
         # Check if it converts with the right
-        self.insert_circle_event(arc_i, arc_c, arc_d)
+        circle_event_right = self.create_circle_event(arc_i, arc_c, arc_d)
+        if circle_event_right is not None and (circle_event_left is None or circle_event_right.priority != circle_event_left.priority):
+            self.event_queue.put((circle_event_right.priority, circle_event_right))
 
     @staticmethod
     def create_half_edges(point_i, point_j, breakpoint_i_j, breakpoint_j_i):
@@ -227,25 +233,59 @@ class Voronoi:
     def handle_circle_event(self, event: CircleEvent):
         print(f"Handle circle event at {event.y} with center {event.center}")
 
-        # Get the arc node
+        # Get the arc node that is going to disappear
         arc_node: Node = event.arc_pointer
-        predecessor = arc_node.predecessor
-        successor = arc_node.successor
 
+        # The arc on the left
+        predecessor = arc_node.predecessor
+        left_breakpoint = Breakpoint(breakpoint=(predecessor.value.origin, arc_node.value.origin))
+
+        # The arc on the right
+        successor = arc_node.successor
+        right_breakpoint = Breakpoint(breakpoint=(arc_node.value.origin, successor.value.origin))
+
+        # One of the breakpoints is the father, which we will remove, including the arc itself.
+        if arc_node.is_left_child:
+            # If the arc node is a left child, then its parent is the breakpoint on the right
+            arc_node.parent.parent = arc_node.parent.right
+
+            # Find the left breakpoint
+            breakpoint = self.beach_line.find_value(left_breakpoint, self.sweep_line)
+
+            # Update the breakpoint
+            if breakpoint is not None:
+                breakpoint.value.breakpoint = (breakpoint.value.breakpoint[0], successor.value.origin)
+        else:
+            # If the arc node is a right child, then its parent is the breakpoint on the left
+            arc_node.parent.parent = arc_node.parent.left
+
+            # Find the right breakpoint
+            breakpoint = self.beach_line.find_value(right_breakpoint, self.sweep_line)
+
+            # Update the breakpoint
+            if breakpoint is not None:
+                breakpoint.value.breakpoint = (predecessor.value.origin, breakpoint.value.breakpoint[1])
+
+        # Find the other breakpoint, and replace the arc node by the successor / predecessor
         # Say we have three arcs a, b and c. Arc a is in the middle, b on the right and c on the left. Arc a was found
         # first, b was the second and c the third. Arcs c and b are now going to move towards each other. That means
         # that the part between (c, a) and (a, b) is going to disappear: arc a, which is now stored as `arc_node`.
-        # To get (c, a) we take the parent of the leaf. To get (a, b), we need to go up in the tree to find it.
-        grandfather = arc_node.parent.parent
-        ancestor = grandfather.parent
+        # To get (c, a) we take the parent of the leaf. To get (a, b), we take the ancestor of the leaf.
+        # If we are on the left subtree of the ancestor, we edit the left value of the ancestor breakpoint, and if we
+        # are on the right, the right value.
+        # grandfather = arc_node.parent.parent
+        # ancestor = grandfather.parent
 
         # The arc that moves over the breakpoints from the left
-        overlapping_arc = arc_node.parent.left
-        grandfather.right = overlapping_arc
+        # overlapping_arc = predecessor
+        # grandfather.right = overlapping_arc
 
         # Update the (a, b) node to be (c, b)
-        left, right = ancestor.value.breakpoint
-        ancestor.value.breakpoint = (overlapping_arc.value.origin, right)
+        # left, right = ancestor.value.breakpoint
+        # if grandfather.is_left_child:
+        #     ancestor.value.breakpoint = (overlapping_arc.value.origin, right)
+        # else:
+        #     ancestor.value.breakpoint = (left, overlapping_arc.value.origin)
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.value.circle_event is not None:
@@ -271,20 +311,16 @@ class Voronoi:
         former_right = successor
 
         # Check if it converges with the left [find] [predecessor] [arc_node]
-        if former_left is not None:
-            middle_arc = former_left
-            left_arc = former_left.predecessor
-            right_arc = former_left.successor
-            self.insert_circle_event(left_arc, middle_arc, right_arc)
+        circle_event_left = self.create_circle_event(former_left.predecessor, former_left, former_left.successor)
+        if circle_event_left is not None:
+            self.event_queue.put((circle_event_left.priority, circle_event_left))
 
-        # Check if it converts with the right
-        if former_right is not None:
-            middle_arc = former_right
-            left_arc = former_right.predecessor
-            right_arc = former_right.successor
-            self.insert_circle_event(left_arc, middle_arc, right_arc)
+        # Check if it converts with the right. We also check if we're not inserting the same triangle twice.
+        circle_event_right = self.create_circle_event(former_right.predecessor, former_right, former_right.successor)
+        if circle_event_right is not None and circle_event_left.priority != circle_event_right.priority:
+            self.event_queue.put((circle_event_left.priority, circle_event_left))
 
-    def insert_circle_event(self, left_arc: Node, middle_arc: Node, right_arc: Node):
+    def create_circle_event(self, left_arc: Node, middle_arc: Node, right_arc: Node):
         """
         Checks if the breakpoints converge, and inserts circle event if required.
         :param left_arc: The node that represents the arc on the left
@@ -295,15 +331,17 @@ class Voronoi:
         if left_arc is None or right_arc is None or middle_arc is None:
             return None
 
-        a, b, c = left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin
-        x, y, radius = self.create_circle(a, b, c)
-        circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc, triple=(a, b, c))
-        if circle_event.y < self.sweep_line:
-            print(f"Sweep line reached {self.sweep_line}. Circle event inserted for {circle_event.y}.")
-            print(f"\t Arcs: {left_arc.value.origin}, {middle_arc.value.origin}, {right_arc.value.origin}")
-            self.event_queue.put((circle_event.priority, circle_event))
-
-        return circle_event
+        try:
+            a, b, c = left_arc.value.origin, middle_arc.value.origin, right_arc.value.origin
+            x, y, radius = self.create_circle(a, b, c)
+            circle_event = CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_arc, triple=(a, b, c))
+            if circle_event.y < self.sweep_line:
+                print(f"Sweep line reached {self.sweep_line}. Circle event inserted for {circle_event.y}.")
+                print(f"\t Arcs: {left_arc.value.origin}, {middle_arc.value.origin}, {right_arc.value.origin}")
+                return circle_event
+            return None
+        except ZeroDivisionError:
+            return None
 
     @staticmethod
     def create_circle(a, b, c):
@@ -318,12 +356,13 @@ class Voronoi:
 
         if G == 0:
             # Points are all on one line (collinear), so no circle can be made
-            pass
+            raise ZeroDivisionError
 
         # Center and radius of the circle
         x = (D * E - B * F) / G
         y = (A * F - C * E) / G
         radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
+
         return x, y, radius
 
     def visualize(self, y, current_event):
