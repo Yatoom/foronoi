@@ -1,6 +1,6 @@
 import math
 from abc import ABCMeta, abstractmethod
-from binory_tree import Node
+from data_structures.bin_search_tree import Node
 
 
 class Value(metaclass=ABCMeta):
