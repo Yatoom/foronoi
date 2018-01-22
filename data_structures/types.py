@@ -198,9 +198,13 @@ class Breakpoint(Value):
         x = result.x
         u = 2 * (b - l)
 
+        # Handle degenerate case where parabolas don't intersect
+        if u == 0:
+            result.y = float("inf")
+            return result
+
         # And we put everything back in y
         result.y = 1 / u * (x ** 2 - 2 * a * x + a ** 2 + b ** 2 - l ** 2)
-
         return result
 
 
