@@ -59,11 +59,11 @@ class Point:
 
     # Methods below are solely so that the queue can sort these well
     def priority(self):
-        return self.calc_priority(self.y)
+        return self.calc_priority(self.x, self.y)
 
     @staticmethod
-    def calc_priority(y):
-        return - int(1000 * round(y, 3))
+    def calc_priority(x, y):
+        return - (int(1000 * round(y, 3)) * 1000 + int(100 * round(x, 3)))
 
 
 class SiteEvent:
@@ -110,7 +110,7 @@ class CircleEvent:
 
     @property
     def priority(self):
-        return Point.calc_priority(self.y)
+        return Point.calc_priority(self.center.x, self.y)
 
     def get_triangle(self):
         return (
