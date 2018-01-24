@@ -63,7 +63,10 @@ class Point:
 
     @staticmethod
     def calc_priority(x, y):
-        return - (int(1000 * round(y, 3)) * 1000 + int(100 * round(x, 3)))
+        y = round(y, 5) * 10**5
+        x = round(x, 5) * 10**5
+        yx = -int(y * 10**5 - x)
+        return yx
 
 
 class SiteEvent:
