@@ -87,6 +87,6 @@ class Visualization:
                                        stroke=self.colour_bounding_box,
                                        stroke_width=self.strokewidth_bounding_box))
 
-
+        play_board.save()
 
 
