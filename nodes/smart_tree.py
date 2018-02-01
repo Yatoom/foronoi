@@ -10,11 +10,28 @@ class SmartTree:
         self.root = None
 
     @staticmethod
-    def find(root: SmartNode, key: int, **kwargs):
+    def find(root: SmartNode, key, **kwargs):
 
         node = root
         while node is not None:
             if key == node.get_key(**kwargs):
+                break
+            elif key < node.get_key(**kwargs):
+                node = node.left
+            else:
+                node = node.right
+
+        # Return node, None if not found
+        return node
+
+    @staticmethod
+    def find_leaf_node(root: SmartNode, key, **kwargs):
+
+        node = root
+        while node is not None:
+            if node.is_leaf():
+                return node
+            elif key == node.get_key(**kwargs):
                 break
             elif key < node.get_key(**kwargs):
                 node = node.left
