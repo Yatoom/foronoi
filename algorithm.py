@@ -1,4 +1,6 @@
 from queue import PriorityQueue
+import numpy as np
+import matplotlib.pyplot as plt
 
 from nodes.events import SiteEvent, CircleEvent
 from nodes.internal_node import Breakpoint, InternalNode
@@ -66,6 +68,11 @@ class Algorithm:
                 # Handle the event
                 self.handle_circle_event(event)
 
+                # Visualization
+                if visualize:
+                    print(self.beach_line.visualize())
+                    self.visualize(self.sweep_line, current_event=event)
+
             # Handle site events
             elif isinstance(event, SiteEvent):
 
@@ -78,6 +85,14 @@ class Algorithm:
                 # Handle the event
                 self.handle_site_event(event)
 
+                # Visualization
+                if visualize:
+                    print(self.beach_line.visualize())
+                    self.visualize(self.sweep_line, current_event=event)
+
+        # TODO: finish all half edges using a bounding box
+        return None
+
     def handle_site_event(self, event: SiteEvent):
 
         # Create a new arc
@@ -88,6 +103,7 @@ class Algorithm:
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line is None:
             self.beach_line = LeafNode(new_arc)
+            return
 
         # 2. Search the beach line tree for the arc above the point
         arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.x, sweep_line=self.sweep_line)
@@ -132,12 +148,12 @@ class Algorithm:
         #                  /       \            /
         #              node_c    node_d ... node_e
         #
-        node_a, node_b, node_c = (root.left.predecessor, root.left, root.right.left)
-        node_c, node_d, node_e = (root.right.left, root.right.right, root.right.right.successor)
+        node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
+        node_c, node_d, node_e = root.right.left, root.right.right, root.right.right.successor
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c)
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
         left_event_priority = left_event.priority if left_event is not None else -1
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e)
+        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
         right_event_priority = right_event.priority if right_event is not None else -1
 
         if left_event is not None:
@@ -186,24 +202,24 @@ class Algorithm:
         right_breakpoint = Breakpoint(breakpoint=(arc_node.get_value().origin, successor.get_value().origin))
 
         # If the arc node is a left child, then its parent is the node with right_breakpoint
-        if arc_node.is_left_child:
+        if arc_node.is_left_child():
 
             # Replace the right breakpoint by the right node
-            root = arc_node.parent.replace(arc_node.parent.right, root)
+            root = arc_node.parent.replace_leaf(arc_node.parent.right, root)
 
             # Find the left breakpoint
-            breakpoint = SmartTree.find(root, key=left_breakpoint.get_intersection(sweep_line).x,
+            breakpoint: InternalNode = SmartTree.find(root, key=left_breakpoint.get_intersection(sweep_line).x,
                                         sweep_line=sweep_line)
 
             # Update the breakpoint
             if breakpoint is not None:
-                breakpoint.value.breakpoint = (breakpoint.breakpoint[0], successor.get_value().origin)
+                breakpoint.data.breakpoint = (breakpoint.get_value().breakpoint[0], successor.get_value().origin)
 
         # If the arc node is a right child, then its parent is the breakpoint on the left
         else:
 
             # Replace the right breakpoint by the right node
-            root = arc_node.parent.replace(arc_node.parent.left, root)
+            root = arc_node.parent.replace_leaf(arc_node.parent.left, root)
 
             # Find the left breakpoint
             breakpoint = SmartTree.find(root, key=right_breakpoint.get_intersection(sweep_line).x,
@@ -211,6 +227,53 @@ class Algorithm:
 
             # Update the breakpoint
             if breakpoint is not None:
-                breakpoint.value.breakpoint = (predecessor.get_value().origin, breakpoint.value.breakpoint[1])
+                breakpoint.data.breakpoint = (predecessor.get_value().origin, breakpoint.get_value().breakpoint[1])
 
         return root
+
+    def visualize(self, y, current_event):
+
+        # Create 1000 equally spaced points between -10 and 10 and setup plot window
+        x = np.linspace(-25, 25, 100)
+        fig, ax = plt.subplots(figsize=(7, 7))
+        plt.title(current_event)
+        plt.ylim((0, 25))
+        plt.xlim((0, 25))
+
+        # Plot the sweep line
+        ax.plot(x, x + y - x, color='black')
+
+        # Plot all arcs
+        plot_lines = []
+        for arc in self.arc_list:
+            plot_line = arc.get_plot(x, y)
+            if plot_line is None:
+                ax.axvline(x=arc.origin.x)
+            else:
+                ax.plot(x, plot_line, linestyle="--", color='gray')
+                plot_lines.append(plot_line)
+        if len(plot_lines) > 0:
+            ax.plot(x, np.min(plot_lines, axis=0), color="black")
+
+        # Plot circle events
+        def plot_circle(evt):
+            x, y = evt.center.x, evt.center.y
+            radius = evt.radius
+            circle = plt.Circle((x, y), radius, fill=False, color="#1f77b4", linewidth=1.2)
+            triangle = plt.Polygon(evt.get_triangle(), fill=False, color="#ff7f0e", linewidth=1.2)
+            ax.add_artist(circle)
+            ax.add_artist(triangle)
+
+        if isinstance(current_event, CircleEvent):
+            plot_circle(current_event)
+
+        for priority, event in self.event_queue.queue:
+            if isinstance(event, CircleEvent):
+                plot_circle(event)
+
+        # Plot points
+        for point in self.points:
+            x, y = point.x, point.y
+            ax.scatter(x=[x], y=[y], s=50, color="black")
+
+        plt.show()
