@@ -1,11 +1,13 @@
 from nodes.smart_node import SmartNode
 from nodes.point import Point
-from nodes.events import CircleEvent
 
 
 class LeafNode(SmartNode):
-    def __init__(self, data: Arc):
+    def __init__(self, data: "Arc"):
         super().__init__(data)
+
+    def __repr__(self):
+        return f"Leaf({self.data}, left={self.left}, right={self.right})"
 
     def get_key(self, sweep_line=None):
         return self.data.origin.x
@@ -24,13 +26,16 @@ class Arc:
     will disappear, or this circle event has not been detected yet.
     """
 
-    def __init__(self, origin: Point, circle_event: CircleEvent = None):
+    def __init__(self, origin: Point, circle_event=None):
         """
         :param origin: The point that caused the arc
         :param circle_event: The pointer to the circle event in which the arc will disappear
         """
         self.origin = origin
         self.circle_event = circle_event
+
+    def __repr__(self):
+        return f"Arc({self.origin.name})"
 
     def get_plot(self, x, sweep_line):
         """

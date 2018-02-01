@@ -62,13 +62,18 @@ class SmartNode:
 
     def _avoid_loops(self, node):
 
-        # Remove the pointer to this node from the parent
-        if node is self.parent and self.is_left_child():
+        # Do nothing if the node and the parent are different
+        if node is not self.parent:
+            return
+
+        # Remove any pointer to this node
+        if self.is_left_child():
             self.parent.left = None
-        elif node is self.parent and self.is_right_child():
+
+        elif self.is_right_child():
             self.parent.right = None
 
-        # Remove the parent pointer from this node
+        # Remove the pointer to the parent
         self.parent = None
 
     @property
@@ -212,9 +217,6 @@ class SmartNode:
         :return: (SmartNode) The root of the updated tree
         """
 
-        if not self.is_leaf():
-            raise ValueError("Node to be replaced is not a leaf")
-
         # Give the parent of the node to the replacement
         if replacement is not None:
             replacement.parent = self.parent
@@ -231,14 +233,22 @@ class SmartNode:
         else:
             root = replacement
 
-        # Update all the heights
-        self.parent.update_heights()
+        # For non-empty replacement, start updating heights from replacement's root
+        if replacement is not None:
+            replacement.update_heights()
+
+        # For empty replacement, start updating heights from the parent
+        elif self.parent is not None:
+            self.parent.update_heights()
 
         # Return the new tree. No need to return the replacement, because the
         # reference remains the same.
         return root
 
-    def visualize(self, depth=0):
+    def visualize(self):
+        print(self._visualize())
+
+    def _visualize(self, depth=0):
         """
         Visualize the node and its descendants.
 
@@ -249,14 +259,14 @@ class SmartNode:
 
         # Print right branch
         if self.right is not None:
-            ret += self.right.visualize(depth + 1)
+            ret += self.right._visualize(depth + 1)
 
         # Print own value
         ret += "\n" + ("    " * depth) + str(self.get_label())
 
         # Print left branch
         if self.left is not None:
-            ret += self.left.visualize(depth=depth + 1)
+            ret += self.left._visualize(depth=depth + 1)
 
         return ret
 

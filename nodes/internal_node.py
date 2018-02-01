@@ -4,8 +4,11 @@ from nodes.point import Point
 
 
 class InternalNode(SmartNode):
-    def __init__(self, data: Breakpoint):
+    def __init__(self, data: "Breakpoint"):
         super().__init__(data)
+
+    def __repr__(self):
+        return f"Internal({self.data}, left={self.left}, right={self.right})"
 
     def get_key(self, sweep_line=None):
         return self.data.get_intersection(sweep_line).x
@@ -13,8 +16,11 @@ class InternalNode(SmartNode):
     def get_value(self, **kwargs):
         return self.data
 
+    def set_value(self, data, **kwargs):
+        self.data = data
+
     def get_label(self):
-        return f"{self.data[0].name}{self.data[1].name}"
+        return f"{self.data.breakpoint[0].name}{self.data.breakpoint[1].name}"
 
 
 class Breakpoint:
@@ -32,6 +38,9 @@ class Breakpoint:
         """
         self.breakpoint = breakpoint
 
+    def __repr__(self):
+        return f"Breakpoint({self.breakpoint[0].name}, {self.breakpoint[1].name})"
+
     def get_intersection(self, l):
         """
         Calculate the coordinates of the intersection
@@ -42,7 +51,7 @@ class Breakpoint:
         """
 
         # Get the points
-        i, j = self.data.breakpoint
+        i, j = self.breakpoint
 
         # Initialize the resulting point
         result = Point()
