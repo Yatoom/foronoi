@@ -202,7 +202,7 @@ class SmartNode:
         # Step over to the left branch, and take the maximum
         return current.parent.left.maximum()
 
-    def replace(self, replacement, root):
+    def replace_leaf(self, replacement, root):
         """
         Replace the node by a replacement tree.
         Requires the current node to be a leaf.
@@ -216,7 +216,8 @@ class SmartNode:
             raise ValueError("Node to be replaced is not a leaf")
 
         # Give the parent of the node to the replacement
-        replacement.parent = self.parent
+        if replacement is not None:
+            replacement.parent = self.parent
 
         # If node is left child, replace it by giving the parent a new left node
         if self.is_left_child():
@@ -231,7 +232,7 @@ class SmartNode:
             root = replacement
 
         # Update all the heights
-        replacement.update_heights()
+        self.parent.update_heights()
 
         # Return the new tree. No need to return the replacement, because the
         # reference remains the same.
@@ -268,5 +269,7 @@ if __name__ == '__main__':
     node.left.right = SmartNode(4)
     node.right.left = SmartNode(6)
     node.right.right = SmartNode(8)
+    node = node.right.right.replace_leaf(None, node)
+    node = node.left.left.replace_leaf(None, node)
 
     print(node.visualize())
