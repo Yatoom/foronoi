@@ -1,3 +1,6 @@
+import math
+
+from nodes.leaf_node import Arc, LeafNode
 from nodes.point import Point
 
 
@@ -22,7 +25,7 @@ class SiteEvent:
 
 
 class CircleEvent:
-    def __init__(self, center: Point, radius: float, arc_node: "Node", triple=None):
+    def __init__(self, center: Point, radius: float, arc_node: LeafNode, triple=None):
         """
         Circle event.
 
@@ -57,6 +60,68 @@ class CircleEvent:
     def remove(self):
         print(f"Circle event for {self.y} removed.")
         self.is_valid = False
+
+    @staticmethod
+    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line):
+        """
+        Checks if the breakpoints converge, and inserts circle event if required.
+        :param sweep_line: Y-coordinate of the sweep line
+        :param left_node: The node that represents the arc on the left
+        :param middle_node: The node that represents the arc on the middle
+        :param right_node: The node that represents the arc on the right
+        :return: The circle event or None if no circle event needs to be inserted
+        """
+
+        # Check if any of the nodes is None
+        if left_node is None or right_node is None or middle_node is None:
+            return None
+
+        # Get arcs from the nodes
+        left_arc: Arc = left_node.get_value()
+        middle_arc: Arc = middle_node.get_value()
+        right_arc: Arc = right_node.get_value()
+
+        # Get the points from the arcs
+        a, b, c = left_arc.origin, middle_arc.origin, right_arc.origin
+
+        # Check if we can create a circle event
+        if CircleEvent.create_circle(a, b, c):
+
+            # Create the circle
+            x, y, radius = CircleEvent.create_circle(a, b, c)
+
+            # Check if the bottom of the circle is below the sweep line
+            if y - radius < sweep_line:
+                # Debugging
+                print(f"Sweep line reached {sweep_line}. Circle event inserted for {y - radius}.")
+                print(f"\t Arcs: {left_arc}, {middle_arc}, {right_arc}")
+
+                # Create the circle event
+                return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, triple=(a, b, c))
+
+        return None
+
+    @staticmethod
+    def create_circle(a, b, c):
+        # Algorithm from O'Rourke 2ed p. 189
+        A = b.x - a.x
+        B = b.y - a.y
+        C = c.x - a.x
+        D = c.y - a.y
+        E = A * (a.x + b.x) + B * (a.y + b.y)
+        F = C * (a.x + c.x) + D * (a.y + c.y)
+        G = 2 * (A * (c.y - b.y) - B * (c.x - b.x))
+
+        if G == 0:
+            # Points are all on one line (collinear), so no circle can be made
+            return False
+
+        # Center and radius of the circle
+        x = (D * E - B * F) / G
+        y = (A * F - C * E) / G
+        radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
+
+        return x, y, radius
 
 
 def calc_priority(x, y):

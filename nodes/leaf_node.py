@@ -24,7 +24,7 @@ class Arc:
     will disappear, or this circle event has not been detected yet.
     """
 
-    def __init__(self, origin: Point, circle_event: CircleEvent):
+    def __init__(self, origin: Point, circle_event: CircleEvent = None):
         """
         :param origin: The point that caused the arc
         :param circle_event: The pointer to the circle event in which the arc will disappear

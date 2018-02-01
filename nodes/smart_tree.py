@@ -3,11 +3,9 @@ import time
 
 
 class SmartTree:
-    def __init__(self):
-        """
-        Self-balancing Binary Search Tree.
-        """
-        self.root = None
+    """
+    Self-balancing Binary Search Tree.
+    """
 
     @staticmethod
     def find(root: SmartNode, key, **kwargs):
