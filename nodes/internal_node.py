@@ -1,6 +1,6 @@
 import math
 from nodes.smart_node import SmartNode
-from data_structures.types import Point
+from nodes.point import Point
 
 
 class InternalNode(SmartNode):

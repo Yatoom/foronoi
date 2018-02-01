@@ -1,5 +1,6 @@
 from nodes.smart_node import SmartNode
-from data_structures.types import Point, CircleEvent
+from nodes.point import Point
+from nodes.events import CircleEvent
 
 
 class LeafNode(SmartNode):
