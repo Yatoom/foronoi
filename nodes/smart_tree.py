@@ -24,13 +24,35 @@ class SmartTree:
 
     @staticmethod
     def find_leaf_node(root: SmartNode, key, **kwargs):
+        """
+        Follows a path downward between the internal nodes using the key until it
+        reaches a leaf node. If it is unclear which path to take, the left path is
+        taken.
+
+        :param root: (SmartNode) The root of the (sub)tree to travel down
+        :param key: The key to use to determine the path
+        :param kwargs: Optional arguments passed to the get_key() functions
+        :return: (SmartNode) The node found at the end of the journey
+        """
 
         node = root
         while node is not None:
+
+            # If the node is a leaf, we have found a leaf
             if node.is_leaf():
                 return node
-            elif key == node.get_key(**kwargs):
-                break
+
+            # If we found the key, we choose a direction
+            elif key == node.get_key(**kwargs) and not node.is_leaf():
+
+                # We take the left path if possible
+                if node.left is not None:
+                    return node.left.maximum()
+
+                # Otherwise we take the right path
+                return node.right.minimum()
+
+            # Normal binary search
             elif key < node.get_key(**kwargs):
                 node = node.left
             else:
