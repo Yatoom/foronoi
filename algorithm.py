@@ -42,7 +42,7 @@ class Algorithm:
 
             # Create site event
             site_event = SiteEvent(point=point)
-            self.event_queue.put((site_event.priority, site_event))
+            self.event_queue.put(site_event)
 
         return self.event_queue
 
@@ -52,9 +52,10 @@ class Algorithm:
         self.initialize(points)
 
         while not self.event_queue.empty():
+            print("Queue", self.event_queue.queue)
 
             # Pop the event queue with the highest priority
-            _, event = self.event_queue.get()
+            event = self.event_queue.get()
 
             # Handle circle events
             if isinstance(event, CircleEvent) and event.is_valid:
@@ -152,15 +153,13 @@ class Algorithm:
         node_c, node_d, node_e = root.right.left, root.right.right, root.right.right.successor
 
         left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
-        left_event_priority = left_event.priority if left_event is not None else -1
         right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
-        right_event_priority = right_event.priority if right_event is not None else -1
 
         if left_event is not None:
-            self.event_queue.put((left_event_priority, left_event))
+            self.event_queue.put(left_event)
 
-        if right_event is not None and (left_event_priority != right_event_priority):
-            self.event_queue.put((right_event_priority, right_event))
+        if right_event is not None and left_event != right_event:
+            self.event_queue.put(right_event)
 
     def handle_circle_event(self, event: CircleEvent):
 
@@ -186,15 +185,13 @@ class Algorithm:
         node_c, node_d, node_e = former_right.predecessor, former_right, former_right.successor
 
         left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
-        left_event_priority = left_event.priority if left_event is not None else -1
         right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
-        right_event_priority = right_event.priority if right_event is not None else -1
 
         if left_event is not None:
-            self.event_queue.put((left_event_priority, left_event))
+            self.event_queue.put(left_event)
 
-        if right_event is not None and (left_event_priority != right_event_priority):
-            self.event_queue.put((right_event_priority, right_event))
+        if right_event is not None and left_event != right_event:
+            self.event_queue.put(right_event)
 
     @staticmethod
     def update_breakpoints(event, root, sweep_line, arc_node, predecessor, successor):
@@ -267,7 +264,7 @@ class Algorithm:
         if isinstance(current_event, CircleEvent):
             plot_circle(current_event)
 
-        for priority, event in self.event_queue.queue:
+        for event in self.event_queue.queue:
             if isinstance(event, CircleEvent):
                 plot_circle(event)
 

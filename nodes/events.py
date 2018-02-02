@@ -4,7 +4,32 @@ from nodes.leaf_node import Arc, LeafNode
 from nodes.point import Point
 
 
-class SiteEvent:
+class Event:
+    @property
+    def x(self):
+        return 0
+
+    @property
+    def y(self):
+        return 0
+
+    def __lt__(self, other):
+        if self.y == other.y:
+            return self.x < other.x
+
+        # Switch y axis
+        return self.y > other.y
+
+    def __eq__(self, other):
+        if other is None:
+            return None
+        return self.y == other.y and self.x == other.x
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class SiteEvent(Event):
     def __init__(self, point: Point):
         """
         Site event
@@ -13,18 +38,18 @@ class SiteEvent:
         self.point = point
 
     @property
-    def y(self):
-        return self.point.y
+    def x(self):
+        return self.point.x
 
     @property
-    def priority(self):
-        return calc_priority(self.point.x, self.point.y)
+    def y(self):
+        return self.point.y
 
     def __repr__(self):
         return f"SiteEvent(x={self.point.x}, y={self.point.y}, pl={self.point.player})"
 
 
-class CircleEvent:
+class CircleEvent(Event):
     def __init__(self, center: Point, radius: float, arc_node: LeafNode, triple=None):
         """
         Circle event.
@@ -43,12 +68,12 @@ class CircleEvent:
         return f"CircleEvent({self.center}, {round(self.radius, 3)})"
 
     @property
-    def y(self):
-        return self.center.y - self.radius
+    def x(self):
+        return self.center.x
 
     @property
-    def priority(self):
-        return calc_priority(self.center.x, self.center.y)
+    def y(self):
+        return self.center.y - self.radius
 
     def get_triangle(self):
         return (
@@ -122,10 +147,3 @@ class CircleEvent:
         radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
 
         return x, y, radius
-
-
-def calc_priority(x, y):
-    y = round(y, 5) * 10 ** 5
-    x = round(x, 5) * 10 ** 5
-    yx = -int(y * 10 ** 5 - x)
-    return yx

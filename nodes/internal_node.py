@@ -16,9 +16,6 @@ class InternalNode(SmartNode):
     def get_value(self, **kwargs):
         return self.data
 
-    def set_value(self, data, **kwargs):
-        self.data = data
-
     def get_label(self):
         return f"{self.data.breakpoint[0].name}{self.data.breakpoint[1].name}"
 
