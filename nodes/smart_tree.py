@@ -24,6 +24,16 @@ class SmartTree:
 
     @staticmethod
     def find_value(root: SmartNode, query: SmartNode, compare=lambda x, y: x == y, **kwargs):
+        """
+        Find an item using a query node and a comparison function.
+
+        :param root: (SmartNode) The root to start searching from
+        :param query: The query
+        :param compare: (lambda) Lambda expression to compare the node against the query. Will be called as
+        compare(node.data, query.data).
+        :param kwargs: Optional arguments to be passed to the get_key() functions
+        :return: (SmartNode or None) Returns the node that corresponds to the query or None
+        """
         key = query.get_key(**kwargs)
         node = root
         while node is not None:
