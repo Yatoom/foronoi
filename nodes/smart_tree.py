@@ -139,6 +139,22 @@ class SmartTree:
         return root
 
     @staticmethod
+    def balance_and_propagate(node):
+        """
+        Walks up the tree recursively to rebalance all nodes, until it reaches the new root.
+
+        :param node: The starting point, everything below this point is assumed to be balanced.
+        :return: The root of the balanced tree
+        """
+
+        node = SmartTree.balance(node)
+
+        if node.parent is None:
+            return node
+
+        return SmartTree.balance_and_propagate(node.parent)
+
+    @staticmethod
     def balance(node):
         """
         Make the three balanced if it is unbalanced.
@@ -185,13 +201,28 @@ class SmartTree:
         :param z: (Node) The root of the sub tree
         :return: (Node) The new root of the sub tree
         """
-
+        grandparent = z.parent
         y = z.right
         T2 = y.left
+
+        # Appoint new parent to root of sub tree
+        y.parent = grandparent
+
+        # And point the parent back
+        if grandparent is not None:
+            if z.is_left_child():
+                grandparent.left = y
+            else:
+                grandparent.right = y
 
         # Perform rotation
         y.left = z
         z.right = T2
+
+        # Update parents
+        # parent of y is already set
+        # parent of z is set by y.left
+        # parent of T2 is set by z.right
 
         # Update heights (z has to be updated first, because it is a child of y)
         z.update_heights(propagate=False)
@@ -217,9 +248,19 @@ class SmartTree:
         :param z: (Node) The root of the sub tree
         :return: (Node) The new root of the sub tree
         """
-
+        grandparent = z.parent
         y = z.left
         T3 = y.right
+
+        # Appoint new parent to root of sub tree
+        y.parent = grandparent
+
+        # And point the parent back
+        if grandparent is not None:
+            if z.is_left_child():
+                grandparent.left = y
+            else:
+                grandparent.right = y
 
         # Perform rotation
         y.right = z

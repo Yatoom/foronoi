@@ -40,8 +40,6 @@ class SmartNode:
     def left(self, node):
 
         if node is not None:
-            # Avoid loops when rotating
-            self._avoid_loops(node)
 
             # Tell the child who its new parent is
             node.parent = self
@@ -52,29 +50,11 @@ class SmartNode:
     def right(self, node):
 
         if node is not None:
-            # Avoid loops when rotating
-            self._avoid_loops(node)
 
             # Tell the child who its new parent is
             node.parent = self
 
         self._right = node
-
-    def _avoid_loops(self, node):
-
-        # Do nothing if the node and the parent are different
-        if node is not self.parent:
-            return
-
-        # Remove any pointer to this node
-        if self.is_left_child():
-            self.parent.left = None
-
-        elif self.is_right_child():
-            self.parent.right = None
-
-        # Remove the pointer to the parent
-        self.parent = None
 
     @property
     def height(self):

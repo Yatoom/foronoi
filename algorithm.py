@@ -88,7 +88,7 @@ class Algorithm:
 
                 # Visualization
                 if visualize:
-                    print(self.beach_line.visualize())
+                    self.beach_line.visualize()
                     self.visualize(self.sweep_line, current_event=event)
 
         # TODO: finish all half edges using a bounding box
@@ -161,6 +161,10 @@ class Algorithm:
         if right_event is not None and left_event != right_event:
             self.event_queue.put(right_event)
 
+        self.beach_line.visualize()
+        self.beach_line = SmartTree.balance_and_propagate(root)
+        self.beach_line.visualize()
+
     def handle_circle_event(self, event: CircleEvent):
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
@@ -203,6 +207,7 @@ class Algorithm:
 
             # Replace the right breakpoint by the right node
             root = arc_node.parent.replace_leaf(arc_node.parent.right, root)
+            # SmartTree.propagating_balance(arc_node.parent.right)
 
             # Find the left breakpoint
             breakpoint: InternalNode = SmartTree.find(root, key=left_breakpoint.get_intersection(sweep_line).x,
@@ -217,6 +222,7 @@ class Algorithm:
 
             # Replace the right breakpoint by the right node
             root = arc_node.parent.replace_leaf(arc_node.parent.left, root)
+            # SmartTree.propagating_balance(arc_node.parent.left)
 
             # Find the left breakpoint
             breakpoint = SmartTree.find(root, key=right_breakpoint.get_intersection(sweep_line).x,
