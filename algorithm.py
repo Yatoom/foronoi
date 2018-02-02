@@ -211,8 +211,9 @@ class Algorithm:
             root = SmartTree.balance_and_propagate(root)
 
             # Find the left breakpoint
-            breakpoint: InternalNode = SmartTree.find(root, key=left_breakpoint.get_intersection(sweep_line).x,
-                                        sweep_line=sweep_line)
+            query = InternalNode(left_breakpoint)
+            compare = lambda x, y: hasattr(x, "breakpoint") and x.breakpoint == y.breakpoint
+            breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
 
             # Update the breakpoint
             if breakpoint is not None:
@@ -227,9 +228,10 @@ class Algorithm:
             # Rebalance the tree
             root = SmartTree.balance_and_propagate(root)
 
-            # Find the left breakpoint
-            breakpoint = SmartTree.find(root, key=right_breakpoint.get_intersection(sweep_line).x,
-                                        sweep_line=sweep_line)
+            # Find the right breakpoint
+            query = InternalNode(right_breakpoint)
+            compare = lambda x, y: hasattr(x, "breakpoint") and x.breakpoint == y.breakpoint
+            breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
 
             # Update the breakpoint
             if breakpoint is not None:

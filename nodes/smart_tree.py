@@ -23,6 +23,31 @@ class SmartTree:
         return node
 
     @staticmethod
+    def find_value(root: SmartNode, query: SmartNode, compare=lambda x, y: x == y, **kwargs):
+        key = query.get_key(**kwargs)
+        node = root
+        while node is not None:
+            if key == node.get_key(**kwargs):
+
+                if compare(node.data, query.data):
+                    return node
+
+                left = SmartTree.find_value(node.left, query, compare, **kwargs)
+                if left is None:
+                    right = SmartTree.find_value(node.right, query, compare, **kwargs)
+                    return right
+
+                return left
+
+            elif key < node.get_key(**kwargs):
+                node = node.left
+            else:
+                node = node.right
+
+        # Return node, None if not found
+        return node
+
+    @staticmethod
     def find_leaf_node(root: SmartNode, key, **kwargs):
         """
         Follows a path downward between the internal nodes using the key until it
