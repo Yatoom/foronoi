@@ -176,6 +176,13 @@ class Algorithm:
         left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
         right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
 
+        # Check if the circles are on the correct side
+        if left_event is not None and left_event.x > node_c.data.origin.x:
+            left_event = None
+
+        if right_event is not None and right_event.x < node_c.data.origin.x:
+            right_event = None
+
         if left_event is not None:
             self.event_queue.put(left_event)
 
@@ -230,6 +237,13 @@ class Algorithm:
 
         left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
         right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
+
+        # Check if the circles are on the correct side
+        if left_event is not None and left_event.x > node_c.data.origin.x:
+            left_event = None
+
+        if right_event is not None and right_event.x < node_c.data.origin.x:
+            right_event = None
 
         if left_event is not None:
             self.event_queue.put(left_event)
