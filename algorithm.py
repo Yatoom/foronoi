@@ -211,7 +211,7 @@ class Algorithm:
         if predecessor is not None and predecessor.get_value().circle_event is not None:
             predecessor.get_value().circle_event.remove()
         if successor is not None and successor.get_value().circle_event is not None:
-            predecessor.get_value().circle_event.remove()
+            successor.get_value().circle_event.remove()
 
         # 2. Create half-edge records
 
