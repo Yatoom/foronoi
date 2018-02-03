@@ -3,19 +3,19 @@ class Vertex:
         self.incident_points = incident_points
         self.point = point
 
+    def __repr__(self):
+        return f"Vertex({self.point})"
+
     @property
     def position(self):
         return self.point
 
 
 class HalfEdge:
-    def __init__(self, incident_point, twin=None):
+    def __init__(self, incident_point, twin=None, origin=None):
 
-        # Pointer to the breakpoint it is attached to
-        self.breakpoint = None
-
-        # Pointer to the vertex it is attached to
-        self.vertex = None
+        # Pointer to the origin. Can be breakpoint or vertex.
+        self.origin = origin
 
         # The point of which this edge is the border
         self.incident_point = incident_point
@@ -30,9 +30,9 @@ class HalfEdge:
         return f"HalfEdge({self.incident_point})"
 
     def get_origin(self, y):
-        if self.vertex is None:
-            return self.breakpoint.get_intersection(y)
-        return self.vertex.point
+        if isinstance(self.origin, Vertex):
+            return self.origin.point
+        return self.origin.get_intersection(y)
 
     def remove(self):
         self.removed = True

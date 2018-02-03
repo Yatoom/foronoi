@@ -1,6 +1,7 @@
 from queue import PriorityQueue
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 from nodes.diagram import HalfEdge, Vertex
 from nodes.events import SiteEvent, CircleEvent, Event
@@ -146,11 +147,18 @@ class Algorithm:
         self.beach_line = arc_node_above_point.replace_leaf(replacement=root, root=self.beach_line)
 
         # 5. Create half edge records
-        half_edge_left = HalfEdge(point_i)
-        half_edge_right = HalfEdge(point_j, twin=half_edge_left)
-        breakpoint_left.edge = half_edge_left
-        breakpoint_right.edge = half_edge_right
-        self.edges.append(half_edge_left)
+        A, B = point_j, point_i
+        AB = breakpoint_left
+        BA = breakpoint_right
+
+        # Edge AB -> BA with incident point B
+        AB.edge = HalfEdge(B, origin=AB)
+
+        # Edge BA -> AB with incident point A
+        BA.edge = HalfEdge(A, origin=BA, twin=breakpoint_left.edge)
+
+        # Append one of the edges to the list (we can get the other by using twin)
+        self.edges.append(AB.edge)
 
         # 6. Check if breakpoints are going to converge with the arcs to the left and to the right
         #
@@ -200,20 +208,15 @@ class Algorithm:
         v = Vertex(point=convergence_point)
 
         # Connect the two old edges to the vertex
-        updated.edge.vertex = v
-        removed.edge.vertex = v
+        updated.edge.origin = v
+        removed.edge.origin = v
 
         # Get the incident points
-        left_incident_point = updated.breakpoint[0]
-        right_incident_point = updated.breakpoint[1]
+        C = updated.breakpoint[0]
+        B = updated.breakpoint[1]
 
-        # Create a new edge for the new breakpoint, where the edge moves away from the vertex
-        updated.edge = HalfEdge(left_incident_point)  # edge moving away from vertex
-        updated.edge.vertex = v
-
-        # And create its twin, that moves towards the vertex
-        updated.edge.twin = HalfEdge(right_incident_point)  # edge moving towards vertex
-        updated.edge.twin.breakpoint = updated
+        # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
+        updated.edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
 
         # Add to list for visualization
         self.edges.append(updated.edge)

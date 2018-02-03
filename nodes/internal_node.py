@@ -44,16 +44,16 @@ class Breakpoint:
     def __repr__(self):
         return f"Breakpoint({self.breakpoint[0].name}, {self.breakpoint[1].name})"
 
-    @property
-    def edge(self):
-        return self._edge
-
-    @edge.setter
-    def edge(self, edge):
-        if edge is not None:
-            edge.breakpoint = self
-
-        self._edge = edge
+    # @property
+    # def edge(self):
+    #     return self._edge
+    #
+    # @edge.setter
+    # def edge(self, edge):
+    #     if edge is not None:
+    #         edge.breakpoint = self
+    #
+    #     self._edge = edge
 
     def get_intersection(self, l):
         """
