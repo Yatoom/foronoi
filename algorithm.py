@@ -2,7 +2,8 @@ from queue import PriorityQueue
 import numpy as np
 import matplotlib.pyplot as plt
 
-from nodes.events import SiteEvent, CircleEvent
+from nodes.diagram import HalfEdge, Vertex
+from nodes.events import SiteEvent, CircleEvent, Event
 from nodes.internal_node import Breakpoint, InternalNode
 from nodes.leaf_node import Arc, LeafNode
 from nodes.smart_node import SmartNode
@@ -29,6 +30,9 @@ class Algorithm:
 
         # Store points for visualization
         self.points = None
+
+        # Half edges for visualization
+        self.edges = []
 
     def initialize(self, points):
 
@@ -92,6 +96,11 @@ class Algorithm:
                     self.visualize(self.sweep_line, current_event=event)
 
         # TODO: finish all half edges using a bounding box
+
+        # Final visualization
+        if visualize:
+            self.beach_line.visualize()
+            self.visualize(-1000, current_event="Final result")
         return None
 
     def handle_site_event(self, event: SiteEvent):
@@ -136,8 +145,12 @@ class Algorithm:
 
         self.beach_line = arc_node_above_point.replace_leaf(replacement=root, root=self.beach_line)
 
-        # 5. TODO: Create half edge records
-        pass
+        # 5. Create half edge records
+        half_edge_left = HalfEdge(point_i)
+        half_edge_right = HalfEdge(point_j, twin=half_edge_left)
+        breakpoint_left.edge = half_edge_left
+        breakpoint_right.edge = half_edge_right
+        self.edges.append(half_edge_left)
 
         # 6. Check if breakpoints are going to converge with the arcs to the left and to the right
         #
@@ -170,7 +183,7 @@ class Algorithm:
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
-        self.update_breakpoints(event, self.beach_line, self.sweep_line, arc_node, predecessor, successor)
+        updated, removed = self.update_breakpoints(self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.get_value().circle_event is not None:
@@ -178,7 +191,32 @@ class Algorithm:
         if successor is not None and successor.get_value().circle_event is not None:
             predecessor.get_value().circle_event.remove()
 
-        # 2. TODO: Create half-edge records
+        # 2. Create half-edge records
+
+        # Get the location where the breakpoints converge
+        convergence_point = event.center
+
+        # Create a vertex
+        v = Vertex(point=convergence_point)
+
+        # Connect the two old edges to the vertex
+        updated.edge.vertex = v
+        removed.edge.vertex = v
+
+        # Get the incident points
+        left_incident_point = updated.breakpoint[0]
+        right_incident_point = updated.breakpoint[1]
+
+        # Create a new edge for the new breakpoint, where the edge moves away from the vertex
+        updated.edge = HalfEdge(left_incident_point)  # edge moving away from vertex
+        updated.edge.vertex = v
+
+        # And create its twin, that moves towards the vertex
+        updated.edge.twin = HalfEdge(right_incident_point)  # edge moving towards vertex
+        updated.edge.twin.breakpoint = updated
+
+        # Add to list for visualization
+        self.edges.append(updated.edge)
 
         # 3. Check if breakpoints converge for the triples with former left and former right as middle arcs
         former_left = predecessor
@@ -197,9 +235,7 @@ class Algorithm:
             self.event_queue.put(right_event)
 
     @staticmethod
-    def update_breakpoints(event, root, sweep_line, arc_node, predecessor, successor):
-        left_breakpoint = Breakpoint(breakpoint=(predecessor.get_value().origin, arc_node.get_value().origin))
-        right_breakpoint = Breakpoint(breakpoint=(arc_node.get_value().origin, successor.get_value().origin))
+    def update_breakpoints(root, sweep_line, arc_node, predecessor, successor):
 
         # If the arc node is a left child, then its parent is the node with right_breakpoint
         if arc_node.is_left_child():
@@ -207,10 +243,14 @@ class Algorithm:
             # Replace the right breakpoint by the right node
             root = arc_node.parent.replace_leaf(arc_node.parent.right, root)
 
+            # Mark the right breakpoint as removed
+            removed = arc_node.parent.data
+
             # Rebalance the tree
             root = SmartTree.balance_and_propagate(root)
 
             # Find the left breakpoint
+            left_breakpoint = Breakpoint(breakpoint=(predecessor.get_value().origin, arc_node.get_value().origin))
             query = InternalNode(left_breakpoint)
             compare = lambda x, y: hasattr(x, "breakpoint") and x.breakpoint == y.breakpoint
             breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
@@ -219,16 +259,23 @@ class Algorithm:
             if breakpoint is not None:
                 breakpoint.data.breakpoint = (breakpoint.get_value().breakpoint[0], successor.get_value().origin)
 
+            # Mark this breakpoint as updated
+            updated = breakpoint.data if breakpoint is not None else None
+
         # If the arc node is a right child, then its parent is the breakpoint on the left
         else:
 
-            # Replace the right breakpoint by the right node
+            # Replace the left breakpoint by the left node
             root = arc_node.parent.replace_leaf(arc_node.parent.left, root)
+
+            # Mark the left breakpoint as removed
+            removed = arc_node.parent.data
 
             # Rebalance the tree
             root = SmartTree.balance_and_propagate(root)
 
             # Find the right breakpoint
+            right_breakpoint = Breakpoint(breakpoint=(arc_node.get_value().origin, successor.get_value().origin))
             query = InternalNode(right_breakpoint)
             compare = lambda x, y: hasattr(x, "breakpoint") and x.breakpoint == y.breakpoint
             breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
@@ -237,7 +284,10 @@ class Algorithm:
             if breakpoint is not None:
                 breakpoint.data.breakpoint = (predecessor.get_value().origin, breakpoint.get_value().breakpoint[1])
 
-        return root
+            # Mark this breakpoint as updated
+            updated = breakpoint.data if breakpoint is not None else None
+
+        return updated, removed
 
     def visualize(self, y, current_event):
 
@@ -271,6 +321,13 @@ class Algorithm:
             triangle = plt.Polygon(evt.get_triangle(), fill=False, color="#ff7f0e", linewidth=1.2)
             ax.add_artist(circle)
             ax.add_artist(triangle)
+
+        # Plot half-edges
+        for edge in self.edges:
+            if not edge.removed:
+                start = edge.get_origin(y)
+                end = edge.twin.get_origin(y)
+                plt.plot([start.x, end.x], [start.y, end.y], color="blue")
 
         if isinstance(current_event, CircleEvent):
             plot_circle(current_event)

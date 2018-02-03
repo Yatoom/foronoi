@@ -25,7 +25,7 @@ class Breakpoint:
     A breakpoint between two arcs.
     """
 
-    def __init__(self, breakpoint: tuple):
+    def __init__(self, breakpoint: tuple, edge=None):
         """
         The breakpoint is stored by an ordered tuple of sites (p_i, p_j) where p_i defines the parabola left of the
         breakpoint and p_j defines the parabola to the right. Furthermore, the internal node v has a pointer to the half
@@ -33,10 +33,27 @@ class Breakpoint:
         half-edges of the edge being traced out by the breakpoint represented by v.
         :param breakpoint: A tuple of two points that caused two arcs to intersect
         """
+
+        # The tuple of the points whose arcs intersect
         self.breakpoint = breakpoint
+
+        # The dge this breakpoint is tracing out
+        self._edge = None
+        self.edge = edge
 
     def __repr__(self):
         return f"Breakpoint({self.breakpoint[0].name}, {self.breakpoint[1].name})"
+
+    @property
+    def edge(self):
+        return self._edge
+
+    @edge.setter
+    def edge(self, edge):
+        if edge is not None:
+            edge.breakpoint = self
+
+        self._edge = edge
 
     def get_intersection(self, l):
         """
