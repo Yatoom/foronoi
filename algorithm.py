@@ -42,12 +42,15 @@ class Algorithm:
 
         # Initialize event queue with all site events.
         for index, point in enumerate(points):
-            # Give each point a letter, so we can look at letters rather than coordinates when debugging
-            point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
+            # # Give each point a letter, so we can look at letters rather than coordinates when debugging
+            # point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
 
             # Create site event
             site_event = SiteEvent(point=point)
             self.event_queue.put(site_event)
+
+        for index, event in enumerate(self.event_queue.queue):
+            event.point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
 
         return self.event_queue
 
@@ -120,6 +123,8 @@ class Algorithm:
         arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.x, sweep_line=self.sweep_line)
         arc_above_point = arc_node_above_point.get_value()
 
+        print("Arc above point:", arc_above_point)
+
         # 3. Remove potential false alarm
         if arc_above_point.circle_event is not None:
             arc_above_point.circle_event.remove()
@@ -185,9 +190,11 @@ class Algorithm:
 
         if left_event is not None:
             self.event_queue.put(left_event)
+            node_b.data.circle_event = left_event
 
         if right_event is not None and left_event != right_event:
             self.event_queue.put(right_event)
+            node_d.data.circle_event = right_event
 
         # 7. Rebalance the tree
         self.beach_line = SmartTree.balance_and_propagate(root)
@@ -247,9 +254,11 @@ class Algorithm:
 
         if left_event is not None:
             self.event_queue.put(left_event)
+            node_b.data.circle_event = left_event
 
         if right_event is not None and left_event != right_event:
             self.event_queue.put(right_event)
+            node_d.data.circle_event = right_event
 
     @staticmethod
     def update_breakpoints(root, sweep_line, arc_node, predecessor, successor):
