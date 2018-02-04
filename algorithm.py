@@ -35,6 +35,9 @@ class Algorithm:
         # Half edges for visualization
         self.edges = []
 
+        # List of vertices
+        self.vertices = []
+
     def initialize(self, points):
 
         # Store the points for visualization
@@ -220,10 +223,13 @@ class Algorithm:
 
         # Create a vertex
         v = Vertex(point=convergence_point)
+        self.vertices.append(v)
 
         # Connect the two old edges to the vertex
         updated.edge.origin = v
         removed.edge.origin = v
+        v.incident_edges.append(updated.edge)
+        v.incident_edges.append(removed.edge)
 
         # Get the incident points
         C = updated.breakpoint[0]
@@ -231,6 +237,7 @@ class Algorithm:
 
         # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
         updated.edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
+        v.incident_edges.append(updated.edge.twin)
 
         # Add to list for visualization
         self.edges.append(updated.edge)
