@@ -82,18 +82,20 @@ class CircleEvent(Event):
             (self.triple[2].x, self.triple[2].y),
         )
 
-    def remove(self):
-        print(f"Circle event for {self.y} removed.")
+    def remove(self, verbose=False):
+        if verbose:
+            print(f"Circle event for {self.y} removed.")
         self.is_valid = False
 
     @staticmethod
-    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line):
+    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line, verbose=False):
         """
         Checks if the breakpoints converge, and inserts circle event if required.
         :param sweep_line: Y-coordinate of the sweep line
         :param left_node: The node that represents the arc on the left
         :param middle_node: The node that represents the arc on the middle
         :param right_node: The node that represents the arc on the right
+        :param verbose: Flag for printing debugging information
         :return: The circle event or None if no circle event needs to be inserted
         """
 
@@ -117,9 +119,11 @@ class CircleEvent(Event):
 
             # Check if the bottom of the circle is below the sweep line
             if y - radius < sweep_line:
+
                 # Debugging
-                print(f"Sweep line reached {sweep_line}. Circle event inserted for {y - radius}.")
-                print(f"\t Arcs: {left_arc}, {middle_arc}, {right_arc}")
+                if verbose:
+                    print(f"Sweep line reached {sweep_line}. Circle event inserted for {y - radius}.")
+                    print(f"\t Arcs: {left_arc}, {middle_arc}, {right_arc}")
 
                 # Create the circle event
                 return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, triple=(a, b, c))

@@ -1,11 +1,3 @@
-class BoundingBox:
-    def __init__(self, left_x, right_x, bottom_y, top_y):
-        self.left = left_x
-        self.right = right_x
-        self.bottom = bottom_y
-        self.top = top_y
-
-
 class Vertex:
     def __init__(self, incident_edges=None, point=None):
 
@@ -22,21 +14,6 @@ class Vertex:
     @property
     def position(self):
         return self.point
-    #
-    # def __lt__(self, other):
-    #     if self.point.y == other.point.y:
-    #         return self.point.x < other.point.x
-    #
-    #     # Switch y axis
-    #     return self.point.y < other.point.y
-    #
-    # def __eq__(self, other):
-    #     if other is None:
-    #         return None
-    #     return self.point.y == other.y and self.point.x == other.x
-    #
-    # def __ne__(self, other):
-    #     return not self.__eq__(other)
 
 
 class HalfEdge:

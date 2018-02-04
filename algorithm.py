@@ -1,18 +1,13 @@
-from enum import Enum
 from queue import PriorityQueue
-import numpy as np
 import matplotlib.pyplot as plt
-import copy
 import numpy as np
-from sklearn.preprocessing import normalize
 
-from nodes.diagram import HalfEdge, Vertex, BoundingBox
-from nodes.events import SiteEvent, CircleEvent, Event
+from nodes.diagram import HalfEdge, Vertex
+from nodes.events import SiteEvent, CircleEvent
 from nodes.internal_node import Breakpoint, InternalNode
 from nodes.leaf_node import Arc, LeafNode
 from nodes.smart_node import SmartNode
 from nodes.smart_tree import SmartTree
-from nodes.point import Point
 import matplotlib.patches as patches
 
 
@@ -21,12 +16,6 @@ class Algorithm:
 
         # The bounding box around the edge
         self.bounding_box = bounding_box
-        self.bounding_vertices = {
-            Box.TOP: [],
-            Box.RIGHT: [],
-            Box.BOTTOM: [],
-            Box.LEFT: []
-        }
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
@@ -71,13 +60,14 @@ class Algorithm:
 
         return self.event_queue
 
-    def create_diagram(self, points: list, visualize=True):
+    def create_diagram(self, points: list, visualize_steps=True, visualize_result=True, verbose=True):
 
         # Initialize all points
         self.initialize(points)
 
         while not self.event_queue.empty():
-            print("Queue", self.event_queue.queue)
+            if verbose:
+                print("Queue", self.event_queue.queue)
 
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
@@ -89,14 +79,16 @@ class Algorithm:
                 self.sweep_line = event.y
 
                 # Debugging
-                print(f"-> Handle circle event at {event.y} with center {event.center}")
+                if verbose:
+                    print(f"-> Handle circle event at {event.y} with center {event.center}")
 
                 # Handle the event
-                self.handle_circle_event(event)
+                self.handle_circle_event(event, verbose=verbose)
 
                 # Visualization
-                if visualize:
-                    print(self.beach_line.visualize())
+                if visualize_steps:
+                    if verbose:
+                        self.beach_line.visualize()
                     self.visualize(self.sweep_line, current_event=event)
 
             # Handle site events
@@ -106,32 +98,32 @@ class Algorithm:
                 self.sweep_line = event.y
 
                 # Debugging
-                print(f"-> Handle site event at {event.y} with point {event.point}")
+                if verbose:
+                    print(f"-> Handle site event at {event.y} with point {event.point}")
 
                 # Handle the event
-                self.handle_site_event(event)
+                self.handle_site_event(event, verbose=verbose)
 
                 # Visualization
-                if visualize:
+                if visualize_steps:
                     self.beach_line.visualize()
                     self.visualize(self.sweep_line, current_event=event)
 
-        # Final visualization
-        self.beach_line.visualize()
-        self.visualize(-1000, current_event="Result")
+        # Visualization
+        if visualize_steps:
+            self.beach_line.visualize()
+            self.visualize(-1000, current_event="Result")
 
-        # Clip all the infinite edges by a bounding box
-        self.finish_edges(self.edges, self.bounding_box)
-
-        # Create half edges for bounding box
-        self.edges = self.finish_bounding_box(self.edges, self.bounding_box, self.bounding_vertices)
+        # Finish with the bounding box
+        self.edges, self.vertices = self.bounding_box.create_box(self.edges, self.vertices)
 
         # Final visualization
-        self.beach_line.visualize()
-        self.visualize(-1000, current_event="Final result")
-        return None
+        if visualize_result:
+            self.beach_line.visualize()
+            self.visualize(-1000, current_event="Final result")
+            return None
 
-    def handle_site_event(self, event: SiteEvent):
+    def handle_site_event(self, event: SiteEvent, verbose=False):
 
         # Create a new arc
         new_point = event.point
@@ -147,11 +139,9 @@ class Algorithm:
         arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.x, sweep_line=self.sweep_line)
         arc_above_point = arc_node_above_point.get_value()
 
-        print("Arc above point:", arc_above_point)
-
         # 3. Remove potential false alarm
         if arc_above_point.circle_event is not None:
-            arc_above_point.circle_event.remove()
+            arc_above_point.circle_event.remove(verbose=verbose)
 
         # 4. Replace leaf with new sub tree that represents the two new intersections on the arc above the point
         #
@@ -202,8 +192,8 @@ class Algorithm:
         node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
         node_c, node_d, node_e = root.right.left, root.right.right, root.right.right.successor
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line, verbose=verbose)
+        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line, verbose=verbose)
 
         # Check if the circles are on the correct side
         if left_event is not None and left_event.x > node_c.data.origin.x:
@@ -223,7 +213,7 @@ class Algorithm:
         # 7. Rebalance the tree
         self.beach_line = SmartTree.balance_and_propagate(root)
 
-    def handle_circle_event(self, event: CircleEvent):
+    def handle_circle_event(self, event: CircleEvent, verbose=False):
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
         arc_node: LeafNode = event.arc_pointer
@@ -233,9 +223,9 @@ class Algorithm:
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.get_value().circle_event is not None:
-            predecessor.get_value().circle_event.remove()
+            predecessor.get_value().circle_event.remove(verbose=verbose)
         if successor is not None and successor.get_value().circle_event is not None:
-            successor.get_value().circle_event.remove()
+            successor.get_value().circle_event.remove(verbose=verbose)
 
         # 2. Create half-edge records
 
@@ -270,8 +260,8 @@ class Algorithm:
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
         node_c, node_d, node_e = former_right.predecessor, former_right, former_right.successor
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line)
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line, verbose=verbose)
+        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line, verbose=verbose)
 
         # Check if the circles are on the correct side
         if left_event is not None and left_event.x > node_c.data.origin.x:
@@ -406,103 +396,3 @@ class Algorithm:
             ax.scatter(x=[x], y=[y], s=50, color="black")
 
         plt.show()
-
-    def finish_edges(self, edges, bounding_box):
-        for edge in edges:
-            if edge.get_origin() is None:
-                x, y, wall = self.finish_edge(edge, bounding_box)
-                v = Vertex(point=Point(x, y))
-                v.incident_edges.append(edge)
-                edge.origin = v
-                self.bounding_vertices[wall].append(v)
-
-            if edge.twin.get_origin() is None:
-                x, y, wall = self.finish_edge(edge.twin, bounding_box)
-                v = Vertex(point=Point(x, y))
-                v.incident_edges.append(edge.twin)
-                edge.twin.origin = v
-                self.bounding_vertices[wall].append(v)
-
-        return edges
-
-    @staticmethod
-    def finish_edge(edge, bounding_box):
-
-        # Start should be a breakpoint
-        start = edge.get_origin(y=bounding_box.bottom)
-
-        # End should be a vertex
-        end = edge.twin.get_origin(y=bounding_box.bottom)
-
-        # Check distances
-        speed_y = start.y - end.y
-        speed_x = start.x - end.x
-
-        # Check directions
-        right = speed_x > 0
-        up = speed_y > 0
-
-        # Get walls to check
-        x = bounding_box.right if right else bounding_box.left
-        y = bounding_box.top if up else bounding_box.bottom
-
-        # Get distance to wall
-        dist_x = x - end.x
-        dist_y = y - end.y
-
-        # Check whether x or y wall is being hit first
-        time_x = dist_x / speed_x
-        time_y = dist_y / speed_y
-
-        if time_x < time_y:
-            slope = (start.y - end.y) / (start.x - end.x)
-            wall = Box.RIGHT if right else Box.LEFT
-            return x, slope * (x - start.x) + start.y, wall
-
-        slope = (start.x - end.x) / (start.y - end.y)
-        wall = Box.TOP if up else Box.BOTTOM
-        return slope * (y - start.y) + start.x, y, wall
-
-    @staticmethod
-    def finish_bounding_box(edges, bounding_box, bounding_vertices):
-
-        # Create corner vertices
-        top_left = Vertex(point=Point(bounding_box.left, bounding_box.top))
-        top_right = Vertex(point=Point(bounding_box.right, bounding_box.top))
-        bottom_right = Vertex(point=Point(bounding_box.right, bounding_box.bottom))
-        bottom_left = Vertex(point=Point(bounding_box.left, bounding_box.bottom))
-
-        # Top wall
-        bounding_vertices[Box.TOP].append(top_left)
-        bounding_box_top = sorted(bounding_vertices[Box.TOP], key=lambda vertex: vertex.position.x)
-
-        # Right wall
-        bounding_vertices[Box.RIGHT].append(top_right)
-        bounding_box_right = sorted(bounding_vertices[Box.RIGHT], key=lambda vertex: - vertex.position.y)
-
-        # Bottom wall
-        bounding_vertices[Box.BOTTOM].append(bottom_right)
-        bounding_box_bottom = sorted(bounding_vertices[Box.BOTTOM], key=lambda vertex: - vertex.position.x)
-
-        # Left wall
-        bounding_vertices[Box.LEFT].append(bottom_left)
-        bounding_vertices[Box.LEFT].append(top_left)
-        bounding_box_left = sorted(bounding_vertices[Box.LEFT], key=lambda vertex: vertex.position.y)
-
-        box = bounding_box_top + bounding_box_right + bounding_box_bottom + bounding_box_left
-
-        for index in range(0, len(box) - 1):
-            start = box[index]
-            end = box[index + 1]
-            edge = HalfEdge(None, origin=start, twin=HalfEdge(None, origin=end))
-
-            edges.append(edge)
-
-        return edges
-
-
-class Box(Enum):
-    TOP = 1
-    RIGHT = 2
-    BOTTOM = 3
-    LEFT = 4
