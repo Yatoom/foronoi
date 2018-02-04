@@ -2,17 +2,24 @@ from queue import PriorityQueue
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import numpy as np
+from sklearn.preprocessing import normalize
 
-from nodes.diagram import HalfEdge, Vertex
+from nodes.diagram import HalfEdge, Vertex, BoundingBox
 from nodes.events import SiteEvent, CircleEvent, Event
 from nodes.internal_node import Breakpoint, InternalNode
 from nodes.leaf_node import Arc, LeafNode
 from nodes.smart_node import SmartNode
 from nodes.smart_tree import SmartTree
+from nodes.point import Point
+import matplotlib.patches as patches
 
 
 class Algorithm:
-    def __init__(self):
+    def __init__(self, bounding_box=None):
+
+        # The bounding box around the edge
+        self.bounding_box = bounding_box
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
@@ -102,12 +109,18 @@ class Algorithm:
                     self.beach_line.visualize()
                     self.visualize(self.sweep_line, current_event=event)
 
-        # TODO: finish all half edges using a bounding box
+        # Final visualization
+        self.beach_line.visualize()
+        self.visualize(-1000, current_event="Result")
+
+        # Clip all the infinite edges by a bounding box
+        self.finish_edges(self.edges, self.bounding_box)
+
+        # TODO: Create half edges for the bounding box
 
         # Final visualization
-        if visualize:
-            self.beach_line.visualize()
-            self.visualize(-1000, current_event="Final result")
+        self.beach_line.visualize()
+        self.visualize(-1000, current_event="Final result")
         return None
 
     def handle_site_event(self, event: SiteEvent):
@@ -328,8 +341,8 @@ class Algorithm:
         x = np.linspace(-25, 25, 100)
         fig, ax = plt.subplots(figsize=(7, 7))
         plt.title(current_event)
-        plt.ylim((0, 25))
-        plt.xlim((0, 25))
+        plt.ylim((self.bounding_box.bottom - 5, self.bounding_box.top + 5))
+        plt.xlim((self.bounding_box.left - 5, self.bounding_box.right + 5))
 
         # Plot the sweep line
         ax.plot(x, x + y - x, color='black')
@@ -369,9 +382,71 @@ class Algorithm:
             if isinstance(event, CircleEvent):
                 plot_circle(event)
 
+        # Draw bounding box
+        ax.add_patch(
+            patches.Rectangle(
+                (self.bounding_box.left, self.bounding_box.bottom),  # (x,y)
+                self.bounding_box.right - self.bounding_box.left,  # width
+                self.bounding_box.top - self.bounding_box.bottom,  # height
+                fill=False
+            )
+        )
+
         # Plot points
         for point in self.points:
             x, y = point.x, point.y
             ax.scatter(x=[x], y=[y], s=50, color="black")
 
         plt.show()
+
+    def finish_edges(self, edges, bounding_box):
+        for edge in edges:
+            if edge.get_origin() is None:
+                x, y = self.finish_edge(edge, bounding_box)
+                v = Vertex(point=Point(x, y))
+                v.incident_edges.append(edge)
+                edge.origin = v
+
+            if edge.twin.get_origin() is None:
+                x, y = self.finish_edge(edge.twin, bounding_box)
+                v = Vertex(point=Point(x, y))
+                v.incident_edges.append(edge.twin)
+                edge.twin.origin = v
+
+        return edges
+
+    @staticmethod
+    def finish_edge(edge, bounding_box):
+
+        # Start should be a breakpoint
+        start = edge.get_origin(y=bounding_box.bottom)
+
+        # End should be a vertex
+        end = edge.twin.get_origin(y=bounding_box.bottom)
+
+        # Check distances
+        speed_y = start.y - end.y
+        speed_x = start.x - end.x
+
+        # Check directions
+        right = speed_x > 0
+        up = speed_y > 0
+
+        # Get walls to check
+        x = bounding_box.right if right else bounding_box.left
+        y = bounding_box.top if up else bounding_box.bottom
+
+        # Get distance to wall
+        dist_x = x - end.x
+        dist_y = y - end.y
+
+        # Check whether x or y wall is being hit first
+        time_x = dist_x / speed_x
+        time_y = dist_y / speed_y
+
+        if time_x < time_y:
+            slope = (start.y - end.y) / (start.x - end.x)
+            return x, slope * (x - start.x) + start.y
+
+        slope = (start.x - end.x) / (start.y - end.y)
+        return slope * (y - start.y) + start.x, y

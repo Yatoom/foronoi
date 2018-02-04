@@ -1,3 +1,11 @@
+class BoundingBox:
+    def __init__(self, left_x, right_x, bottom_y, top_y):
+        self.left = left_x
+        self.right = right_x
+        self.bottom = bottom_y
+        self.top = top_y
+
+
 class Vertex:
     def __init__(self, incident_edges=None, point=None):
 
