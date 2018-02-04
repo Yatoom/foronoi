@@ -1,6 +1,11 @@
 class Vertex:
-    def __init__(self, incident_points=None, point=None):
-        self.incident_points = incident_points
+    def __init__(self, incident_edges=None, point=None):
+
+        if incident_edges is None:
+            incident_edges = []
+
+        self.incident_edges = incident_edges
+
         self.point = point
 
     def __repr__(self):
