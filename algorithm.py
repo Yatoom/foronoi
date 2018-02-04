@@ -2,6 +2,7 @@ from queue import PriorityQueue
 import matplotlib.pyplot as plt
 import numpy as np
 
+from nodes.bounding_box import BoundingBox
 from nodes.diagram import HalfEdge, Vertex
 from nodes.events import SiteEvent, CircleEvent
 from nodes.internal_node import Breakpoint, InternalNode
@@ -247,11 +248,13 @@ class Algorithm:
         B = updated.breakpoint[1]
 
         # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
-        updated.edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
-        v.incident_edges.append(updated.edge.twin)
+        # Note: we only create the new edge if the vertex is still inside the bounding box
+        if BoundingBox.is_inside_box(event.center, self.bounding_box):
+            updated.edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
+            v.incident_edges.append(updated.edge.twin)
 
-        # Add to list for visualization
-        self.edges.append(updated.edge)
+            # Add to list for visualization
+            self.edges.append(updated.edge)
 
         # 3. Check if breakpoints converge for the triples with former left and former right as middle arcs
         former_left = predecessor

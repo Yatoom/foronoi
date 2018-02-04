@@ -12,11 +12,11 @@ points = [
     Point(13.9, 6.76),
     Point(7.1, 4.24),
 
-    # Point(2.3, 12),
-    # Point(12, 1.20),
-    # Point(5.3, 2),
-    # Point(3.4, 2.9),
-    # Point(7.8, 8.4),
+    Point(2.3, 12),
+    Point(12, 1.20),
+    Point(5.3, 2),
+    Point(3.4, 2.9),
+    Point(7.8, 8.4),
     # Point(10.1, 3.46),
     # Point(11.2, 7.54),
 

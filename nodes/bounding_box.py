@@ -28,14 +28,14 @@ class BoundingBox:
         }
 
         for edge in edges:
-            if edge.get_origin() is None:
+            if edge.get_origin() is None or not BoundingBox.is_inside_box(edge.get_origin(), bounding_box):
                 x, y, wall = BoundingBox.finish_edge(edge, bounding_box)
                 v = Vertex(point=Point(x, y))
                 v.incident_edges.append(edge)
                 edge.origin = v
                 bounding_vertices[wall].append(v)
 
-            if edge.twin.get_origin() is None:
+            if edge.twin.get_origin() is None or not BoundingBox.is_inside_box(edge.get_origin(), bounding_box):
                 x, y, wall = BoundingBox.finish_edge(edge.twin, bounding_box)
                 v = Vertex(point=Point(x, y))
                 v.incident_edges.append(edge.twin)
@@ -43,6 +43,12 @@ class BoundingBox:
                 bounding_vertices[wall].append(v)
 
         return edges, bounding_vertices
+
+    @staticmethod
+    def is_inside_box(point, bounding_box):
+        inside_x = bounding_box.left <= point.x <= bounding_box.right
+        inside_y = bounding_box.bottom <= point.y <= bounding_box.top
+        return inside_x and inside_y
 
     @staticmethod
     def finish_edge(edge, bounding_box):
