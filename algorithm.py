@@ -1,3 +1,4 @@
+from enum import Enum
 from queue import PriorityQueue
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,6 +21,12 @@ class Algorithm:
 
         # The bounding box around the edge
         self.bounding_box = bounding_box
+        self.bounding_vertices = {
+            Box.TOP: [],
+            Box.RIGHT: [],
+            Box.BOTTOM: [],
+            Box.LEFT: []
+        }
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
@@ -116,7 +123,8 @@ class Algorithm:
         # Clip all the infinite edges by a bounding box
         self.finish_edges(self.edges, self.bounding_box)
 
-        # TODO: Create half edges for the bounding box
+        # Create half edges for bounding box
+        self.edges = self.finish_bounding_box(self.edges, self.bounding_box, self.bounding_vertices)
 
         # Final visualization
         self.beach_line.visualize()
@@ -402,16 +410,18 @@ class Algorithm:
     def finish_edges(self, edges, bounding_box):
         for edge in edges:
             if edge.get_origin() is None:
-                x, y = self.finish_edge(edge, bounding_box)
+                x, y, wall = self.finish_edge(edge, bounding_box)
                 v = Vertex(point=Point(x, y))
                 v.incident_edges.append(edge)
                 edge.origin = v
+                self.bounding_vertices[wall].append(v)
 
             if edge.twin.get_origin() is None:
-                x, y = self.finish_edge(edge.twin, bounding_box)
+                x, y, wall = self.finish_edge(edge.twin, bounding_box)
                 v = Vertex(point=Point(x, y))
                 v.incident_edges.append(edge.twin)
                 edge.twin.origin = v
+                self.bounding_vertices[wall].append(v)
 
         return edges
 
@@ -446,7 +456,53 @@ class Algorithm:
 
         if time_x < time_y:
             slope = (start.y - end.y) / (start.x - end.x)
-            return x, slope * (x - start.x) + start.y
+            wall = Box.RIGHT if right else Box.LEFT
+            return x, slope * (x - start.x) + start.y, wall
 
         slope = (start.x - end.x) / (start.y - end.y)
-        return slope * (y - start.y) + start.x, y
+        wall = Box.TOP if up else Box.BOTTOM
+        return slope * (y - start.y) + start.x, y, wall
+
+    @staticmethod
+    def finish_bounding_box(edges, bounding_box, bounding_vertices):
+
+        # Create corner vertices
+        top_left = Vertex(point=Point(bounding_box.left, bounding_box.top))
+        top_right = Vertex(point=Point(bounding_box.right, bounding_box.top))
+        bottom_right = Vertex(point=Point(bounding_box.right, bounding_box.bottom))
+        bottom_left = Vertex(point=Point(bounding_box.left, bounding_box.bottom))
+
+        # Top wall
+        bounding_vertices[Box.TOP].append(top_left)
+        bounding_box_top = sorted(bounding_vertices[Box.TOP], key=lambda vertex: vertex.position.x)
+
+        # Right wall
+        bounding_vertices[Box.RIGHT].append(top_right)
+        bounding_box_right = sorted(bounding_vertices[Box.RIGHT], key=lambda vertex: - vertex.position.y)
+
+        # Bottom wall
+        bounding_vertices[Box.BOTTOM].append(bottom_right)
+        bounding_box_bottom = sorted(bounding_vertices[Box.BOTTOM], key=lambda vertex: - vertex.position.x)
+
+        # Left wall
+        bounding_vertices[Box.LEFT].append(bottom_left)
+        bounding_vertices[Box.LEFT].append(top_left)
+        bounding_box_left = sorted(bounding_vertices[Box.LEFT], key=lambda vertex: vertex.position.y)
+
+        box = bounding_box_top + bounding_box_right + bounding_box_bottom + bounding_box_left
+
+        for index in range(0, len(box) - 1):
+            start = box[index]
+            end = box[index + 1]
+            edge = HalfEdge(None, origin=start, twin=HalfEdge(None, origin=end))
+
+            edges.append(edge)
+
+        return edges
+
+
+class Box(Enum):
+    TOP = 1
+    RIGHT = 2
+    BOTTOM = 3
+    LEFT = 4

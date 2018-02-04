@@ -22,6 +22,21 @@ class Vertex:
     @property
     def position(self):
         return self.point
+    #
+    # def __lt__(self, other):
+    #     if self.point.y == other.point.y:
+    #         return self.point.x < other.point.x
+    #
+    #     # Switch y axis
+    #     return self.point.y < other.point.y
+    #
+    # def __eq__(self, other):
+    #     if other is None:
+    #         return None
+    #     return self.point.y == other.y and self.point.x == other.x
+    #
+    # def __ne__(self, other):
+    #     return not self.__eq__(other)
 
 
 class HalfEdge:
