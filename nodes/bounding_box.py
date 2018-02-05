@@ -13,8 +13,8 @@ class BoundingBox:
 
     def create_box(self, edges, vertices):
         edges, bounding_vertices = self.finish_edges(edges, self)
-        # edges, bounding_vertices = self.finish_bounding_box(edges, self, bounding_vertices)
-        all_vertices = vertices
+        edges, bounding_vertices = self.finish_bounding_box(edges, self, bounding_vertices)
+        all_vertices = vertices + bounding_vertices
         return edges, all_vertices
 
     @staticmethod
