@@ -34,12 +34,12 @@ class HalfEdge:
     def __repr__(self):
         return f"HalfEdge({self.incident_point})"
 
-    def get_origin(self, y=None):
+    def get_origin(self, y=None, bounding_box=None):
         if isinstance(self.origin, Vertex):
             return self.origin.point
 
         if y is not None:
-            return self.origin.get_intersection(y)
+            return self.origin.get_intersection(y, bounding_box=bounding_box)
 
         return None
 

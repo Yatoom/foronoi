@@ -54,10 +54,10 @@ class BoundingBox:
     def finish_edge(edge, bounding_box):
 
         # Start should be a breakpoint
-        start = edge.get_origin(y=bounding_box.bottom)
+        start = edge.get_origin(y=bounding_box.bottom, bounding_box=bounding_box)
 
         # End should be a vertex
-        end = edge.twin.get_origin(y=bounding_box.bottom)
+        end = edge.twin.get_origin(y=bounding_box.bottom, bounding_box=bounding_box)
 
         # Check distances
         speed_y = start.y - end.y
@@ -76,8 +76,8 @@ class BoundingBox:
         dist_y = y - end.y
 
         # Check whether x or y wall is being hit first
-        time_x = dist_x / speed_x
-        time_y = dist_y / speed_y
+        time_x = dist_x / speed_x if speed_x != 0 else float('inf')
+        time_y = dist_y / speed_y if speed_y != 0 else float('inf')
 
         if time_x < time_y:
             slope = (start.y - end.y) / (start.x - end.x)

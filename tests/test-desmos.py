@@ -17,13 +17,10 @@ points = [
     Point(5.3, 2),
     Point(3.4, 2.9),
     Point(7.8, 8.4),
-    # Point(10.1, 3.46),
-    # Point(11.2, 7.54),
-
 ]
 
 v = Algorithm(BoundingBox(0, 25, 0, 25))
-v.create_diagram(points=points, visualize_steps=False, verbose=False)
+v.create_diagram(points=points, visualize_steps=True, verbose=True)
 
 print(v.vertices)
 
@@ -32,11 +29,5 @@ for vertex in v.vertices:
         start = edge.get_origin()
         end = edge.twin.get_origin()
 
-        # If the origin is not known yet, then they are infinite half-edges.
-        # The bounding box should then be applied to finish them and give them an origin on the bounding box.
-
-        if start is not None:
-            print(start.x, start.y)
-
-        if end is not None:
-            print(end.x, end.y)
+        print(start.x, start.y)
+        print(end.x, end.y)

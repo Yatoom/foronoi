@@ -1,6 +1,7 @@
 from queue import PriorityQueue
 import matplotlib.pyplot as plt
 import numpy as np
+import copy
 
 from nodes.bounding_box import BoundingBox
 from nodes.diagram import HalfEdge, Vertex
@@ -49,15 +50,9 @@ class Algorithm:
 
         # Initialize event queue with all site events.
         for index, point in enumerate(points):
-            # # Give each point a letter, so we can look at letters rather than coordinates when debugging
-            # point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
-
             # Create site event
             site_event = SiteEvent(point=point)
             self.event_queue.put(site_event)
-
-        for index, event in enumerate(self.event_queue.queue):
-            event.point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
 
         return self.event_queue
 
@@ -65,6 +60,7 @@ class Algorithm:
 
         # Initialize all points
         self.initialize(points)
+        index = 0
 
         while not self.event_queue.empty():
             if verbose:
@@ -94,6 +90,10 @@ class Algorithm:
 
             # Handle site events
             elif isinstance(event, SiteEvent):
+
+                # Give the points a simple name
+                event.point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
+                index += 1
 
                 # Update sweep line position
                 self.sweep_line = event.y
@@ -160,9 +160,14 @@ class Algorithm:
 
         root = InternalNode(breakpoint_left)
         root.left = LeafNode(Arc(origin=point_j, circle_event=None))
-        root.right = InternalNode(breakpoint_right)
-        root.right.left = LeafNode(new_arc)
-        root.right.right = LeafNode(Arc(origin=point_j, circle_event=None))
+
+        # Only insert right breakpoint into the tree if it actually intersects
+        if breakpoint_right.does_intersect():
+            root.right = InternalNode(breakpoint_right)
+            root.right.left = LeafNode(new_arc)
+            root.right.right = LeafNode(Arc(origin=point_j, circle_event=None))
+        else:
+            root.right = LeafNode(new_arc)
 
         self.beach_line = arc_node_above_point.replace_leaf(replacement=root, root=self.beach_line)
 
@@ -175,7 +180,7 @@ class Algorithm:
         AB.edge = HalfEdge(B, origin=AB)
 
         # Edge BA -> AB with incident point A
-        BA.edge = HalfEdge(A, origin=BA, twin=breakpoint_left.edge)
+        BA.edge = HalfEdge(A, origin=BA, twin=AB.edge)
 
         # Append one of the edges to the list (we can get the other by using twin)
         self.edges.append(AB.edge)
@@ -190,11 +195,18 @@ class Algorithm:
         #                  /       \            /
         #              node_c    node_d ... node_e
         #
-        node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
-        node_c, node_d, node_e = root.right.left, root.right.right, root.right.right.successor
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line, verbose=verbose)
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line, verbose=verbose)
+        # If the right breakpoint does not intersect, we don't need to insert circle events.
+        if not breakpoint_right.does_intersect():
+            return
+
+        node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
+        node_c, node_d, node_e = node_c, root.right.right, root.right.right.successor
+
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line,
+                                                     verbose=verbose)
+        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line,
+                                                      verbose=verbose)
 
         # Check if the circles are on the correct side
         if left_event is not None and left_event.x > node_c.data.origin.x:
@@ -263,8 +275,10 @@ class Algorithm:
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
         node_c, node_d, node_e = former_right.predecessor, former_right, former_right.successor
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line, verbose=verbose)
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line, verbose=verbose)
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line,
+                                                     verbose=verbose)
+        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line,
+                                                      verbose=verbose)
 
         # Check if the circles are on the correct side
         if left_event is not None and left_event.x > node_c.data.origin.x:
@@ -372,8 +386,8 @@ class Algorithm:
         # Plot half-edges
         for edge in self.edges:
             if not edge.removed:
-                start = edge.get_origin(y)
-                end = edge.twin.get_origin(y)
+                start = edge.get_origin(y, self.bounding_box)
+                end = edge.twin.get_origin(y, self.bounding_box)
                 plt.plot([start.x, end.x], [start.y, end.y], color="blue")
 
         if isinstance(current_event, CircleEvent):

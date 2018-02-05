@@ -44,22 +44,16 @@ class Breakpoint:
     def __repr__(self):
         return f"Breakpoint({self.breakpoint[0].name}, {self.breakpoint[1].name})"
 
-    # @property
-    # def edge(self):
-    #     return self._edge
-    #
-    # @edge.setter
-    # def edge(self, edge):
-    #     if edge is not None:
-    #         edge.breakpoint = self
-    #
-    #     self._edge = edge
+    def does_intersect(self):
+        i, j = self.breakpoint
+        return not (i.y == j.y and j.x < i.x)
 
-    def get_intersection(self, l):
+    def get_intersection(self, l, bounding_box=None):
         """
         Calculate the coordinates of the intersection
         Modified from https://www.cs.hmc.edu/~mbrubeck/voronoi.html
 
+        :param bounding_box: Bounding box for clipping infinite breakpoints
         :param l: (float) The position (y-coordinate) of the sweep line
         :return: (float) The coordinates of the breakpoint
         """
@@ -82,6 +76,10 @@ class Breakpoint:
         # Handle the case where the two points have the same y-coordinate (breakpoint is in the middle)
         if i.y == j.y:
             result.x = (i.x + j.x) / 2
+
+            if j.x < i.x:
+                result.y = bounding_box.top if bounding_box is not None else float('inf')
+                return result
 
         # Handle cases where one point's y-coordinate is the same as the sweep line
         elif i.y == l:
