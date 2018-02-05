@@ -13,8 +13,8 @@ class BoundingBox:
 
     def create_box(self, edges, vertices):
         edges, bounding_vertices = self.finish_edges(edges, self)
-        edges, bounding_vertices = self.finish_bounding_box(edges, self, bounding_vertices)
-        all_vertices = vertices + bounding_vertices
+        # edges, bounding_vertices = self.finish_bounding_box(edges, self, bounding_vertices)
+        all_vertices = vertices
         return edges, all_vertices
 
     @staticmethod
@@ -54,10 +54,10 @@ class BoundingBox:
     def finish_edge(edge, bounding_box):
 
         # Start should be a breakpoint
-        start = edge.get_origin(y=bounding_box.bottom, bounding_box=bounding_box)
+        start = edge.get_origin(y=bounding_box.bottom - bounding_box.top, bounding_box=bounding_box)
 
         # End should be a vertex
-        end = edge.twin.get_origin(y=bounding_box.bottom, bounding_box=bounding_box)
+        end = edge.twin.get_origin(y=bounding_box.bottom**2 - bounding_box.top, bounding_box=bounding_box)
 
         # Check distances
         speed_y = start.y - end.y
