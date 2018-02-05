@@ -236,9 +236,13 @@ class Algorithm:
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.get_value().circle_event is not None:
-            predecessor.get_value().circle_event.remove(verbose=verbose)
+            old_event = predecessor.get_value().circle_event
+            if not(old_event.y == event.y and old_event.x == event.x):
+                predecessor.get_value().circle_event.remove(verbose=verbose)
         if successor is not None and successor.get_value().circle_event is not None:
-            successor.get_value().circle_event.remove(verbose=verbose)
+            old_event = successor.get_value().circle_event
+            if not(old_event.y == event.y and old_event.x == event.x):
+                successor.get_value().circle_event.remove(verbose=verbose)
 
         # 2. Create half-edge records
 
@@ -378,7 +382,8 @@ class Algorithm:
         def plot_circle(evt):
             x, y = evt.center.x, evt.center.y
             radius = evt.radius
-            circle = plt.Circle((x, y), radius, fill=False, color="#1f77b4", linewidth=1.2)
+            color = "#1f77b4" if evt.is_valid else "#f44336"
+            circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
             triangle = plt.Polygon(evt.get_triangle(), fill=False, color="#ff7f0e", linewidth=1.2)
             ax.add_artist(circle)
             ax.add_artist(triangle)

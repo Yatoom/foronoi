@@ -21,13 +21,3 @@ points = [
 
 v = Algorithm(BoundingBox(0, 25, 0, 25))
 v.create_diagram(points=points, visualize_steps=True, verbose=True)
-
-print(v.vertices)
-
-for vertex in v.vertices:
-    for edge in vertex.incident_edges:
-        start = edge.get_origin()
-        end = edge.twin.get_origin()
-
-        print(start.x, start.y)
-        print(end.x, end.y)

@@ -6,7 +6,7 @@ points = [
     # Points from https://www.desmos.com/calculator/ejatebvup4
     Point(2.5, 2.5),
     Point(2.5, 7.5),
-    Point(7.5, 1.5),
+    Point(7.5, 2.5),
     Point(7.5, 7.5),
 ]
 
