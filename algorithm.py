@@ -232,7 +232,7 @@ class Algorithm:
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
-        updated, removed = self.update_breakpoints(self.beach_line, self.sweep_line, arc_node, predecessor, successor)
+        self.beach_line, updated, removed = self.update_breakpoints(self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.get_value().circle_event is not None:
@@ -352,7 +352,7 @@ class Algorithm:
             # Mark this breakpoint as updated
             updated = breakpoint.data if breakpoint is not None else None
 
-        return updated, removed
+        return root, updated, removed
 
     def visualize(self, y, current_event):
 
