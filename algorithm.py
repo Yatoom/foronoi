@@ -266,11 +266,19 @@ class Algorithm:
         # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
         # Note: we only create the new edge if the vertex is still inside the bounding box
         if BoundingBox.is_inside_box(event.center, self.bounding_box):
-            updated.edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
+            new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
             v.incident_edges.append(updated.edge.twin)
 
             # Add to list for visualization
-            self.edges.append(updated.edge)
+            self.edges.append(new_edge)
+
+            # Set previous and next
+            removed.edge.twin.set_next(new_edge.twin)     # yellow
+            updated.edge.twin.set_next(removed.edge)      # orange
+            new_edge.set_next(removed.edge)               # blue
+
+            # Let the updated breakpoint now point to the new edge
+            updated.edge = new_edge
 
         # 3. Check if breakpoints converge for the triples with former left and former right as middle arcs
         former_left = predecessor
