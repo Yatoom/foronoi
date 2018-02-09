@@ -401,7 +401,23 @@ class Algorithm:
             if not edge.removed:
                 start = edge.get_origin(y, self.bounding_box)
                 end = edge.twin.get_origin(y, self.bounding_box)
-                plt.plot([start.x, end.x], [start.y, end.y], color="blue")
+                # plt.plot([start.x, end.x], [start.y, end.y], color="blue")
+                plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
+                incident_point = edge.incident_point
+                if incident_point is not None:
+                    plt.plot(
+                        [(start.x + end.x)/2, incident_point.x], [(start.y + end.y)/2, incident_point.y],
+                        color="lightgray",
+                        linestyle="--"
+                    )
+                    # plt.annotate(
+                    #     s='',
+                    #     xy=(incident_point.x, incident_point.y),
+                    #     xytext=((start.x + end.x)/2, (start.y + end.y)/2),
+                    #     arrowprops=dict(arrowstyle='->', facecolor='red'),
+                    # )
+
+                # plt.annotate(s='', xy=(start.x, start.y + 1), xytext=(end.x, end.y + 1), arrowprops=dict(arrowstyle='->'))
 
         if isinstance(current_event, CircleEvent):
             plot_circle(current_event)
