@@ -117,6 +117,7 @@ class BoundingBox:
         vertices = bounding_box_top + bounding_box_right + bounding_box_bottom + bounding_box_left
 
         next_incident_point = None
+        previous_edge = None
         for index in range(0, len(vertices) - 1):
 
             # Get start and end vertices
@@ -135,7 +136,18 @@ class BoundingBox:
             # Create the edge
             edge = HalfEdge(incident_point, origin=start, twin=HalfEdge(None, origin=end))
 
+            # Connect previous edge
+            if previous_edge is not None:
+                previous_edge.set_next(edge)
+
+            # Add the edge to the list
             edges.append(edge)
+
+            # Set previous edge
+            previous_edge = edge
+
+        # Connect last edge to previous
+        edges[len(edges) - 1].set_next(edges[0])
 
         return edges, vertices
 
