@@ -116,10 +116,24 @@ class BoundingBox:
 
         vertices = bounding_box_top + bounding_box_right + bounding_box_bottom + bounding_box_left
 
+        next_incident_point = None
         for index in range(0, len(vertices) - 1):
+
+            # Get start and end vertices
             start = vertices[index]
             end = vertices[index + 1]
-            edge = HalfEdge(None, origin=start, twin=HalfEdge(None, origin=end))
+
+            # Set the incident point to the last retrieved next incident point
+            incident_point = next_incident_point
+
+            # If the vertex has edges connected, we determine the current and the next incident point
+            if len(end.incident_edges) > 0:
+                edge = end.incident_edges[0]
+                incident_point = edge.incident_point
+                next_incident_point = edge.twin.incident_point
+
+            # Create the edge
+            edge = HalfEdge(incident_point, origin=start, twin=HalfEdge(None, origin=end))
 
             edges.append(edge)
 
