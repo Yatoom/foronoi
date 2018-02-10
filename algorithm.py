@@ -185,6 +185,10 @@ class Algorithm:
         # Append one of the edges to the list (we can get the other by using twin)
         self.edges.append(AB.edge)
 
+        # Add first edges
+        B.first_edge = B.first_edge or AB.edge
+        A.first_edge = A.first_edge or BA.edge
+
         # 6. Check if breakpoints are going to converge with the arcs to the left and to the right
         #
         #            (p_j, p_i)
@@ -232,7 +236,8 @@ class Algorithm:
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
-        self.beach_line, updated, removed = self.update_breakpoints(self.beach_line, self.sweep_line, arc_node, predecessor, successor)
+        self.beach_line, updated, removed, left, right = self.update_breakpoints(
+            self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.get_value().circle_event is not None:
@@ -273,9 +278,9 @@ class Algorithm:
             self.edges.append(new_edge)
 
             # Set previous and next
-            removed.edge.twin.set_next(new_edge.twin)     # yellow
-            updated.edge.twin.set_next(removed.edge)      # orange
-            new_edge.set_next(removed.edge)               # blue
+            left.edge.twin.set_next(new_edge.twin)     # yellow
+            right.edge.twin.set_next(left.edge)      # orange
+            new_edge.set_next(right.edge)               # blue
 
             # Let the updated breakpoint now point to the new edge
             updated.edge = new_edge
@@ -316,8 +321,9 @@ class Algorithm:
             # Replace the right breakpoint by the right node
             root = arc_node.parent.replace_leaf(arc_node.parent.right, root)
 
-            # Mark the right breakpoint as removed
+            # Mark the right breakpoint as removed and right breakpoint
             removed = arc_node.parent.data
+            right = removed
 
             # Rebalance the tree
             root = SmartTree.balance_and_propagate(root)
@@ -332,8 +338,9 @@ class Algorithm:
             if breakpoint is not None:
                 breakpoint.data.breakpoint = (breakpoint.get_value().breakpoint[0], successor.get_value().origin)
 
-            # Mark this breakpoint as updated
+            # Mark this breakpoint as updated and left breakpoint
             updated = breakpoint.data if breakpoint is not None else None
+            left = updated
 
         # If the arc node is a right child, then its parent is the breakpoint on the left
         else:
@@ -343,6 +350,7 @@ class Algorithm:
 
             # Mark the left breakpoint as removed
             removed = arc_node.parent.data
+            left = removed
 
             # Rebalance the tree
             root = SmartTree.balance_and_propagate(root)
@@ -357,10 +365,11 @@ class Algorithm:
             if breakpoint is not None:
                 breakpoint.data.breakpoint = (predecessor.get_value().origin, breakpoint.get_value().breakpoint[1])
 
-            # Mark this breakpoint as updated
+            # Mark this breakpoint as updated and right breakpoint
             updated = breakpoint.data if breakpoint is not None else None
+            right = updated
 
-        return root, updated, removed
+        return root, updated, removed, left, right
 
     def visualize(self, y, current_event):
 
@@ -410,14 +419,6 @@ class Algorithm:
                         color="lightgray",
                         linestyle="--"
                     )
-                    # plt.annotate(
-                    #     s='',
-                    #     xy=(incident_point.x, incident_point.y),
-                    #     xytext=((start.x + end.x)/2, (start.y + end.y)/2),
-                    #     arrowprops=dict(arrowstyle='->', facecolor='red'),
-                    # )
-
-                # plt.annotate(s='', xy=(start.x, start.y + 1), xytext=(end.x, end.y + 1), arrowprops=dict(arrowstyle='->'))
 
         if isinstance(current_event, CircleEvent):
             plot_circle(current_event)
