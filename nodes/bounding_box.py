@@ -11,9 +11,9 @@ class BoundingBox:
         self.bottom = bottom_y
         self.top = top_y
 
-    def create_box(self, edges, vertices):
+    def create_box(self, edges, vertices, genesis_point):
         edges, bounding_vertices = self.finish_edges(edges, self)
-        edges, bounding_vertices = self.finish_bounding_box(edges, self, bounding_vertices)
+        edges, bounding_vertices = self.finish_bounding_box(edges, self, bounding_vertices, genesis_point)
         all_vertices = vertices + bounding_vertices
         return edges, all_vertices
 
@@ -89,7 +89,7 @@ class BoundingBox:
         return slope * (y - start.y) + start.x, y, wall
 
     @staticmethod
-    def finish_bounding_box(edges, bounding_box, bounding_vertices):
+    def finish_bounding_box(edges, bounding_box, bounding_vertices, genesis_point):
 
         # Create corner vertices
         top_left = Vertex(point=Point(bounding_box.left, bounding_box.top))
@@ -116,7 +116,7 @@ class BoundingBox:
 
         vertices = bounding_box_top + bounding_box_right + bounding_box_bottom + bounding_box_left
 
-        next_incident_point = None
+        next_incident_point = genesis_point
         previous_edge = None
         for index in range(0, len(vertices) - 1):
 
@@ -135,6 +135,8 @@ class BoundingBox:
 
             # Create the edge
             edge = HalfEdge(incident_point, origin=start, twin=HalfEdge(None, origin=end))
+            start.incident_edges.append(edge)
+            end.incident_edges.append(edge.twin)
 
             # Connect edges
             if len(end.incident_edges) > 0:
@@ -151,9 +153,6 @@ class BoundingBox:
 
             # Set previous edge
             previous_edge = edge
-
-        # Connect last edge to previous
-        edges[len(edges) - 1].set_next(edges[0])
 
         return edges, vertices
 

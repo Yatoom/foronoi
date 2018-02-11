@@ -62,12 +62,18 @@ class Algorithm:
         self.initialize(points)
         index = 0
 
+        # The first point (needed for bounding box)
+        genesis_point = None
+
         while not self.event_queue.empty():
             if verbose:
                 print("Queue", self.event_queue.queue)
 
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
+
+            # Set genesis point
+            genesis_point = genesis_point or event.point
 
             # Handle circle events
             if isinstance(event, CircleEvent) and event.is_valid:
@@ -116,7 +122,7 @@ class Algorithm:
             self.visualize(-1000, current_event="Result")
 
         # Finish with the bounding box
-        self.edges, self.vertices = self.bounding_box.create_box(self.edges, self.vertices)
+        self.edges, self.vertices = self.bounding_box.create_box(self.edges, self.vertices, genesis_point)
 
         # Final visualization
         if visualize_result:
@@ -242,11 +248,11 @@ class Algorithm:
         # Delete all circle events involving arc from the event queue.
         if predecessor is not None and predecessor.get_value().circle_event is not None:
             old_event = predecessor.get_value().circle_event
-            if not(old_event.y == event.y and old_event.x == event.x):
+            if not (old_event.y == event.y and old_event.x == event.x):
                 predecessor.get_value().circle_event.remove(verbose=verbose)
         if successor is not None and successor.get_value().circle_event is not None:
             old_event = successor.get_value().circle_event
-            if not(old_event.y == event.y and old_event.x == event.x):
+            if not (old_event.y == event.y and old_event.x == event.x):
                 successor.get_value().circle_event.remove(verbose=verbose)
 
         # 2. Create half-edge records
@@ -278,9 +284,9 @@ class Algorithm:
             self.edges.append(new_edge)
 
             # Set previous and next
-            left.edge.twin.set_next(new_edge.twin)     # yellow
-            right.edge.twin.set_next(left.edge)      # orange
-            new_edge.set_next(right.edge)               # blue
+            left.edge.twin.set_next(new_edge.twin)  # yellow
+            right.edge.twin.set_next(left.edge)  # orange
+            new_edge.set_next(right.edge)  # blue
 
             # Let the updated breakpoint now point to the new edge
             updated.edge = new_edge
@@ -415,7 +421,7 @@ class Algorithm:
                 incident_point = edge.incident_point
                 if incident_point is not None:
                     plt.plot(
-                        [(start.x + end.x)/2, incident_point.x], [(start.y + end.y)/2, incident_point.y],
+                        [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
                         color="lightgray",
                         linestyle="--"
                     )
