@@ -136,8 +136,14 @@ class BoundingBox:
             # Create the edge
             edge = HalfEdge(incident_point, origin=start, twin=HalfEdge(None, origin=end))
 
-            # Connect previous edge
-            if previous_edge is not None:
+            # Connect edges
+            if len(end.incident_edges) > 0:
+                edge.set_next(end.incident_edges[0])
+
+            # Connect to incoming edge, or previous edge
+            if len(start.incident_edges) > 0:
+                start.incident_edges[0].twin.set_next(edge)
+            elif previous_edge is not None:
                 previous_edge.set_next(edge)
 
             # Add the edge to the list

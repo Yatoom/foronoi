@@ -377,8 +377,8 @@ class Algorithm:
         x = np.linspace(-25, 25, 100)
         fig, ax = plt.subplots(figsize=(7, 7))
         plt.title(current_event)
-        plt.ylim((self.bounding_box.bottom - 5, self.bounding_box.top + 5))
-        plt.xlim((self.bounding_box.left - 5, self.bounding_box.right + 5))
+        plt.ylim((self.bounding_box.bottom - 1, self.bounding_box.top + 1))
+        plt.xlim((self.bounding_box.left - 1, self.bounding_box.right + 1))
 
         # Plot the sweep line
         ax.plot(x, x + y - x, color='black')
@@ -441,5 +441,8 @@ class Algorithm:
         for point in self.points:
             x, y = point.x, point.y
             ax.scatter(x=[x], y=[y], s=50, color="black")
+            size = f"{point.cell_size(digits=2)}"
+            # ax.text(x-0.5, y+1, size)
+            plt.annotate(s=size, xy=(x, y), xytext=(x, y + 1), arrowprops=dict(arrowstyle='->'))
 
         plt.show()
