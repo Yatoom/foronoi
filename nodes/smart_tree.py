@@ -112,7 +112,7 @@ class SmartTree:
             root.right = SmartTree.insert(root.right, node, **kwargs)
 
         # Update the height of the ancestor node
-        root.update_heights(propagate=False)
+        root.update_height()
 
         # If the node is unbalanced, then try out the 4 cases
         balance = root.balance
@@ -166,7 +166,7 @@ class SmartTree:
             return root
 
         # Update the height of the ancestor node
-        root.update_heights(propagate=False)
+        root.update_height()
 
         # Balance the tree
         root = SmartTree.balance(root)
@@ -254,14 +254,9 @@ class SmartTree:
         y.left = z
         z.right = T2
 
-        # Update parents
-        # parent of y is already set
-        # parent of z is set by y.left
-        # parent of T2 is set by z.right
-
         # Update heights (z has to be updated first, because it is a child of y)
-        z.update_heights(propagate=False)
-        y.update_heights(propagate=False)
+        z.update_height()
+        y.update_height()
 
         # Return the new root
         return y
@@ -302,8 +297,8 @@ class SmartTree:
         z.left = T3
 
         # Update heights (z has to be updated first, because it is a child of y)
-        z.update_heights(propagate=False)
-        y.update_heights(propagate=False)
+        z.update_height()
+        y.update_height()
 
         # Return the new root
         return y

@@ -79,21 +79,22 @@ class SmartNode:
         height = 1 + max(left_height, right_height)
         return height
 
-    def update_heights(self, propagate=True):
+    def update_height(self):
         """
-        Recalculate the height of the node and optionally propagate new height calculations to ancestors.
+        Recalculate the height of the node.
+        """
+        self._height = self.calculate_height()
 
-        :param propagate: (bool) Propagate to ancestors
+    def update_heights(self):
+        """
+        Recalculate the heights of this node and all ancestor nodes.
         """
 
         # Calculate height
-        height = self.calculate_height()
-
-        # Set new height
-        self._height = height
+        self.update_height()
 
         # Update parent
-        if propagate and self.parent is not None:
+        if self.parent is not None:
             self.parent.update_heights()
 
     def is_left_child(self):

@@ -37,7 +37,7 @@ class Breakpoint:
         # The tuple of the points whose arcs intersect
         self.breakpoint = breakpoint
 
-        # The dge this breakpoint is tracing out
+        # The edge this breakpoint is tracing out
         self._edge = None
         self.edge = edge
 
