@@ -413,18 +413,25 @@ class Algorithm:
 
         # Plot half-edges
         for edge in self.edges:
-            if not edge.removed:
-                start = edge.get_origin(y, self.bounding_box)
-                end = edge.twin.get_origin(y, self.bounding_box)
-                # plt.plot([start.x, end.x], [start.y, end.y], color="blue")
-                plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
-                incident_point = edge.incident_point
-                if incident_point is not None:
-                    plt.plot(
-                        [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
-                        color="lightgray",
-                        linestyle="--"
-                    )
+
+            # Get start and end of edges
+            start = edge.get_origin(y, self.bounding_box)
+            end = edge.twin.get_origin(y, self.bounding_box)
+
+            # Draw line
+            plt.plot([start.x, end.x], [start.y, end.y], color="black")
+
+            # Add arrow
+            plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
+
+            # Point to incident point
+            incident_point = edge.incident_point
+            if incident_point is not None:
+                plt.plot(
+                    [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
+                    color="lightgray",
+                    linestyle="--"
+                )
 
         if isinstance(current_event, CircleEvent):
             plot_circle(current_event)
