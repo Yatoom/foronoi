@@ -39,7 +39,7 @@ class EdgePlayer(Player):
 
             # Construct a Voronoi for the points of player 1
             voronoi = Algorithm()
-            voronoi_player1 = voronoi.create_diagram(points_player1)
+#            voronoi_player1 = voronoi.create_diagram(points_player1)
 
             # Check all edges in Voronoi of player 1
             edges_seen = []
