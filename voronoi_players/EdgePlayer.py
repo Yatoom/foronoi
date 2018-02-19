@@ -3,9 +3,10 @@ import math
 from voronoi_players.abstract_player import Player
 from algorithm import Algorithm
 from nodes.bounding_box import BoundingBox
+from nodes.diagram import HalfEdge
 
 
-from data_structures.types import Point
+from nodes.point import Point
 
 
 def calculate_distance(point_1, point_2):
@@ -51,7 +52,7 @@ class EdgePlayer(Player):
 
             # Construct a Voronoi for the points of player 1
             voronoi = Algorithm(BoundingBox(-5, 30, -5, 30))
-#            voronoi_player1 = voronoi.create_diagram(points_player1)
+            voronoi.create_diagram(points_player1)
 
             # Check all edges in Voronoi of player 1
             edges_seen = []
@@ -69,19 +70,19 @@ class EdgePlayer(Player):
                         half_edge_A = edge
                         half_edge_B = edge.twin
                         if edge.incident_point is None:
-                            boundary_edge = True()
+                            boundary_edge = True
                         else:
-                            boundary_edge = False()
+                            boundary_edge = False
                     else:
                         half_edge_A = edge.twin
                         half_edge_B = edge
-                        boundary_edge = True()
+                        boundary_edge = True
 
                     # Find the coordinates of the start and end point of the edge, in the direction of edge A
-                    edge_start = half_edge_A.getorigin
-                    edge_end = half_edge_A.twin.getorigin
-                    incident_point =  half_edge_A.getincident_point
-                    twin_incident_point =  half_edge_A.twin.getincident_point
+                    edge_start = half_edge_A.origin.position
+                    edge_end = half_edge_A.twin.origin.position
+                    incident_point =  half_edge_A.incident_point
+                    twin_incident_point =  half_edge_A.twin.incident_point
 
                     # Find midway and halfway-point for edge
                     edge_halfwaypoint = point_along_edge(edge_start, edge_end, 0.5)

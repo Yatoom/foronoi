@@ -1,4 +1,4 @@
-from voronoi_players.random_players import UniformPlayer
+from voronoi_players.pattern_players import SquarePlayer
 from voronoi_players.random_players import NormalPlayer
 from voronoi_players.IntersectionPlayer_original import IntersectionPlayer
 from voronoi_players.EdgePlayer import EdgePlayer
