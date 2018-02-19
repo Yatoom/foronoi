@@ -23,6 +23,12 @@ def point_along_edge(point_1, point_2, fraction_of_distance):
 
 def point_perpendicular_intersection(point_1, point_2, point_perpendicular):
     point_intersection = Point()
+
+    print(type(point_1))
+    print(type(point_2))
+    print(type(point_perpendicular))
+
+
     k = ((point_2.y - point_1.y) * (point_perpendicular.x - point_1.x) -
          (point_2.x - point_1.x) * (point_perpendicular.y - point_1.y)) / \
         (math.pow((point_2.y - point_1.y),2) + math.pow((point_2.x - point_1.x),2))
@@ -52,7 +58,7 @@ class EdgePlayer(Player):
 
             # Construct a Voronoi for the points of player 1
             voronoi = Algorithm(BoundingBox(-5, 30, -5, 30))
-            voronoi.create_diagram(points_player1)
+            voronoi.create_diagram(points_player1, visualize_steps=False)
 
             # Check all edges in Voronoi of player 1
             edges_seen = []
@@ -66,14 +72,17 @@ class EdgePlayer(Player):
                     edge = half_edge
 
                     # Determine which edge is A and which is B
-                    if not edge.twin.incident_point is None:
+                    if not edge.incident_point is None:
                         half_edge_A = edge
                         half_edge_B = edge.twin
-                        if edge.incident_point is None:
+                        if edge.twin.incident_point is None:
+                            print('A')
                             boundary_edge = True
                         else:
+                            print('B')
                             boundary_edge = False
                     else:
+                        print('C')
                         half_edge_A = edge.twin
                         half_edge_B = edge
                         boundary_edge = True
@@ -81,8 +90,8 @@ class EdgePlayer(Player):
                     # Find the coordinates of the start and end point of the edge, in the direction of edge A
                     edge_start = half_edge_A.origin.position
                     edge_end = half_edge_A.twin.origin.position
-                    incident_point =  half_edge_A.incident_point
-                    twin_incident_point =  half_edge_A.twin.incident_point
+                    incident_point = half_edge_A.incident_point
+                    twin_incident_point = half_edge_A.twin.incident_point
 
                     # Find midway and halfway-point for edge
                     edge_halfwaypoint = point_along_edge(edge_start, edge_end, 0.5)
@@ -109,7 +118,7 @@ class EdgePlayer(Player):
                     # If there exists no incident-point for the twin edge, take the absolute value of
                     #   self.fraction_between_player_points
                     if boundary_edge:
-                        self.fraction_between_player_points = math.abs(self.fraction_between_player_points)
+                        self.fraction_between_player_points = math.fabs(self.fraction_between_player_points)
 
                     # Calculate Point Placement
                     if self.fraction_between_player_points >= 0:
@@ -126,8 +135,8 @@ class EdgePlayer(Player):
 
                     point_placement = point_along_edge(
                         calculate_location_vertex_point,
-                        point_along_edge(edge_midpoint, calculate_location_incident_point, abs(self.fraction_between_player_points)),
-                            abs(self.fraction_between_edge_nodes))
+                        point_along_edge(edge_midpoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
+                            math.fabs(self.fraction_between_edge_nodes))
                     point_placement.player = 2
 
                     # Store point in points_desirability
