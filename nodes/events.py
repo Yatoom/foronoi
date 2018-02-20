@@ -2,6 +2,7 @@ import math
 
 from nodes.leaf_node import Arc, LeafNode
 from nodes.point import Point
+from decimal import *
 
 
 class Event:
@@ -123,7 +124,6 @@ class CircleEvent(Event):
 
             # Check if the bottom of the circle is below the sweep line
             if y - radius < sweep_line:
-
                 # Debugging
                 # if verbose:
                 #     print(f"Sweep line reached {sweep_line}. Circle event created for {y - radius}.")
@@ -140,13 +140,13 @@ class CircleEvent(Event):
         a, b, c = sorted((a, b, c), key=lambda item: item.x)
 
         # Algorithm from O'Rourke 2ed p. 189
-        A = b.x - a.x
-        B = b.y - a.y
-        C = c.x - a.x
-        D = c.y - a.y
-        E = A * (a.x + b.x) + B * (a.y + b.y)
-        F = C * (a.x + c.x) + D * (a.y + c.y)
-        G = 2 * (A * (c.y - b.y) - B * (c.x - b.x))
+        A = Decimal(b.x - a.x)
+        B = Decimal(b.y - a.y)
+        C = Decimal(c.x - a.x)
+        D = Decimal(c.y - a.y)
+        E = Decimal((b.x - a.x) * (a.x + b.x) + (b.y - a.y) * (a.y + b.y))
+        F = Decimal((c.x - a.x) * (a.x + c.x) + (c.y - a.y) * (a.y + c.y))
+        G = Decimal(2 * ((b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x)))
 
         if G == 0:
             # Points are all on one line (collinear), so no circle can be made
@@ -155,6 +155,6 @@ class CircleEvent(Event):
         # Center and radius of the circle
         x = (D * E - B * F) / G
         y = (A * F - C * E) / G
-        radius = math.sqrt(math.pow(a.x - x, 2) + math.pow(a.y - y, 2))
+        radius = Decimal(math.sqrt(math.pow(Decimal(a.x) - x, 2) + math.pow(Decimal(a.y) - y, 2)))
 
-        return x, y, radius
+        return float(x), float(y), float(radius)
