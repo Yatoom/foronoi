@@ -57,7 +57,7 @@ class BoundingBox:
         start = edge.get_origin(y=bounding_box.bottom - bounding_box.top, bounding_box=bounding_box)
 
         # End should be a vertex
-        end = edge.twin.get_origin(y=bounding_box.bottom**2 - bounding_box.top, bounding_box=bounding_box)
+        end = edge.twin.get_origin(y=bounding_box.bottom ** 2 - bounding_box.top, bounding_box=bounding_box)
 
         # Check distances
         speed_y = start.y - end.y
@@ -79,14 +79,14 @@ class BoundingBox:
         time_x = dist_x / speed_x if speed_x != 0 else float('inf')
         time_y = dist_y / speed_y if speed_y != 0 else float('inf')
 
-        if time_x < time_y:
-            slope = (start.y - end.y) / (start.x - end.x)
-            wall = Box.RIGHT if right else Box.LEFT
-            return x, slope * (x - start.x) + start.y, wall
+        if time_y < time_x:
+            slope = (start.x - end.x) / (start.y - end.y)
+            wall = Box.TOP if up else Box.BOTTOM
+            return slope * (y - start.y) + start.x, y, wall
 
-        slope = (start.x - end.x) / (start.y - end.y)
-        wall = Box.TOP if up else Box.BOTTOM
-        return slope * (y - start.y) + start.x, y, wall
+        slope = (start.y - end.y) / (start.x - end.x)
+        wall = Box.RIGHT if right else Box.LEFT
+        return x, slope * (x - start.x) + start.y, wall
 
     @staticmethod
     def finish_bounding_box(edges, bounding_box, bounding_vertices, genesis_point):
