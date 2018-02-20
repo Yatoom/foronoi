@@ -25,4 +25,4 @@ points = [
 ]
 
 v = Algorithm(BoundingBox(0, 11, 0, 11))
-v.create_diagram(points=points, visualize_steps=True, verbose=True)
+v.create_diagram(points=points, visualize_steps=False, verbose=True)

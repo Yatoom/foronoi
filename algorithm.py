@@ -128,7 +128,6 @@ class Algorithm:
         if visualize_result:
             self.beach_line.visualize()
             self.visualize(-1000, current_event="Final result")
-            return None
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
@@ -213,25 +212,7 @@ class Algorithm:
         node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
         node_c, node_d, node_e = node_c, root.right.right, root.right.right.successor
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line,
-                                                     verbose=verbose)
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line,
-                                                      verbose=verbose)
-
-        # Check if the circles are on the correct side
-        if left_event is not None and left_event.x > node_c.data.origin.x:
-            left_event = None
-
-        if right_event is not None and right_event.x < node_c.data.origin.x:
-            right_event = None
-
-        if left_event is not None:
-            self.event_queue.put(left_event)
-            node_b.data.circle_event = left_event
-
-        if right_event is not None and left_event != right_event:
-            self.event_queue.put(right_event)
-            node_d.data.circle_event = right_event
+        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e), event, verbose)
 
         # 7. Rebalance the tree
         self.beach_line = SmartTree.balance_and_propagate(root)
@@ -296,18 +277,24 @@ class Algorithm:
         former_right = successor
 
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
-        node_c, node_d, node_e = former_right.predecessor, former_right, former_right.successor
+        node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
+
+        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), event, verbose)
+
+    def check_circles(self, triple_left, triple_right, current_event, verbose=False):
+        node_a, node_b, node_c = triple_left
+        node_d, node_e, node_f = triple_right
 
         left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line,
                                                      verbose=verbose)
-        right_event = CircleEvent.create_circle_event(node_c, node_d, node_e, sweep_line=self.sweep_line,
+        right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line,
                                                       verbose=verbose)
 
         # Check if the circles are on the correct side
         if left_event is not None and left_event.x > node_c.data.origin.x:
             left_event = None
 
-        if right_event is not None and right_event.x < node_c.data.origin.x:
+        if right_event is not None and right_event.x < node_d.data.origin.x:
             right_event = None
 
         if left_event is not None:
@@ -316,7 +303,14 @@ class Algorithm:
 
         if right_event is not None and left_event != right_event:
             self.event_queue.put(right_event)
-            node_d.data.circle_event = right_event
+            node_e.data.circle_event = right_event
+
+        if left_event is not None:
+            print(f"Left circle event created for {left_event.y}. Arcs: {left_event.triple}")
+        if right_event is not None:
+            print(f"Right circle event created for {right_event.y}. Arcs: {right_event.triple}")
+
+        return left_event, right_event
 
     @staticmethod
     def update_breakpoints(root, sweep_line, arc_node, predecessor, successor):
@@ -380,7 +374,7 @@ class Algorithm:
     def visualize(self, y, current_event):
 
         # Create 1000 equally spaced points between -10 and 10 and setup plot window
-        x = np.linspace(-25, 25, 100)
+        x = np.linspace(-25, 25, 1000)
         fig, ax = plt.subplots(figsize=(7, 7))
         plt.title(current_event)
         plt.ylim((self.bounding_box.bottom - 1, self.bounding_box.top + 1))
@@ -449,6 +443,11 @@ class Algorithm:
                 fill=False
             )
         )
+
+        # Plot vertices
+        for vertex in self.vertices:
+            x, y = vertex.position.x, vertex.position.y
+            ax.scatter(x=[x], y=[y], s=50, color="blue")
 
         # Plot points
         for point in self.points:
