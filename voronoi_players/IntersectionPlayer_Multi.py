@@ -77,8 +77,9 @@ class IntersectionPlayer(Player):
                     incident_point = edge.incident_point
 
                     if not incident_point is None:
-                        total_incident_point_distance += calculate_distance(vertex.position, incident_point)
-                        nr_of_incident_points += 1
+                        if incident_point.player != self.player_nr:
+                            total_incident_point_distance += calculate_distance(vertex.position, incident_point)
+                            nr_of_incident_points += 1
 
                     # Add edge to nr of edges
                     nr_of_edges += 1
