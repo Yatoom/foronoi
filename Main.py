@@ -1,10 +1,11 @@
-from voronoi_players.random_players import UniformPlayer
+from voronoi_players.pattern_players import SquarePlayer
 from voronoi_players.random_players import NormalPlayer
 from voronoi_players.IntersectionPlayer_original import IntersectionPlayer
-from voronoi_players.EdgePlayer_original import EdgePlayer
+from voronoi_players.EdgePlayer import EdgePlayer
 from data_structures.types import GameState
 from algorithm import Algorithm
 from Visualization import Visualization
+from nodes.bounding_box import BoundingBox
 
 
 def main():
@@ -33,5 +34,7 @@ def main():
     # visualization.create_visualization(name)
     # print('created visualiztion \n stored as: ' + name)
 
+    voronoi = Algorithm(BoundingBox(-5, 30, -5, 30))
+    voronoi.create_diagram(state.points, visualize_steps=False)
 
 main()
