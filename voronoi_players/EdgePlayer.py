@@ -24,9 +24,9 @@ def point_along_edge(point_1, point_2, fraction_of_distance):
 def point_perpendicular_intersection(point_1, point_2, point_perpendicular):
     point_intersection = Point()
 
-    print(type(point_1))
-    print(type(point_2))
-    print(type(point_perpendicular))
+    print(point_1)
+    print(point_2)
+    print(point_perpendicular.x, point_perpendicular.y)
 
 
     k = ((point_2.y - point_1.y) * (point_perpendicular.x - point_1.x) -
@@ -93,58 +93,60 @@ class EdgePlayer(Player):
                     incident_point = half_edge_A.incident_point
                     twin_incident_point = half_edge_A.twin.incident_point
 
-                    # Find midway and halfway-point for edge
-                    edge_halfwaypoint = point_along_edge(edge_start, edge_end, 0.5)
-                    edge_midpoint = point_perpendicular_intersection(edge_start, edge_end, incident_point)
+                    # Check whether edge length is greater than 0
+                    if calculate_distance(edge_start, edge_end) > 0:
+                        # Find midway and halfway-point for edge
+                        edge_halfwaypoint = point_along_edge(edge_start, edge_end, 0.5)
+                        edge_midpoint = point_perpendicular_intersection(edge_start, edge_end, incident_point)
 
-                    # If both half-edges (A and B) of edge have incident points, check to make sure that
-                    #   edge_halfwaypoint comes before edge_midpoint with regards from the direction of edge A.
-                    # If this does not hold, swap A and B.
-                    if not boundary_edge:
-                        if calculate_distance(edge_midpoint, edge_start) \
-                                < calculate_distance(edge_halfwaypoint, edge_start):
-                            half_edge_A, half_edge_B = half_edge_B, half_edge_A
-                            edge_start, edge_end = edge_end, edge_start
-                            incident_point, twin_incident_point = twin_incident_point, incident_point
+                        # If both half-edges (A and B) of edge have incident points, check to make sure that
+                        #   edge_halfwaypoint comes before edge_midpoint with regards from the direction of edge A.
+                        # If this does not hold, swap A and B.
+                        if not boundary_edge:
+                            if calculate_distance(edge_midpoint, edge_start) \
+                                    < calculate_distance(edge_halfwaypoint, edge_start):
+                                half_edge_A, half_edge_B = half_edge_B, half_edge_A
+                                edge_start, edge_end = edge_end, edge_start
+                                incident_point, twin_incident_point = twin_incident_point, incident_point
 
-                    # Find the length of the edge, and the distance between the corresponding player points
-                    edge_length = calculate_distance(edge_start, edge_end)
-                    inner_point_distance = 2 * calculate_distance(incident_point, edge_midpoint)
+                        # Find the length of the edge, and the distance between the corresponding player points
+                        edge_length = calculate_distance(edge_start, edge_end)
+                        inner_point_distance = 2 * calculate_distance(incident_point, edge_midpoint)
 
-                    # Calculate the desirability of the edge
-                    desirability_of_point = self.weight_edge_length * edge_length \
-                                            + self.weight_inner_point_distance * inner_point_distance
+                        # Calculate the desirability of the edge
+                        desirability_of_point = self.weight_edge_length * edge_length \
+                                                + self.weight_inner_point_distance * inner_point_distance
 
-                    # If there exists no incident-point for the twin edge, take the absolute value of
-                    #   self.fraction_between_player_points
-                    if boundary_edge:
-                        self.fraction_between_player_points = math.fabs(self.fraction_between_player_points)
+                        # If there exists no incident-point for the twin edge, take the absolute value of
+                        #   self.fraction_between_player_points
+                        if boundary_edge:
+                            self.fraction_between_player_points = math.fabs(self.fraction_between_player_points)
 
-                    # Calculate Point Placement
-                    if self.fraction_between_player_points >= 0:
-                        calculate_location_incident_point = incident_point
-                    else:
-                        calculate_location_incident_point = twin_incident_point
+                        # Calculate Point Placement
+                        if self.fraction_between_player_points >= 0:
+                            calculate_location_incident_point = incident_point
+                        else:
+                            calculate_location_incident_point = twin_incident_point
 
-                    if self.fraction_between_player_points >= 0:
-                        calculate_location_vertex_point = edge_start
-                    else:
-                        calculate_location_vertex_point = edge_end
+                        if self.fraction_between_player_points >= 0:
+                            calculate_location_vertex_point = edge_start
+                        else:
+                            calculate_location_vertex_point = edge_end
 
-                    print("point added")
+                        print("point added")
 
-                    point_placement = point_along_edge(
-                        point_along_edge(edge_halfwaypoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
-                            calculate_location_vertex_point,
-                            math.fabs(self.fraction_between_edge_nodes))
-                    point_placement.player = 2
+                        point_placement = point_along_edge(
+                            point_along_edge(edge_halfwaypoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
+                                calculate_location_vertex_point,
+                                math.fabs(self.fraction_between_edge_nodes))
+                        point_placement.player = 2
 
-                    # Store point in points_desirability
-                    points_desirability.append({'point': point_placement, 'desirability': desirability_of_point})
+                        # Store point in points_desirability
+                        points_desirability.append({'point': point_placement, 'desirability': desirability_of_point})
 
-                    # insert edge and edge's twin in list of seen edges.
-                    edges_seen.append(edge)
-                    edges_seen.append(edge.twin)
+                        # insert edge and edge's twin in list of seen edges.
+                        edges_seen.append(edge)
+                        edges_seen.append(edge.twin)
 
             # Sort list of points based on their desirability
             points_desirability_sorted = sorted(points_desirability, key=lambda item: item['desirability'])

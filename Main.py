@@ -10,10 +10,10 @@ from nodes.bounding_box import BoundingBox
 
 def main():
     # Instantiate the game state
-    state = GameState(width=25, height=25, m=10, n=10)
+    state = GameState(width=25, height=25, m=5, n=4)
 
     # Initialize a concrete class for player 1 and run the place_points method
-    player1 = NormalPlayer(1, state)
+    player1 = SquarePlayer(1, state)
     state = player1.place_points
     print('test')
     print(state.points)
@@ -35,6 +35,6 @@ def main():
     # print('created visualiztion \n stored as: ' + name)
 
     voronoi = Algorithm(BoundingBox(-1, 26, -1, 26))
-    voronoi.create_diagram(state.points, visualize_steps=True)
+    voronoi.create_diagram(state.points, visualize_steps=False)
 
 main()
