@@ -1,6 +1,6 @@
 from voronoi_players.pattern_players import SquarePlayer
 from voronoi_players.random_players import NormalPlayer
-from voronoi_players.IntersectionPlayer_original import IntersectionPlayer
+from voronoi_players.IntersectionPlayer import IntersectionPlayer
 from voronoi_players.EdgePlayer import EdgePlayer
 from data_structures.types import GameState
 from algorithm import Algorithm
@@ -18,7 +18,7 @@ def main():
     print('test')
     print(state.points)
     # Initialize a concrete class for player 2 and run the place_points method
-    player2 = EdgePlayer(2, state)
+    player2 = IntersectionPlayer(2, state)
     print(player2)
     state = player2.place_points
     print(state)
