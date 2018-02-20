@@ -134,7 +134,7 @@ class EdgePlayer(Player):
                     print("point added")
 
                     point_placement = point_along_edge(
-                        point_along_edge(edge_midpoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
+                        point_along_edge(edge_halfwaypoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
                             calculate_location_vertex_point,
                             math.fabs(self.fraction_between_edge_nodes))
                     point_placement.player = 2
