@@ -43,8 +43,8 @@ class EdgePlayer(Player):
     # Set Default values for EdgePlayer
     weight_edge_length = 1
     weight_inner_point_distance = 1
-    fraction_between_player_points = 0.75    # Between -1 and 1
-    fraction_between_edge_nodes = 0.5       # Between -1 and 1
+    fraction_between_player_points = 0.25    # Between -1 and 1
+    fraction_between_edge_nodes = 0.00       # Between -1 and 1
 
     @property
     def place_points(self):
@@ -57,7 +57,7 @@ class EdgePlayer(Player):
             points_player1 = list(filter((lambda point: point.player == 1), self.state.points))
 
             # Construct a Voronoi for the points of player 1
-            voronoi = Algorithm(BoundingBox(-1, 26, -1, 26))
+            voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
             voronoi.create_diagram(points_player1, visualize_steps=False)
 
             # Check all edges in Voronoi of player 1
@@ -186,9 +186,12 @@ class EdgePlayer(Player):
             # Sort list of points based on their desirability
             points_desirability_sorted = sorted(points_desirability, key=lambda item: item['desirability'], reverse=True)
 
-            print(points_desirability_sorted)
+            print('Desirability: ' + str(points_desirability_sorted))
+            print('Point Previous Player: ' + str(self.state.points))
 
             # Store points for player 2
             for i in range(self.state.m if self.player_nr == 1 else self.state.n):
                 self.state.points.append(points_desirability_sorted[i].get('point'))
+
+            print('Points after Addition: ' + str(self.state.points))
         return self.state
