@@ -14,6 +14,9 @@ class Event:
         return 0
 
     def __lt__(self, other):
+        if self.y == other.y and self.x == other.x:
+            return isinstance(self, SiteEvent)
+
         if self.y == other.y:
             return self.x < other.x
 
@@ -88,7 +91,8 @@ class CircleEvent(Event):
         self.is_valid = False
 
     @staticmethod
-    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line, verbose=False):
+    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line,
+                            verbose=False) -> "CircleEvent":
         """
         Checks if the breakpoints converge, and inserts circle event if required.
         :param sweep_line: Y-coordinate of the sweep line
@@ -121,9 +125,9 @@ class CircleEvent(Event):
             if y - radius < sweep_line:
 
                 # Debugging
-                if verbose:
-                    print(f"Sweep line reached {sweep_line}. Circle event inserted for {y - radius}.")
-                    print(f"\t Arcs: {left_arc}, {middle_arc}, {right_arc}")
+                # if verbose:
+                #     print(f"Sweep line reached {sweep_line}. Circle event created for {y - radius}.")
+                #     print(f"\t Arcs: {left_arc}, {middle_arc}, {right_arc}")
 
                 # Create the circle event
                 return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, triple=(a, b, c))
@@ -132,6 +136,9 @@ class CircleEvent(Event):
 
     @staticmethod
     def create_circle(a, b, c):
+
+        a, b, c = sorted((a, b, c), key=lambda item: item.x)
+
         # Algorithm from O'Rourke 2ed p. 189
         A = b.x - a.x
         B = b.y - a.y

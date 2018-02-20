@@ -50,8 +50,8 @@ class HalfEdge:
 
         return None
 
-    def remove(self):
-        self.removed = True
+    # def remove(self):
+    #     self.removed = True
 
     @property
     def twin(self):

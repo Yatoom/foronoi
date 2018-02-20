@@ -12,4 +12,4 @@ points = [
 ]
 
 v = Algorithm(BoundingBox(0, 8, 0, 10))
-v.create_diagram(points=points, visualize_steps=True, verbose=True)
+v.create_diagram(points=points, visualize_steps=False, verbose=True)
