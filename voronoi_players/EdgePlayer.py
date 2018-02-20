@@ -43,7 +43,7 @@ class EdgePlayer(Player):
     # Set Default values for EdgePlayer
     weight_edge_length = 1
     weight_inner_point_distance = 1
-    fraction_between_player_points = 0.0    # Between -1 and 1
+    fraction_between_player_points = 0.75    # Between -1 and 1
     fraction_between_edge_nodes = 0.0       # Between -1 and 1
 
     @property
@@ -149,7 +149,9 @@ class EdgePlayer(Player):
                         edges_seen.append(edge.twin)
 
             # Sort list of points based on their desirability
-            points_desirability_sorted = sorted(points_desirability, key=lambda item: item['desirability'])
+            points_desirability_sorted = sorted(points_desirability, key=lambda item: item['desirability'], reverse=True)
+
+            print(points_desirability_sorted)
 
             # Store points for player 2
             for i in range(self.state.m if self.player_nr == 1 else self.state.n):
