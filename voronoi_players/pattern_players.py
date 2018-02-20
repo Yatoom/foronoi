@@ -1,7 +1,7 @@
 import math
 
 from voronoi_players.abstract_player import Player
-from data_structures.types import Point
+from nodes.point import Point
 
 
 class SquarePlayer(Player):

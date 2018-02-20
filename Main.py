@@ -34,7 +34,7 @@ def main():
     # visualization.create_visualization(name)
     # print('created visualiztion \n stored as: ' + name)
 
-    voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
+    voronoi = Algorithm(BoundingBox(-1, 26, -1, 26))
     voronoi.create_diagram(state.points, visualize_steps=True)
 
 main()

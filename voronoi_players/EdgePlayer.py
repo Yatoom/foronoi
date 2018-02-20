@@ -57,7 +57,7 @@ class EdgePlayer(Player):
             points_player1 = list(filter((lambda point: point.player == 1), self.state.points))
 
             # Construct a Voronoi for the points of player 1
-            voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
+            voronoi = Algorithm(BoundingBox(-1, 26, -1, 26))
             voronoi.create_diagram(points_player1, visualize_steps=False)
 
             # Check all edges in Voronoi of player 1
@@ -134,7 +134,7 @@ class EdgePlayer(Player):
                     print("point added")
 
                     point_placement = point_along_edge(
-                        point_along_edge(edge_midpoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
+                        point_along_edge(edge_halfwaypoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
                             calculate_location_vertex_point,
                             math.fabs(self.fraction_between_edge_nodes))
                     point_placement.player = 2
