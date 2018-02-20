@@ -57,7 +57,7 @@ class EdgePlayer(Player):
             points_player1 = list(filter((lambda point: point.player == 1), self.state.points))
 
             # Construct a Voronoi for the points of player 1
-            voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
+            voronoi = Algorithm(BoundingBox(-1, 26, -1, 26))
             voronoi.create_diagram(points_player1, visualize_steps=False)
 
             # Check all edges in Voronoi of player 1
