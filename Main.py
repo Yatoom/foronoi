@@ -1,6 +1,6 @@
 from voronoi_players.pattern_players import SquarePlayer
 from voronoi_players.random_players import NormalPlayer
-from voronoi_players.IntersectionPlayer_original import IntersectionPlayer
+from voronoi_players.IntersectionPlayer import IntersectionPlayer
 from voronoi_players.EdgePlayer import EdgePlayer
 from data_structures.types import GameState
 from algorithm import Algorithm
@@ -10,15 +10,15 @@ from nodes.bounding_box import BoundingBox
 
 def main():
     # Instantiate the game state
-    state = GameState(width=25, height=25, m=10, n=10)
+    state = GameState(width=25, height=25, m=5, n=4)
 
     # Initialize a concrete class for player 1 and run the place_points method
-    player1 = NormalPlayer(1, state)
+    player1 = SquarePlayer(1, state)
     state = player1.place_points
     print('test')
     print(state.points)
     # Initialize a concrete class for player 2 and run the place_points method
-    player2 = EdgePlayer(2, state)
+    player2 = IntersectionPlayer(2, state)
     print(player2)
     state = player2.place_points
     print(state)
@@ -35,6 +35,6 @@ def main():
     # print('created visualiztion \n stored as: ' + name)
 
     voronoi = Algorithm(BoundingBox(-1, 26, -1, 26))
-    voronoi.create_diagram(state.points, visualize_steps=True)
+    voronoi.create_diagram(state.points, visualize_steps=False)
 
 main()
