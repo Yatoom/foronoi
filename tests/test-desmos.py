@@ -21,4 +21,5 @@ points = [
 v = Algorithm(BoundingBox(0, 25, 0, 25))
 v.create_diagram(points=points, visualize_steps=False, verbose=True)
 
-print(points[0].cell_size())
+for point in v.points:
+    print(point.cell_size(2), end=",")

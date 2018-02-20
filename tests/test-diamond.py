@@ -11,3 +11,6 @@ points = [
 
 v = Algorithm(BoundingBox(0, 10, 0, 10))
 v.create_diagram(points=points, visualize_steps=False, verbose=True, visualize_result=True)
+
+for point in v.points:
+    print(point.cell_size(2), end=",")
