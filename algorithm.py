@@ -299,6 +299,26 @@ class Algorithm:
         right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line,
                                                       verbose=verbose)
 
+        # Check triple equality
+        def check_triple(triple_A, triple_B):
+            similar = 0
+            for i in triple_A:
+                for j in triple_B:
+                    if i.x == j.x and i.y == j.y:
+                        similar += 1
+                        break
+            return similar
+
+        # Fix for inserting the same circle event twice
+        if isinstance(current_event, CircleEvent):
+            if node_a and node_b and node_c:
+                similar = check_triple(current_event.triple, [i.data.origin for i in triple_left])
+                left_event = None if similar == 3 else left_event
+
+            if node_d and node_e and node_f:
+                similar = check_triple(current_event.triple, [i.data.origin for i in triple_right])
+                right_event = None if similar == 3 else right_event
+
         # Check if the circles are on the correct side
         if left_event is not None and left_event.x > node_c.data.origin.x:
             left_event = None
