@@ -1,4 +1,10 @@
 from voronoi_players.pattern_players import SquarePlayer
+from voronoi_players.pattern_players import SquareLongPlayer
+from voronoi_players.pattern_players import TrianglePlayer
+from voronoi_players.pattern_players import TriangleLongPlayer
+from voronoi_players.pattern_players import CirclePlayer
+from voronoi_players.pattern_players import LinePlayer
+from voronoi_players.pattern_players import CircleCenterPlayer
 from voronoi_players.random_players import NormalPlayer
 from voronoi_players.IntersectionPlayer import IntersectionPlayer
 from voronoi_players.EdgePlayer import EdgePlayer
@@ -10,10 +16,10 @@ from nodes.bounding_box import BoundingBox
 
 def main():
     # Instantiate the game state
-    state = GameState(width=25, height=25, m=5, n=4)
+    state = GameState(width=25, height=25, m=16, n=15)
 
     # Initialize a concrete class for player 1 and run the place_points method
-    player1 = NormalPlayer(1, state)
+    player1 = LinePlayer(1, state)
     state = player1.place_points
     print('test')
     print(state.points)
