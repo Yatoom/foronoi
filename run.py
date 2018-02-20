@@ -1,28 +1,28 @@
-from fortune_algorithm import Voronoi, Point, Breakpoint
+from algorithm import Algorithm
+from nodes.bounding_box import BoundingBox
+from voronoi_players.pattern_players import LinePlayer as Player1
+from voronoi_players.EdgePlayer import EdgePlayer as Player2
+from data_structures.types import GameState
 
-# Testing breakpoint
-j = Point(4.6, 11.44)  # This one comes first
-i = Point(12.7, 10.6)  # This one comes second
 
-bp_j_i = Breakpoint(breakpoint=(j, i))
-bp_i_j = Breakpoint(breakpoint=(i, j))
+state = GameState(25,25,5,4)
+player1 = Player1(1, state)
+state = player1.place_points
 
-print(bp_j_i.get_intersection(8))
-print(bp_i_j.get_intersection(8))
-print(bp_i_j.get_key(8))
-print("")
+player2 = Player2(2, state)
+state = player2.place_points
 
-# Testing create diagram
-bounding_box = (100, 100)
-points = [
-    # Points from https://www.desmos.com/calculator/ejatebvup4
-    Point(4.6, 11.44),
-    Point(7.3, 11.44),
-    Point(12.7, 10.6),
-    Point(8.7, 7.7),
-    Point(13.9, 6.76),
-    Point(7.1, 4.24),
-]
+v = Algorithm(BoundingBox(-1, 26, -1, 26))
+v.create_diagram(points=state.points, visualize_steps=False, verbose=False)
 
-v = Voronoi()
-v.create_diagram(points=points)
+score_p1, score_p2 = 0.0, 0.0
+
+for point in state.points:
+    if point.player == 1:
+        score_p1 += point.cell_size()
+    else:
+        score_p2 += point.cell_size()
+
+print("Player 1 score = {:.2f}".format(score_p1))
+print("Player 2 score = {:.2f}".format(score_p2))
+print("Score division = {:.1%}".format(score_p1/(score_p1 + score_p2)))
