@@ -44,7 +44,7 @@ class EdgePlayer(Player):
     weight_edge_length = 1
     weight_inner_point_distance = 1
     fraction_between_player_points = 0.75    # Between -1 and 1
-    fraction_between_edge_nodes = 0.0       # Between -1 and 1
+    fraction_between_edge_nodes = 0.5       # Between -1 and 1
 
     @property
     def place_points(self):
@@ -63,6 +63,7 @@ class EdgePlayer(Player):
             # Check all edges in Voronoi of player 1
             edges_seen = []
             points_desirability = []
+            points_desirability_factors = []
             for half_edge in voronoi.edges:
                 print('if this doesnt show. there are no edges in voronoi edges')
                 # Check whether halfedge's twin has already been seen before
@@ -113,10 +114,6 @@ class EdgePlayer(Player):
                         edge_length = calculate_distance(edge_start, edge_end)
                         inner_point_distance = 2 * calculate_distance(incident_point, edge_midpoint)
 
-                        # Calculate the desirability of the edge
-                        desirability_of_point = self.weight_edge_length * edge_length \
-                                                + self.weight_inner_point_distance * inner_point_distance
-
                         # If there exists no incident-point for the twin edge, take the absolute value of
                         #   self.fraction_between_player_points
                         if boundary_edge:
@@ -133,20 +130,58 @@ class EdgePlayer(Player):
                         else:
                             calculate_location_vertex_point = edge_end
 
-                        print("point added")
-
+                        # Calculate point placement
                         point_placement = point_along_edge(
-                            point_along_edge(edge_halfwaypoint, calculate_location_incident_point, math.fabs(self.fraction_between_player_points)),
-                                calculate_location_vertex_point,
-                                math.fabs(self.fraction_between_edge_nodes))
+                            point_along_edge(edge_halfwaypoint, calculate_location_incident_point,
+                                             math.fabs(self.fraction_between_player_points)),
+                            calculate_location_vertex_point,
+                            math.fabs(self.fraction_between_edge_nodes))
                         point_placement.player = 2
 
-                        # Store point in points_desirability
-                        points_desirability.append({'point': point_placement, 'desirability': desirability_of_point})
+                        # Check whether point has not already been added before
+                        if point_placement not in [x['point'] for x in points_desirability_factors]:
+                            points_desirability_factors.append({'point': point_placement,
+                                                                'edge length': edge_length,
+                                                                'incident distance': inner_point_distance})
 
                         # insert edge and edge's twin in list of seen edges.
                         edges_seen.append(edge)
                         edges_seen.append(edge.twin)
+
+            # Find the Min/Max of each desirability factor
+            min_desirability_factor_avg_edge_length = min(
+                [x['edge length'] for x in points_desirability_factors])
+            min_desirability_factor_avg_incident_distance = min(
+                [x['incident distance'] for x in points_desirability_factors])
+
+            max_desirability_factor_avg_edge_length = max(
+                [x['edge length'] for x in points_desirability_factors])
+            max_desirability_factor_avg_incident_distance = max(
+                [x['incident distance'] for x in points_desirability_factors])
+
+            if max_desirability_factor_avg_edge_length == min_desirability_factor_avg_edge_length:
+                max_desirability_factor_avg_edge_length = + 1
+            if max_desirability_factor_avg_incident_distance == min_desirability_factor_avg_incident_distance:
+                max_desirability_factor_avg_incident_distance = + 1
+
+            # Calculate point desirability
+            for point_desirability_factor in points_desirability_factors:
+                point = point_desirability_factor.get('point')
+
+                desirability_of_point = (((point_desirability_factor.get('edge length') - min_desirability_factor_avg_edge_length) /
+                                          (
+                                                      max_desirability_factor_avg_edge_length - min_desirability_factor_avg_edge_length))
+                                         * self.weight_edge_length) + \
+                                        (((point_desirability_factor.get(
+                                            'incident distance') - min_desirability_factor_avg_incident_distance) /
+                                          (
+                                                      max_desirability_factor_avg_incident_distance - min_desirability_factor_avg_incident_distance))
+                                         * self.weight_inner_point_distance)
+
+                print(point)
+
+                # Store point in points_desirability
+                points_desirability.append({'point': point, 'desirability': desirability_of_point})
 
             # Sort list of points based on their desirability
             points_desirability_sorted = sorted(points_desirability, key=lambda item: item['desirability'], reverse=True)
