@@ -13,7 +13,7 @@ def main():
     state = GameState(width=25, height=25, m=5, n=4)
 
     # Initialize a concrete class for player 1 and run the place_points method
-    player1 = SquarePlayer(1, state)
+    player1 = NormalPlayer(1, state)
     state = player1.place_points
     print('test')
     print(state.points)
@@ -29,14 +29,16 @@ def main():
     # voronoi = Voronoi()
     # v_diagram = voronoi.create_diagram(state.points)
     #
-    # visualization = Visualization()
-    # name = 'visualization.svg'
-    # visualization.create_visualization(name)
-    # print('created visualiztion \n stored as: ' + name)
+    #
 
 
 
     voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
     voronoi.create_diagram(state.points, visualize_steps=False)
+
+    visualization = Visualization(state)
+    name = 'visualization.svg'
+    visualization.create_visualization(name)
+    print('created visualiztion \n stored as: ' + name)
 
 main()

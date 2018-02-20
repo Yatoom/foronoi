@@ -1,13 +1,14 @@
 import svgwrite
 
 from data_structures.types import GameState
-from fortune_algorithm import Voronoi
+from algorithm import Algorithm
+from nodes.bounding_box import BoundingBox
+from voronoi_players.abstract_player import Player
 
 
-class Visualization:
+class Visualization(GameState):
 
-    def __init__(self, player_nr: int, state: GameState):
-        self.player_nr = player_nr
+    def __init__(self, state: GameState):
         self.state = state
 
     colour_bounding_box = svgwrite.rgb(0, 0, 0, '%')
@@ -26,8 +27,8 @@ class Visualization:
 
     def create_visualization(self, name):
         # Construct a Voronoi for the points in the GameState
-        voronoi = Voronoi()
-        voronoi_diagram = voronoi.create_diagram(self.state.points)
+        voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
+        voronoi.create_diagram(self.state.points, visualize_steps=False)
 
         # Check whether name has .svg extension
         if name[-4:] != '.svg':
@@ -38,40 +39,21 @@ class Visualization:
 
         # For each vonoroi polygon, create a polygon
         edges_seen = []
-        for half_edge in voronoi_diagram:
-            # Check whether any half-edge in the corresponding polygon has been seen before.
-            if half_edge not in edges_seen:
-                # Find all half edges corresponding to the current polygon
-                half_edges_polygon = []
-                half_edges_polygon.append(half_edge)
-                half_edge_followup = half_edge.next
-                while half_edge_followup != half_edge:
-                    half_edges_polygon.append(half_edge_followup)
-                    half_edge_followup = half_edge_followup.next
+        for edge in voronoi.edges:
+            play_board.add(play_board.line((edge.origin.position.x, edge.origin.position.y), (edge.twin.origin.position.x, edge.twin.origin.position.y),
+                                           stroke=self.colour_edges,
+                                           stroke_width=self.strokewidth_edges))
+            # Define the colour of the face
+            if edge.incident_point.player == 1:
+                colour_point = self.colour_point_player_1
+            elif edge.incident_point.player == 2:
+                colour_point = self.colour_point_player_2
+            else:
+                colour_point = self.colour_point_unknown
 
-                # Create a list of all coordinates for the polygon
-                polygon = []
-                for edge in half_edges_polygon:
-                    polygon.append([edge.origin.x, edge.origin.y])
-
-                # Define the colour of the face
-                if half_edge.inner_point.player == 1:
-                    colour_polygon = self.colour_polygon_player_1
-                    colour_point = self.colour_point_player_1
-                elif half_edge.inner_point.player == 2:
-                    colour_polygon = self.colour_polygon_player_2
-                    colour_point = self.colour_point_player_2
-                else:
-                    colour_polygon = self.colour_polygon_unknown
-                    colour_point = self.colour_point_unknown
-
-                # Add Polygon to SVG
-                play_board.add(play_board.polygon(polygon, fill=colour_polygon, stroke=self.colour_edges,
-                                                  stroke_width=self.strokewidth_bounding_box))
-
-                # Add Point to SVG
-                play_board.add(play_board.circle([half_edge.inner_point.x, half_edge.inner_point.y],
-                                                 fill=colour_point, stroke='None', r='1'))
+            # Add Point to SVG
+            play_board.add(play_board.circle([edge.incident_point.x, edge.incident_point.y],
+                                             fill=colour_point, r='1'))
 
         # Add bounding Box to SVG
         play_board.add(play_board.line((0, 0), (self.state.width, 0),
