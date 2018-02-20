@@ -83,7 +83,7 @@ class Algorithm:
 
                 # Debugging
                 if verbose:
-                    print(f"-> Handle circle event at {event.y} with center {event.center}")
+                    print(f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.triple}")
 
                 # Handle the event
                 self.handle_circle_event(event, verbose=verbose)
@@ -117,7 +117,7 @@ class Algorithm:
                     self.visualize(self.sweep_line, current_event=event)
 
         # Visualization
-        if visualize_steps:
+        if visualize_result:
             self.beach_line.visualize()
             self.visualize(-1000, current_event="Result")
 
@@ -128,6 +128,7 @@ class Algorithm:
         if visualize_result:
             self.beach_line.visualize()
             self.visualize(-1000, current_event="Final result")
+            print("Done")
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
@@ -223,18 +224,26 @@ class Algorithm:
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
+
+        assert (predecessor is not None and successor is not None and arc_node is not None)
+
         self.beach_line, updated, removed, left, right = self.update_breakpoints(
             self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
         # Delete all circle events involving arc from the event queue.
-        if predecessor is not None and predecessor.get_value().circle_event is not None:
-            old_event = predecessor.get_value().circle_event
-            if not (old_event.y == event.y and old_event.x == event.x):
-                predecessor.get_value().circle_event.remove(verbose=verbose)
-        if successor is not None and successor.get_value().circle_event is not None:
-            old_event = successor.get_value().circle_event
-            if not (old_event.y == event.y and old_event.x == event.x):
-                successor.get_value().circle_event.remove(verbose=verbose)
+        arc_point = arc_node.data.origin
+
+        def remove(old_event):
+            if old_event.y == event.y and old_event.x == event.x:
+                pass
+            elif arc_point in old_event.triple:
+                old_event.remove(verbose=verbose)
+
+        if predecessor.get_value().circle_event:
+            remove(predecessor.get_value().circle_event)
+
+        if successor.get_value().circle_event:
+            remove(successor.get_value().circle_event)
 
         # 2. Create half-edge records
 
@@ -305,9 +314,9 @@ class Algorithm:
             self.event_queue.put(right_event)
             node_e.data.circle_event = right_event
 
-        if left_event is not None:
+        if left_event is not None and verbose:
             print(f"Left circle event created for {left_event.y}. Arcs: {left_event.triple}")
-        if right_event is not None:
+        if right_event is not None and verbose:
             print(f"Right circle event created for {right_event.y}. Arcs: {right_event.triple}")
 
         return left_event, right_event
@@ -400,6 +409,8 @@ class Algorithm:
             x, y = evt.center.x, evt.center.y
             radius = evt.radius
             color = "#1f77b4" if evt.is_valid else "#f44336"
+
+            # if evt.is_valid:
             circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
             triangle = plt.Polygon(evt.get_triangle(), fill=False, color="#ff7f0e", linewidth=1.2)
             ax.add_artist(circle)
