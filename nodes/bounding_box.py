@@ -35,7 +35,7 @@ class BoundingBox:
                 edge.origin = v
                 bounding_vertices[wall].append(v)
 
-            if edge.twin.get_origin() is None or not BoundingBox.is_inside_box(edge.get_origin(), bounding_box):
+            if edge.twin.get_origin() is None or not BoundingBox.is_inside_box(edge.twin.get_origin(), bounding_box):
                 x, y, wall = BoundingBox.finish_edge(edge.twin, bounding_box)
                 v = Vertex(point=Point(x, y))
                 v.incident_edges.append(edge.twin)
