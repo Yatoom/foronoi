@@ -1,56 +1,10 @@
 import math
-
-from nodes.leaf_node import Arc, LeafNode
-from nodes.point import Point
 from decimal import *
 
-
-class Event:
-    @property
-    def x(self):
-        return 0
-
-    @property
-    def y(self):
-        return 0
-
-    def __lt__(self, other):
-        if self.y == other.y and self.x == other.x:
-            return isinstance(self, SiteEvent)
-
-        if self.y == other.y:
-            return self.x < other.x
-
-        # Switch y axis
-        return self.y > other.y
-
-    def __eq__(self, other):
-        if other is None:
-            return None
-        return self.y == other.y and self.x == other.x
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-
-class SiteEvent(Event):
-    def __init__(self, point: Point):
-        """
-        Site event
-        :param point:
-        """
-        self.point = point
-
-    @property
-    def x(self):
-        return self.point.x
-
-    @property
-    def y(self):
-        return self.point.y
-
-    def __repr__(self):
-        return f"SiteEvent(x={self.point.x}, y={self.point.y}, pl={self.point.player})"
+from events.event import Event
+from graph.point import Point
+from nodes.leaf_node import LeafNode
+from nodes.arc import Arc
 
 
 class CircleEvent(Event):
@@ -91,6 +45,7 @@ class CircleEvent(Event):
         if verbose:
             print(f"Circle event for {self.y} removed.")
         self.is_valid = False
+        return self
 
     @staticmethod
     def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line,
@@ -125,7 +80,6 @@ class CircleEvent(Event):
 
             # Check if the bottom of the circle is below the sweep line
             if y - radius < sweep_line:
-
                 # Create the circle event
                 return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, point_triple=(a, b, c),
                                    arc_triple=(left_arc, middle_arc, right_arc))

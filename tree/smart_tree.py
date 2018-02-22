@@ -1,5 +1,6 @@
-from nodes.smart_node import SmartNode
 import time
+
+from tree.smart_node import SmartNode
 
 
 class SmartTree:

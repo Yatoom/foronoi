@@ -1,6 +1,6 @@
 from algorithm import Algorithm
-from nodes.bounding_box import BoundingBox
-from nodes.point import Point
+from graph.bounding_box import BoundingBox
+from graph.point import Point
 
 points = [
     Point(8.333, 8.333),

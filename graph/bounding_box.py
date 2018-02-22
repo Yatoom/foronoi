@@ -1,7 +1,8 @@
 from enum import Enum
 
-from nodes.diagram import Vertex, HalfEdge
-from nodes.point import Point
+from graph.half_edge import HalfEdge
+from graph.point import Point
+from graph.vertex import Vertex
 
 
 class BoundingBox:

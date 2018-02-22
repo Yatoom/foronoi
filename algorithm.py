@@ -1,17 +1,9 @@
-from queue import PriorityQueue
-import matplotlib.pyplot as plt
-import numpy as np
-import copy
-
-from nodes.bounding_box import BoundingBox
-from nodes.diagram import HalfEdge, Vertex
-from nodes.events import SiteEvent, CircleEvent
-from nodes.internal_node import Breakpoint, InternalNode
-from nodes.leaf_node import Arc, LeafNode
-from nodes.smart_node import SmartNode
-from nodes.smart_tree import SmartTree
-import matplotlib.patches as patches
 import math
+from queue import PriorityQueue
+from graph import BoundingBox, HalfEdge, Vertex
+from nodes import LeafNode, Arc, Breakpoint, InternalNode
+from events import CircleEvent, SiteEvent
+from tree import SmartTree, SmartNode
 
 
 class Algorithm:
@@ -227,54 +219,20 @@ class Algorithm:
         predecessor = arc_node.predecessor
         successor = arc_node.successor
 
-        assert(predecessor is not None and successor is not None and arc_node is not None)
-        assert(isinstance(predecessor, LeafNode))
-        assert(isinstance(successor, LeafNode))
-        assert(isinstance(arc_node, LeafNode))
-
+        # Update breakpoints
         self.beach_line, updated, removed, left, right = self.update_breakpoints(
             self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
         # Delete all circle events involving arc from the event queue.
-        # def remove(old_event, arc_node):
-        #     arc = arc_node.data
-        #     arcs = old_event.arc_triple
-        #     point = arc.origin
-        #     points = [arc.origin for arc in arcs]
-        #
-        #     if arc in arcs:
-        #         if verbose:
-        #             print("- Arc in arcs")
-        #         old_event.remove(verbose)
-        #
-        #     # if point in points:
-        #     #     if verbose:
-        #     #         print("- Point in points")
-        #     #     old_event.remove(verbose)
-        #
-        # left_event = predecessor.get_value().circle_event
-        # right_event = successor.get_value().circle_event
-        #
-        # if left_event:
-        #     if verbose:
-        #         print(f"checking if circle event of left arc {left_event.point_triple} needs to be removed")
-        #     remove(left_event, arc_node)
-        #
-        # if right_event:
-        #     if verbose:
-        #         print(f"checking if circle event of right arc {right_event.point_triple} needs to be removed")
-        #     remove(right_event, arc_node)
-        def remove(old_event):
-            if old_event.y == event.y and old_event.x == event.x:
-                pass
-            else:
-                old_event.remove()
+        def remove(neighbor_event):
+            if neighbor_event is None:
+                return None
+            elif neighbor_event.y == event.y and neighbor_event.x == event.x:
+                return neighbor_event
+            return neighbor_event.remove()
 
-        if predecessor.get_value().circle_event:
-            remove(predecessor.get_value().circle_event)
-
-        if successor.get_value().circle_event:
-            remove(successor.get_value().circle_event)
+        remove(predecessor.get_value().circle_event)
+        remove(successor.get_value().circle_event)
 
         # 2. Create half-edge records
 
@@ -368,14 +326,7 @@ class Algorithm:
                 similar = check_triple(current_event.point_triple, [i.data.origin for i in triple_right])
                 right_event = None if similar == 3 else right_event
 
-        # Check if the circles are on the correct side
-        # TODO: This looks like a hacky solution. Check if it actually works.
-        # if left_event:
-        #     if not left_event.center.x < node_b.data.origin.x:
-        #         left_event = None
-        # if right_event:
-        #     if not right_event.center.x < node_e.data.origin.x:
-        #         right_event = None
+        # Check if the circles converge
         if left_event:
             if not self.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin, left_event.center):
                 print(f"Circle {left_event.point_triple} not clockwise.")
@@ -385,13 +336,6 @@ class Algorithm:
             if not self.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin, right_event.center):
                 print(f"Circle {right_event.point_triple} not clockwise.")
                 right_event = None
-
-        # if isinstance(current_event, SiteEvent):
-        # if left_event is not None and left_event.x > node_c.data.origin.x:
-        #     left_event = None
-        #
-        # if right_event is not None and right_event.x < node_d.data.origin.x:
-        #     right_event = None
 
         if left_event is not None:
             self.event_queue.put(left_event)
@@ -466,92 +410,3 @@ class Algorithm:
             right = updated
 
         return root, updated, removed, left, right
-
-    def visualize(self, y, current_event):
-        # Create 1000 equally spaced points between -10 and 10 and setup plot window
-        x = np.linspace(-25, 25, 1000)
-        fig, ax = plt.subplots(figsize=(7, 7))
-        plt.title(current_event)
-        plt.ylim((self.bounding_box.bottom - 1, self.bounding_box.top + 1))
-        plt.xlim((self.bounding_box.left - 1, self.bounding_box.right + 1))
-
-        # Plot the sweep line
-        ax.plot(x, x + y - x, color='black')
-
-        # Plot all arcs
-        plot_lines = []
-        for arc in self.arc_list:
-            plot_line = arc.get_plot(x, y)
-            if plot_line is None:
-                ax.axvline(x=arc.origin.x)
-            else:
-                ax.plot(x, plot_line, linestyle="--", color='gray')
-                plot_lines.append(plot_line)
-        if len(plot_lines) > 0:
-            ax.plot(x, np.min(plot_lines, axis=0), color="black")
-
-        # Plot circle events
-        def plot_circle(evt):
-            x, y = evt.center.x, evt.center.y
-            radius = evt.radius
-            color = "#1f77b4" if evt.is_valid else "#f44336"
-
-            # if evt.is_valid:
-            circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
-            triangle = plt.Polygon(evt.get_triangle(), fill=False, color="#ff7f0e", linewidth=1.2)
-            ax.add_artist(circle)
-            ax.add_artist(triangle)
-
-        # Plot half-edges
-        for edge in self.edges:
-
-            # Get start and end of edges
-            start = edge.get_origin(y, self.bounding_box)
-            end = edge.twin.get_origin(y, self.bounding_box)
-
-            # Draw line
-            plt.plot([start.x, end.x], [start.y, end.y], color="black")
-
-            # Add arrow
-            plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
-
-            # Point to incident point
-            incident_point = edge.incident_point
-            if incident_point is not None:
-                plt.plot(
-                    [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
-                    color="lightgray",
-                    linestyle="--"
-                )
-
-        if isinstance(current_event, CircleEvent):
-            plot_circle(current_event)
-
-        for event in self.event_queue.queue:
-            if isinstance(event, CircleEvent):
-                plot_circle(event)
-
-        # Draw bounding box
-        ax.add_patch(
-            patches.Rectangle(
-                (self.bounding_box.left, self.bounding_box.bottom),  # (x,y)
-                self.bounding_box.right - self.bounding_box.left,  # width
-                self.bounding_box.top - self.bounding_box.bottom,  # height
-                fill=False
-            )
-        )
-
-        # Plot vertices
-        for vertex in self.vertices:
-            x, y = vertex.position.x, vertex.position.y
-            ax.scatter(x=[x], y=[y], s=50, color="blue")
-
-        # Plot points
-        for point in self.points:
-            x, y = point.x, point.y
-            ax.scatter(x=[x], y=[y], s=50, color="black")
-            size = f"{point.cell_size(digits=2)}"
-            # ax.text(x-0.5, y+1, size)
-            plt.annotate(s=size, xy=(x, y), xytext=(x, y + 1), arrowprops=dict(arrowstyle='->'))
-
-        plt.show()
