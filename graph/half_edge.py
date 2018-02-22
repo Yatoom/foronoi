@@ -32,7 +32,7 @@ class HalfEdge:
             return self.origin.point
 
         if y is not None:
-            return self.origin.get_intersection(y, bounding_box=bounding_box)
+            return self.origin.get_intersection(y, max_y=bounding_box.top)
 
         return None
 

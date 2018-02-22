@@ -30,12 +30,12 @@ class Breakpoint:
         i, j = self.breakpoint
         return not (i.y == j.y and j.x < i.x)
 
-    def get_intersection(self, l, bounding_box=None):
+    def get_intersection(self, l, max_y=None):
         """
         Calculate the coordinates of the intersection
         Modified from https://www.cs.hmc.edu/~mbrubeck/voronoi.html
 
-        :param bounding_box: Bounding box for clipping infinite breakpoints
+        :param max_y: Bounding box top for clipping infinite breakpoints
         :param l: (float) The position (y-coordinate) of the sweep line
         :return: (float) The coordinates of the breakpoint
         """
@@ -60,7 +60,7 @@ class Breakpoint:
             result.x = (i.x + j.x) / 2
 
             if j.x < i.x:
-                result.y = bounding_box.top if bounding_box is not None else float('inf')
+                result.y = max_y or float('inf')
                 return result
 
         # Handle cases where one point's y-coordinate is the same as the sweep line

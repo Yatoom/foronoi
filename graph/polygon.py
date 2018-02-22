@@ -1,4 +1,4 @@
-from graph import Point
+from graph import Point, Vertex
 import math
 
 
@@ -6,9 +6,37 @@ class Polygon:
     def __init__(self, points):
         self.points = points
 
+        self.vertices = []
+        for point in self.points:
+            self.vertices.append(Vertex(point=point))
+
+        self.min_y = min([p.y for p in self.points])
+        self.min_x = min([p.x for p in self.points])
+        self.max_y = max([p.y for p in self.points])
+        self.max_x = max([p.x for p in self.points])
+
+    def finish_edge(self, edge):
+        # Start should be a breakpoint
+        start = edge.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
+
+        # End should be a vertex
+        end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
+
+        # Get point of intersection
+        point = self.get_intersection_edge(start, end)
+
+        # Create vertex
+        v = Vertex(point=point)
+        v.incident_edges.append(edge)
+        edge.origin = v
+        self.vertices.append(v)
+
+        return edge
+
     def inside(self, point):
-        # ray-casting algorithm based on
+        # Ray-casting algorithm based on
         # http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+        # Javascript implementation from https://github.com/substack/point-in-polygon
 
         vertices = self.points
 
@@ -32,9 +60,10 @@ class Polygon:
     def get_intersection_edge(self, orig, end):
         p = self.points
         for i in range(0, len(p) - 1):
-            intersection = poly.check_intersection(p[i], p[i + 1], orig, end)
-            if intersection:
-                return p[i], p[i+1], intersection
+            point = poly.check_intersection(p[i], p[i + 1], orig, end)
+            if point:
+                return point
+        return None
 
     @staticmethod
     def calculate_angle(point, center):
@@ -94,8 +123,3 @@ if __name__ == "__main__":
 
     for i in range(0, len(p) - 1):
         print(poly.check_intersection(p[i], p[i + 1], orig, end_intersect))
-
-    print(poly.get_intersection_edge(orig, end_intersect))
-
-    print(poly.inside(Point(1.5, 1.5)))
-    print(poly.inside(Point(5, 5)))
