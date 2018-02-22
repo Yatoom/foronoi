@@ -1,12 +1,17 @@
 from graph import Point
-import numpy as np
 import math
-from sklearn.preprocessing import normalize
 
 
 class Polygon:
     def __init__(self, points):
         self.points = points
+
+    def get_intersection_edge(self, orig, end):
+        p = self.points
+        for i in range(0, len(p) - 1):
+            intersection = poly.check_intersection(p[i], p[i + 1], orig, end)
+            if intersection:
+                return p[i], p[i+1], intersection
 
     @staticmethod
     def calculate_angle(point, center):
@@ -15,7 +20,7 @@ class Polygon:
         return math.degrees(math.atan2(dy, dx)) % 360
 
     @staticmethod
-    def is_intersecting(a, b, c, d):
+    def check_intersection(a, b, c, d):
         """
         Checks if a ray intersects with a line segment, using angles.
 
@@ -23,7 +28,7 @@ class Polygon:
         :param b: second point of line segment
         :param c: origin of ray
         :param d: some point along the ray
-        :return:
+        :return: Returns a Point if intersecting, or False otherwise
         """
 
         angle_a = Polygon.calculate_angle(a, c)
@@ -35,11 +40,14 @@ class Polygon:
         other_side = 360 - one_side
         smallest_side = min(one_side, other_side)
 
+        prox_a = abs(angle_a - angle_d) / abs(angle_a - angle_b)
+        prox_b = abs(angle_b - angle_d) / abs(angle_a - angle_b)
+
         if smallest_side == one_side:
             if angle_b <= angle_d <= angle_a:
-                return True
+                return Point(prox_a * a.x + prox_b * b.x, prox_a * a.y + prox_b * b.y)
         elif angle_a <= angle_d <= angle_b:
-            return True
+            return Point(prox_a * a.x + prox_b * b.x, prox_a * a.y + prox_b * b.y)
 
         return False
 
@@ -58,8 +66,10 @@ if __name__ == "__main__":
 
     poly = Polygon(p)
     orig = Point(1.5, 1.5)
-    end_intersect = Point(5, 5)
-    end_not_intersect = Point(2, 2)
+    end_intersect = Point(1.5, -5)
+    end_not_intersect = Point(1.5, 5)
 
     for i in range(0, len(p) - 1):
-        print(poly.is_intersecting(p[i], p[i + 1], orig, end_intersect))
+        print(poly.check_intersection(p[i], p[i + 1], orig, end_intersect))
+
+    print(poly.get_intersection_edge(orig, end_intersect))
