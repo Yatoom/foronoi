@@ -11,6 +11,7 @@ from nodes.leaf_node import Arc, LeafNode
 from nodes.smart_node import SmartNode
 from nodes.smart_tree import SmartTree
 import matplotlib.patches as patches
+import math
 
 
 class Algorithm:
@@ -83,7 +84,8 @@ class Algorithm:
 
                 # Debugging
                 if verbose:
-                    print(f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.triple}")
+                    print(
+                        f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.point_triple}")
 
                 # Handle the event
                 self.handle_circle_event(event, verbose=verbose)
@@ -225,19 +227,48 @@ class Algorithm:
         predecessor = arc_node.predecessor
         successor = arc_node.successor
 
-        assert (predecessor is not None and successor is not None and arc_node is not None)
+        assert(predecessor is not None and successor is not None and arc_node is not None)
+        assert(isinstance(predecessor, LeafNode))
+        assert(isinstance(successor, LeafNode))
+        assert(isinstance(arc_node, LeafNode))
 
         self.beach_line, updated, removed, left, right = self.update_breakpoints(
             self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
         # Delete all circle events involving arc from the event queue.
-        arc_point = arc_node.data.origin
-
+        # def remove(old_event, arc_node):
+        #     arc = arc_node.data
+        #     arcs = old_event.arc_triple
+        #     point = arc.origin
+        #     points = [arc.origin for arc in arcs]
+        #
+        #     if arc in arcs:
+        #         if verbose:
+        #             print("- Arc in arcs")
+        #         old_event.remove(verbose)
+        #
+        #     # if point in points:
+        #     #     if verbose:
+        #     #         print("- Point in points")
+        #     #     old_event.remove(verbose)
+        #
+        # left_event = predecessor.get_value().circle_event
+        # right_event = successor.get_value().circle_event
+        #
+        # if left_event:
+        #     if verbose:
+        #         print(f"checking if circle event of left arc {left_event.point_triple} needs to be removed")
+        #     remove(left_event, arc_node)
+        #
+        # if right_event:
+        #     if verbose:
+        #         print(f"checking if circle event of right arc {right_event.point_triple} needs to be removed")
+        #     remove(right_event, arc_node)
         def remove(old_event):
             if old_event.y == event.y and old_event.x == event.x:
                 pass
-            elif arc_point in old_event.triple:
-                old_event.remove(verbose=verbose)
+            else:
+                old_event.remove()
 
         if predecessor.get_value().circle_event:
             remove(predecessor.get_value().circle_event)
@@ -290,6 +321,24 @@ class Algorithm:
 
         self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), event, verbose)
 
+    @staticmethod
+    def calculate_angle(point, center):
+        dx = point.x - center.x
+        dy = point.y - center.y
+        return math.degrees(math.atan2(dy, dx)) % 360
+
+    def check_clockwise(self, a, b, c, center):
+        angle_1 = self.calculate_angle(a, center)
+        angle_2 = self.calculate_angle(b, center)
+        angle_3 = self.calculate_angle(c, center)
+
+        counter_clockwise = (angle_3 - angle_1) % 360 > (angle_3 - angle_2) % 360
+
+        if counter_clockwise:
+            return False
+
+        return True
+
     def check_circles(self, triple_left, triple_right, current_event, verbose=False):
         node_a, node_b, node_c = triple_left
         node_d, node_e, node_f = triple_right
@@ -312,19 +361,37 @@ class Algorithm:
         # Fix for inserting the same circle event twice
         if isinstance(current_event, CircleEvent):
             if node_a and node_b and node_c:
-                similar = check_triple(current_event.triple, [i.data.origin for i in triple_left])
+                similar = check_triple(current_event.point_triple, [i.data.origin for i in triple_left])
                 left_event = None if similar == 3 else left_event
 
             if node_d and node_e and node_f:
-                similar = check_triple(current_event.triple, [i.data.origin for i in triple_right])
+                similar = check_triple(current_event.point_triple, [i.data.origin for i in triple_right])
                 right_event = None if similar == 3 else right_event
 
         # Check if the circles are on the correct side
-        if left_event is not None and left_event.x > node_c.data.origin.x:
-            left_event = None
+        # TODO: This looks like a hacky solution. Check if it actually works.
+        # if left_event:
+        #     if not left_event.center.x < node_b.data.origin.x:
+        #         left_event = None
+        # if right_event:
+        #     if not right_event.center.x < node_e.data.origin.x:
+        #         right_event = None
+        if left_event:
+            if not self.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin, left_event.center):
+                print(f"Circle {left_event.point_triple} not clockwise.")
+                left_event = None
 
-        if right_event is not None and right_event.x < node_d.data.origin.x:
-            right_event = None
+        if right_event:
+            if not self.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin, right_event.center):
+                print(f"Circle {right_event.point_triple} not clockwise.")
+                right_event = None
+
+        # if isinstance(current_event, SiteEvent):
+        # if left_event is not None and left_event.x > node_c.data.origin.x:
+        #     left_event = None
+        #
+        # if right_event is not None and right_event.x < node_d.data.origin.x:
+        #     right_event = None
 
         if left_event is not None:
             self.event_queue.put(left_event)
@@ -335,9 +402,9 @@ class Algorithm:
             node_e.data.circle_event = right_event
 
         if left_event is not None and verbose:
-            print(f"Left circle event created for {left_event.y}. Arcs: {left_event.triple}")
+            print(f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
         if right_event is not None and verbose:
-            print(f"Right circle event created for {right_event.y}. Arcs: {right_event.triple}")
+            print(f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
 
         return left_event, right_event
 
@@ -401,7 +468,6 @@ class Algorithm:
         return root, updated, removed, left, right
 
     def visualize(self, y, current_event):
-
         # Create 1000 equally spaced points between -10 and 10 and setup plot window
         x = np.linspace(-25, 25, 1000)
         fig, ax = plt.subplots(figsize=(7, 7))

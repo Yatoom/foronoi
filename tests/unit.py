@@ -46,7 +46,7 @@ def test_martijn():
 
     v = Algorithm(BoundingBox(-1, 26, -1, 26))
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
-    sizes = [42.9, 209.3, 380.84, 95.97]
+    sizes = [42.86, 209.3, 380.84, 96.0]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 

@@ -15,7 +15,7 @@ class Point:
 
     def __repr__(self):
         if self.name is not None:
-            return f"Point_{self.name}"
+            return f"{self.name}"
         return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
     def cell_size(self, digits=None):

@@ -54,22 +54,23 @@ class SiteEvent(Event):
 
 
 class CircleEvent(Event):
-    def __init__(self, center: Point, radius: float, arc_node: LeafNode, triple=None):
+    def __init__(self, center: Point, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None):
         """
         Circle event.
 
         :param y: Lowest point on the circle
         :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
-        :param triple: The tuple of points that caused the event
+        :param point_triple: The tuple of points that caused the event
         """
         self.center = center
         self.radius = radius
         self.arc_pointer = arc_node
         self.is_valid = True
-        self.triple = triple
+        self.point_triple = point_triple
+        self.arc_triple = arc_triple
 
     def __repr__(self):
-        return f"CircleEvent({self.center}, {round(self.radius, 3)})"
+        return f"CircleEvent({self.point_triple}, {round(self.center.y - self.radius, 3)})"
 
     @property
     def x(self):
@@ -81,9 +82,9 @@ class CircleEvent(Event):
 
     def get_triangle(self):
         return (
-            (self.triple[0].x, self.triple[0].y),
-            (self.triple[1].x, self.triple[1].y),
-            (self.triple[2].x, self.triple[2].y),
+            (self.point_triple[0].x, self.point_triple[0].y),
+            (self.point_triple[1].x, self.point_triple[1].y),
+            (self.point_triple[2].x, self.point_triple[2].y),
         )
 
     def remove(self, verbose=False):
@@ -124,13 +125,10 @@ class CircleEvent(Event):
 
             # Check if the bottom of the circle is below the sweep line
             if y - radius < sweep_line:
-                # Debugging
-                # if verbose:
-                #     print(f"Sweep line reached {sweep_line}. Circle event created for {y - radius}.")
-                #     print(f"\t Arcs: {left_arc}, {middle_arc}, {right_arc}")
 
                 # Create the circle event
-                return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, triple=(a, b, c))
+                return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, point_triple=(a, b, c),
+                                   arc_triple=(left_arc, middle_arc, right_arc))
 
         return None
 
