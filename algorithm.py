@@ -4,6 +4,7 @@ from graph import BoundingBox, HalfEdge, Vertex
 from nodes import LeafNode, Arc, Breakpoint, InternalNode
 from events import CircleEvent, SiteEvent
 from tree import SmartTree, SmartNode
+from visualization.visual import visualize
 
 
 class Algorithm:
@@ -25,7 +26,7 @@ class Algorithm:
         self.sweep_line = float("inf")
 
         # Store arcs for visualization
-        self.arc_list = []
+        self.arcs = []
 
         # Store points for visualization
         self.points = None
@@ -86,7 +87,9 @@ class Algorithm:
                 if visualize_steps:
                     if verbose:
                         self.beach_line.visualize()
-                    self.visualize(self.sweep_line, current_event=event)
+                    visualize(self.sweep_line, current_event=event, bounding_box=self.bounding_box,
+                              points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                              event_queue=self.event_queue)
 
             # Handle site events
             elif isinstance(event, SiteEvent):
@@ -108,12 +111,9 @@ class Algorithm:
                 # Visualization
                 if visualize_steps:
                     self.beach_line.visualize()
-                    self.visualize(self.sweep_line, current_event=event)
-
-        # Visualization
-        if visualize_result:
-            self.beach_line.visualize()
-            self.visualize(-1000, current_event="Result")
+                    visualize(y=self.sweep_line, current_event=event, bounding_box=self.bounding_box,
+                              points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                              event_queue=self.event_queue)
 
         # Finish with the bounding box
         self.edges, self.vertices = self.bounding_box.create_box(self.edges, self.vertices, genesis_point)
@@ -121,15 +121,16 @@ class Algorithm:
         # Final visualization
         if visualize_result:
             self.beach_line.visualize()
-            self.visualize(-1000, current_event="Final result")
-            print("Done")
+            visualize(-1000, current_event="Final result", bounding_box=self.bounding_box,
+                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                      event_queue=self.event_queue)
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
         # Create a new arc
         new_point = event.point
         new_arc = Arc(origin=new_point)
-        self.arc_list.append(new_arc)
+        self.arcs.append(new_arc)
 
         # 1. If the beach line tree is empty, we insert point
         if self.beach_line is None:

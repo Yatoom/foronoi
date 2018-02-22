@@ -4,20 +4,20 @@ import numpy as np
 from events import CircleEvent
 
 
-def visualize(self, y, current_event):
+def visualize(y, current_event, bounding_box, points, vertices, edges, arc_list, event_queue):
     # Create 1000 equally spaced points between -10 and 10 and setup plot window
-    x = np.linspace(-25, 25, 1000)
+    x = np.linspace(bounding_box.left, bounding_box.right, 1000)
     fig, ax = plt.subplots(figsize=(7, 7))
     plt.title(current_event)
-    plt.ylim((self.bounding_box.bottom - 1, self.bounding_box.top + 1))
-    plt.xlim((self.bounding_box.left - 1, self.bounding_box.right + 1))
+    plt.ylim((bounding_box.bottom - 1, bounding_box.top + 1))
+    plt.xlim((bounding_box.left - 1, bounding_box.right + 1))
 
     # Plot the sweep line
     ax.plot(x, x + y - x, color='black')
 
     # Plot all arcs
     plot_lines = []
-    for arc in self.arc_list:
+    for arc in arc_list:
         plot_line = arc.get_plot(x, y)
         if plot_line is None:
             ax.axvline(x=arc.origin.x)
@@ -40,17 +40,18 @@ def visualize(self, y, current_event):
         ax.add_artist(triangle)
 
     # Plot half-edges
-    for edge in self.edges:
+    for edge in edges:
 
         # Get start and end of edges
-        start = edge.get_origin(y, self.bounding_box)
-        end = edge.twin.get_origin(y, self.bounding_box)
+        start = edge.get_origin(y, bounding_box)
+        end = edge.twin.get_origin(y, bounding_box)
 
         # Draw line
         plt.plot([start.x, end.x], [start.y, end.y], color="black")
 
         # Add arrow
-        plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
+        if start.y < float('inf'):
+            plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
 
         # Point to incident point
         incident_point = edge.incident_point
@@ -64,27 +65,27 @@ def visualize(self, y, current_event):
     if isinstance(current_event, CircleEvent):
         plot_circle(current_event)
 
-    for event in self.event_queue.queue:
+    for event in event_queue.queue:
         if isinstance(event, CircleEvent):
             plot_circle(event)
 
     # Draw bounding box
     ax.add_patch(
         patches.Rectangle(
-            (self.bounding_box.left, self.bounding_box.bottom),  # (x,y)
-            self.bounding_box.right - self.bounding_box.left,  # width
-            self.bounding_box.top - self.bounding_box.bottom,  # height
+            (bounding_box.left, bounding_box.bottom),  # (x,y)
+            bounding_box.right - bounding_box.left,  # width
+            bounding_box.top - bounding_box.bottom,  # height
             fill=False
         )
     )
 
     # Plot vertices
-    for vertex in self.vertices:
+    for vertex in vertices:
         x, y = vertex.position.x, vertex.position.y
         ax.scatter(x=[x], y=[y], s=50, color="blue")
 
     # Plot points
-    for point in self.points:
+    for point in points:
         x, y = point.x, point.y
         ax.scatter(x=[x], y=[y], s=50, color="black")
         size = f"{point.cell_size(digits=2)}"
