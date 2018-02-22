@@ -5,15 +5,45 @@ import math
 class Polygon:
     def __init__(self, points):
         self.points = points
-
-        self.vertices = []
-        for point in self.points:
-            self.vertices.append(Vertex(point=point))
-
         self.min_y = min([p.y for p in self.points])
         self.min_x = min([p.x for p in self.points])
         self.max_y = max([p.y for p in self.points])
         self.max_x = max([p.x for p in self.points])
+
+        self.points = self.order_points(self.points)
+        self.vertices = []
+        for point in self.points:
+            self.vertices.append(Vertex(point=point))
+
+        print(self.points)
+
+    def order_points(self, points):
+        center = Point(self.max_x - self.min_x, self.max_y - self.min_y)
+        counter_clockwise = sorted(points, key=lambda point: -Polygon.calculate_angle(point, center))
+        return counter_clockwise
+
+    # def get_ordered_vertices(self):
+    #     center = Point(self.max_x - self.min_x, self.max_y - self.min_y)
+    #     counter_clockwise = sorted(self.vertices, key=lambda vertex: Polygon.calculate_angle(vertex.position, center))
+    #     return counter_clockwise[::-1]
+
+    def get_coordinates(self):
+        return [(i.x, i.y) for i in self.points]
+
+    def finish_edges(self, edges):
+        for edge in edges:
+            if edge.get_origin() is None or not self.inside(edge.get_origin()):
+                self.finish_edge(edge)
+            if edge.twin.get_origin() is None or not self.inside(edge.twin.get_origin()):
+                self.finish_edge(edge.twin)
+
+        for edge in edges:
+            if not isinstance(edge.origin, Vertex):
+                raise Warning('edge has no vertex')
+            if not isinstance(edge.twin.origin, Vertex):
+                raise Warning('edge has no vertex')
+
+        return edges
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
@@ -23,7 +53,7 @@ class Polygon:
         end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
 
         # Get point of intersection
-        point = self.get_intersection_edge(start, end)
+        point = self.get_intersection_edge(end, start)
 
         # Create vertex
         v = Vertex(point=point)
@@ -60,10 +90,10 @@ class Polygon:
     def get_intersection_edge(self, orig, end):
         p = self.points
         for i in range(0, len(p) - 1):
-            point = poly.check_intersection(p[i], p[i + 1], orig, end)
+            point = Polygon.check_intersection(p[i], p[i + 1], orig, end)
             if point:
                 return point
-        return None
+        return Polygon.check_intersection(p[len(p) - 1], p[0], orig, end)
 
     @staticmethod
     def calculate_angle(point, center):
@@ -92,8 +122,8 @@ class Polygon:
         other_side = 360 - one_side
         smallest_side = min(one_side, other_side)
 
-        prox_a = abs(angle_a - angle_d) / abs(angle_a - angle_b)
-        prox_b = abs(angle_b - angle_d) / abs(angle_a - angle_b)
+        prox_a = 1 - abs(angle_a - angle_d) / abs(angle_a - angle_b)
+        prox_b = 1 - abs(angle_b - angle_d) / abs(angle_a - angle_b)
 
         if smallest_side == one_side:
             if angle_b <= angle_d <= angle_a:

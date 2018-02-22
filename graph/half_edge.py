@@ -27,12 +27,12 @@ class HalfEdge:
         next.prev = self
         self.next = next
 
-    def get_origin(self, y=None, bounding_box=None):
+    def get_origin(self, y=None, max_y=None):
         if isinstance(self.origin, Vertex):
             return self.origin.point
 
         if y is not None:
-            return self.origin.get_intersection(y, max_y=bounding_box.top)
+            return self.origin.get_intersection(y, max_y=max_y)
 
         return None
 

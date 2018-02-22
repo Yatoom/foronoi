@@ -8,10 +8,10 @@ from visualization.visual import visualize
 
 
 class Algorithm:
-    def __init__(self, bounding_box=None):
+    def __init__(self, bounding_poly=None):
 
         # The bounding box around the edge
-        self.bounding_box = bounding_box
+        self.bounding_poly = bounding_poly
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
@@ -87,7 +87,7 @@ class Algorithm:
                 if visualize_steps:
                     if verbose:
                         self.beach_line.visualize()
-                    visualize(self.sweep_line, current_event=event, bounding_box=self.bounding_box,
+                    visualize(self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
@@ -111,17 +111,26 @@ class Algorithm:
                 # Visualization
                 if visualize_steps:
                     self.beach_line.visualize()
-                    visualize(y=self.sweep_line, current_event=event, bounding_box=self.bounding_box,
+                    visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
-
-        # Finish with the bounding box
-        self.edges, self.vertices = self.bounding_box.create_box(self.edges, self.vertices, genesis_point)
 
         # Final visualization
         if visualize_result:
             self.beach_line.visualize()
-            visualize(-1000, current_event="Final result", bounding_box=self.bounding_box,
+            visualize(-1000, current_event="Result", bounding_poly=self.bounding_poly,
+                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                      event_queue=self.event_queue)
+
+        # Finish with the bounding box
+        self.edges = self.bounding_poly.finish_edges(self.edges)
+        self.vertices = self.vertices + self.bounding_poly.vertices
+        # self.edges, self.vertices = self.bounding_poly.create_box(self.edges, self.vertices, genesis_point)
+
+        # Final visualization
+        if visualize_result:
+            self.beach_line.visualize()
+            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                       event_queue=self.event_queue)
 
@@ -256,7 +265,7 @@ class Algorithm:
 
         # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
         # Note: we only create the new edge if the vertex is still inside the bounding box
-        if BoundingBox.is_inside_box(event.center, self.bounding_box):
+        if self.bounding_poly.inside(event.center):
             new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
             v.incident_edges.append(updated.edge.twin)
 

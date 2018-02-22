@@ -4,13 +4,13 @@ import numpy as np
 from events import CircleEvent
 
 
-def visualize(y, current_event, bounding_box, points, vertices, edges, arc_list, event_queue):
+def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue):
     # Create 1000 equally spaced points between -10 and 10 and setup plot window
-    x = np.linspace(bounding_box.left, bounding_box.right, 1000)
+    x = np.linspace(bounding_poly.min_x, bounding_poly.max_x, 1000)
     fig, ax = plt.subplots(figsize=(7, 7))
     plt.title(current_event)
-    plt.ylim((bounding_box.bottom - 1, bounding_box.top + 1))
-    plt.xlim((bounding_box.left - 1, bounding_box.right + 1))
+    plt.ylim((bounding_poly.min_y - 1, bounding_poly.max_y + 1))
+    plt.xlim((bounding_poly.min_x - 1, bounding_poly.max_x + 1))
 
     # Plot the sweep line
     ax.plot(x, x + y - x, color='black')
@@ -43,8 +43,8 @@ def visualize(y, current_event, bounding_box, points, vertices, edges, arc_list,
     for edge in edges:
 
         # Get start and end of edges
-        start = edge.get_origin(y, bounding_box)
-        end = edge.twin.get_origin(y, bounding_box)
+        start = edge.get_origin(y, bounding_poly.max_y)
+        end = edge.twin.get_origin(y, bounding_poly.max_y)
 
         # Draw line
         plt.plot([start.x, end.x], [start.y, end.y], color="black")
@@ -71,12 +71,7 @@ def visualize(y, current_event, bounding_box, points, vertices, edges, arc_list,
 
     # Draw bounding box
     ax.add_patch(
-        patches.Rectangle(
-            (bounding_box.left, bounding_box.bottom),  # (x,y)
-            bounding_box.right - bounding_box.left,  # width
-            bounding_box.top - bounding_box.bottom,  # height
-            fill=False
-        )
+        patches.Polygon(bounding_poly.get_coordinates(), fill=False)
     )
 
     # Plot vertices
