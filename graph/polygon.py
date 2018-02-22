@@ -6,6 +6,29 @@ class Polygon:
     def __init__(self, points):
         self.points = points
 
+    def inside(self, point):
+        # ray-casting algorithm based on
+        # http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+        vertices = self.points
+
+        x = point.x
+        y = point.y
+        inside = False
+
+        for i in range(0, len(vertices) - 1):
+            j = i + 1
+            xi = vertices[i].x
+            yi = vertices[i].y
+            xj = vertices[j].x
+            yj = vertices[j].y
+
+            intersect = ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
+            if intersect:
+                inside = not inside
+
+        return inside
+
     def get_intersection_edge(self, orig, end):
         p = self.points
         for i in range(0, len(p) - 1):
@@ -73,3 +96,6 @@ if __name__ == "__main__":
         print(poly.check_intersection(p[i], p[i + 1], orig, end_intersect))
 
     print(poly.get_intersection_edge(orig, end_intersect))
+
+    print(poly.inside(Point(1.5, 1.5)))
+    print(poly.inside(Point(5, 5)))
