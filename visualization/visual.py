@@ -71,7 +71,7 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
 
     # Draw bounding box
     ax.add_patch(
-        patches.Polygon(bounding_poly.get_coordinates(), fill=False)
+        patches.Polygon(bounding_poly.get_coordinates(), fill=False, edgecolor="green")
     )
 
     # Plot vertices

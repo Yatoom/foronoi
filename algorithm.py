@@ -123,8 +123,11 @@ class Algorithm:
                       event_queue=self.event_queue)
 
         # Finish with the bounding box
-        self.edges = self.bounding_poly.finish_edges(self.edges)
-        self.vertices = self.vertices + self.bounding_poly.vertices
+        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges)
+        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, genesis_point, self.vertices)
+        # self.vertices = self.vertices + polygon_vertices
+        # self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, genesis_point, self.vertices)
+        # self.vertices = self.vertices + self.bounding_poly.vertices
         # self.edges, self.vertices = self.bounding_poly.create_box(self.edges, self.vertices, genesis_point)
 
         # Final visualization

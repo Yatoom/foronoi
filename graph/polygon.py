@@ -1,31 +1,89 @@
-from graph import Point, Vertex
+from graph import Point, Vertex, HalfEdge
 import math
 
 
 class Polygon:
     def __init__(self, points):
         self.points = points
-        self.min_y = min([p.y for p in self.points])
-        self.min_x = min([p.x for p in self.points])
-        self.max_y = max([p.y for p in self.points])
-        self.max_x = max([p.x for p in self.points])
+        min_y = min([p.y for p in self.points])
+        min_x = min([p.x for p in self.points])
+        max_y = max([p.y for p in self.points])
+        max_x = max([p.x for p in self.points])
+        center = Point((max_x + min_x) / 2, (max_y + min_y) / 2)
+        self.min_y, self.min_x, self.max_y, self.max_x, self.center = min_y, min_x, max_y, max_x, center
 
         self.points = self.order_points(self.points)
-        self.vertices = []
+        self.polygon_vertices = []
         for point in self.points:
-            self.vertices.append(Vertex(point=point))
+            self.polygon_vertices.append(Vertex(point=point))
 
         print(self.points)
 
     def order_points(self, points):
-        center = Point(self.max_x - self.min_x, self.max_y - self.min_y)
-        counter_clockwise = sorted(points, key=lambda point: -Polygon.calculate_angle(point, center))
+        counter_clockwise = sorted(points, key=lambda point: (-180 -Polygon.calculate_angle(point, self.center)) % 360)
         return counter_clockwise
 
-    # def get_ordered_vertices(self):
-    #     center = Point(self.max_x - self.min_x, self.max_y - self.min_y)
-    #     counter_clockwise = sorted(self.vertices, key=lambda vertex: Polygon.calculate_angle(vertex.position, center))
-    #     return counter_clockwise[::-1]
+    def get_ordered_vertices(self, vertices):
+        clockwise = sorted(vertices, key=lambda vertex: (-180 - Polygon.calculate_angle(vertex.position, self.center)) % 360)
+
+        filtered = []
+        for i in clockwise:
+            previous = None
+            if len(filtered) > 0:
+                previous = filtered.pop()
+
+            if previous and i.position.x == previous.position.x and i.position.y == previous.position.y:
+                print("Duplicate")
+                if len(i.incident_edges) > 0:
+                    filtered.append(i)
+                else:
+                    filtered.append(previous)
+            elif previous:
+                filtered.append(previous)
+                filtered.append(i)
+            else:
+                filtered.append(i)
+
+        return filtered
+
+    def finish_polygon(self, edges, genesis_point, existing_vertices):
+        vertices = self.get_ordered_vertices(self.polygon_vertices)
+        vertices = vertices + [vertices[0]]
+        print("Finish polygon, vertices:", [(Polygon.calculate_angle(i.position, self.center), i) for i in vertices])
+        cell = genesis_point
+        previous_edge = None
+        for index in range(0, len(vertices) - 1):
+
+            # Get origin
+            origin = vertices[index]
+            end = vertices[index + 1]
+
+            # If vertex is connected to other edges, update the cell
+            if len(origin.incident_edges) > 0:
+                cell = origin.incident_edges[0].twin.incident_point
+
+            # Create the edge
+            edge = HalfEdge(cell, origin=origin, twin=HalfEdge(None, origin=end))
+            origin.incident_edges.append(edge)
+            end.incident_edges.append(edge.twin)
+
+            # Connect edges
+            if len(end.incident_edges) > 0:
+                edge.set_next(end.incident_edges[0])
+
+            # Connect to incoming edge, or previous edge
+            if len(origin.incident_edges) > 0:
+                origin.incident_edges[0].twin.set_next(edge)
+            elif previous_edge is not None:
+                previous_edge.set_next(edge)
+
+            # Add the edge to the list
+            edges.append(edge)
+
+            # Set previous edge
+            previous_edge = edge
+
+        return edges, vertices + existing_vertices
 
     def get_coordinates(self):
         return [(i.x, i.y) for i in self.points]
@@ -43,7 +101,7 @@ class Polygon:
             if not isinstance(edge.twin.origin, Vertex):
                 raise Warning('edge has no vertex')
 
-        return edges
+        return edges, self.polygon_vertices
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
@@ -53,13 +111,13 @@ class Polygon:
         end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
 
         # Get point of intersection
-        point = self.get_intersection_edge(end, start)
+        point = self.get_intersection_point(end, start)
 
         # Create vertex
         v = Vertex(point=point)
         v.incident_edges.append(edge)
         edge.origin = v
-        self.vertices.append(v)
+        self.polygon_vertices.append(v)
 
         return edge
 
@@ -87,7 +145,7 @@ class Polygon:
 
         return inside
 
-    def get_intersection_edge(self, orig, end):
+    def get_intersection_point(self, orig, end):
         p = self.points
         for i in range(0, len(p) - 1):
             point = Polygon.check_intersection(p[i], p[i + 1], orig, end)
