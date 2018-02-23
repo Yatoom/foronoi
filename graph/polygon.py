@@ -1,5 +1,6 @@
 from graph import Point, Vertex, HalfEdge
 import math
+import numpy as np
 
 
 class Polygon:
@@ -20,37 +21,18 @@ class Polygon:
         print(self.points)
 
     def order_points(self, points):
-        counter_clockwise = sorted(points, key=lambda point: (-180 -Polygon.calculate_angle(point, self.center)) % 360)
-        return counter_clockwise
+        clockwise = sorted(points, key=lambda point: (-180 - Polygon.calculate_angle(point, self.center)) % 360)
+        return clockwise
 
     def get_ordered_vertices(self, vertices):
-        clockwise = sorted(vertices, key=lambda vertex: (-180 - Polygon.calculate_angle(vertex.position, self.center)) % 360)
+        clockwise = sorted(vertices,
+                           key=lambda vertex: (-180 - Polygon.calculate_angle(vertex.position, self.center)) % 360)
+        return clockwise
 
-        filtered = []
-        for i in clockwise:
-            previous = None
-            if len(filtered) > 0:
-                previous = filtered.pop()
-
-            if previous and i.position.x == previous.position.x and i.position.y == previous.position.y:
-                print("Duplicate")
-                if len(i.incident_edges) > 0:
-                    filtered.append(i)
-                else:
-                    filtered.append(previous)
-            elif previous:
-                filtered.append(previous)
-                filtered.append(i)
-            else:
-                filtered.append(i)
-
-        return filtered
-
-    def finish_polygon(self, edges, genesis_point, existing_vertices):
+    def finish_polygon(self, edges, existing_vertices):
         vertices = self.get_ordered_vertices(self.polygon_vertices)
         vertices = vertices + [vertices[0]]
-        print("Finish polygon, vertices:", [(Polygon.calculate_angle(i.position, self.center), i) for i in vertices])
-        cell = genesis_point
+        cell = None
         previous_edge = None
         for index in range(0, len(vertices) - 1):
 
@@ -160,6 +142,25 @@ class Polygon:
         return math.degrees(math.atan2(dy, dx)) % 360
 
     @staticmethod
+    def line(p1, p2):
+        A = (p1[1] - p2[1])
+        B = (p2[0] - p1[0])
+        C = (p1[0] * p2[1] - p2[0] * p1[1])
+        return A, B, -C
+
+    @staticmethod
+    def intersection(L1, L2):
+        D = L1[0] * L2[1] - L1[1] * L2[0]
+        Dx = L1[2] * L2[1] - L1[1] * L2[2]
+        Dy = L1[0] * L2[2] - L1[2] * L2[0]
+        if D != 0:
+            x = Dx / D
+            y = Dy / D
+            return Point(x, y)
+        else:
+            return False
+
+    @staticmethod
     def check_intersection(a, b, c, d):
         """
         Checks if a ray intersects with a line segment, using angles.
@@ -171,6 +172,8 @@ class Polygon:
         :return: Returns a Point if intersecting, or False otherwise
         """
 
+        # If the point is too close to the edge, we need to move it a little
+
         angle_a = Polygon.calculate_angle(a, c)
         angle_b = Polygon.calculate_angle(b, c)
         angle_d = Polygon.calculate_angle(d, c)
@@ -180,14 +183,15 @@ class Polygon:
         other_side = 360 - one_side
         smallest_side = min(one_side, other_side)
 
-        prox_a = 1 - abs(angle_a - angle_d) / abs(angle_a - angle_b)
-        prox_b = 1 - abs(angle_b - angle_d) / abs(angle_a - angle_b)
+        # Calculate lines
+        L1 = Polygon.line([a.x, a.y], [b.x, b.y])
+        L2 = Polygon.line([c.x, c.y], [d.x, d.y])
 
         if smallest_side == one_side:
             if angle_b <= angle_d <= angle_a:
-                return Point(prox_a * a.x + prox_b * b.x, prox_a * a.y + prox_b * b.y)
+                return Polygon.intersection(L1, L2)
         elif angle_a <= angle_d <= angle_b:
-            return Point(prox_a * a.x + prox_b * b.x, prox_a * a.y + prox_b * b.y)
+            return Polygon.intersection(L1, L2)
 
         return False
 

@@ -7,6 +7,7 @@ points = [
     Point(4, 7.5),
     Point(7.5, 2.5),
     Point(6, 7.5),
+    Point(4, 4),
 ]
 
 p = [

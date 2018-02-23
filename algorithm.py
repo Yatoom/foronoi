@@ -115,20 +115,9 @@ class Algorithm:
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
-        # Final visualization
-        if visualize_result:
-            self.beach_line.visualize()
-            visualize(-1000, current_event="Result", bounding_poly=self.bounding_poly,
-                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue)
-
         # Finish with the bounding box
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges)
-        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, genesis_point, self.vertices)
-        # self.vertices = self.vertices + polygon_vertices
-        # self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, genesis_point, self.vertices)
-        # self.vertices = self.vertices + self.bounding_poly.vertices
-        # self.edges, self.vertices = self.bounding_poly.create_box(self.edges, self.vertices, genesis_point)
+        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices)
 
         # Final visualization
         if visualize_result:
