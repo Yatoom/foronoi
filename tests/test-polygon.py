@@ -1,6 +1,5 @@
 from algorithm import Algorithm
 from graph import Polygon, Point
-from graph.point import Point
 
 points = [
     Point(2.5, 2.5),
@@ -12,7 +11,7 @@ points = [
     Point(6, 3),
 ]
 
-p = [
+polygon_points = [
     Point(2.5, 10),
     Point(5, 10),
     Point(10, 5),
@@ -23,5 +22,5 @@ p = [
     Point(0, 5),
 ]
 
-v = Algorithm(Polygon(p))
-v.create_diagram(points=points, visualize_steps=False, verbose=True)
+v = Algorithm(Polygon(polygon_points))
+v.create_diagram(points=points, visualize_steps=False, verbose=False)

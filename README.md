@@ -1,28 +1,43 @@
 # Voronoi
-An implementation of Fortune's algorithm as described in "Computational Geometry: Algorithms and Applications" by de Berg et al. in python.
+Implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. in python.
+Includes careful handling of special cases and optionally, a convex polygon can be used as the bounding box. 
 
 ## Example usage
+
+Example that uses a polygon as a bounding box.
+
 ```python
 from algorithm import Algorithm
-from graph import Point, BoundingBox
+from graph import Polygon, Point
 
 # Define a set of points
-points = [
-    Point(4.6, 11.44),
-    Point(12.7, 10.6),
-    Point(13.9, 6.76),
-    Point(8.7, 7.7),
-    Point(7.1, 4.24),
+voronoi_points = [
+    Point(2.5, 2.5),
+    Point(4, 7.5),
+    Point(7.5, 2.5),
+    Point(6, 7.5),
+    Point(4, 4),
+    Point(3, 3),
+    Point(6, 3),
 ]
 
 # Define a bounding box
-bounding_box = BoundingBox(0, 25, 0, 25)
+polygon_points = [
+    Point(2.5, 10),
+    Point(5, 10),
+    Point(10, 5),
+    Point(10, 2.5),
+    Point(5, 0),
+    Point(2.5, 0),
+    Point(0, 2.5),
+    Point(0, 5),
+]
 
 # Initalize the algorithm
-v = Algorithm(bounding_box)
+v = Algorithm(Polygon(polygon_points))
 
 # Create the diagram
-v.create_diagram(points=points, visualize_steps=True, verbose=True, visualize_result=True)
+v.create_diagram(points=voronoi_points, visualize_steps=False, verbose=False, visualize_result=True)
 
 # Get properties
 edges = v.edges
