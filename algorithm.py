@@ -1,6 +1,5 @@
-import math
 from queue import PriorityQueue
-from graph import BoundingBox, HalfEdge, Vertex
+from graph import HalfEdge, Vertex, Algebra
 from nodes import LeafNode, Arc, Breakpoint, InternalNode
 from events import CircleEvent, SiteEvent
 from tree import SmartTree, SmartNode
@@ -287,24 +286,6 @@ class Algorithm:
 
         self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), event, verbose)
 
-    @staticmethod
-    def calculate_angle(point, center):
-        dx = point.x - center.x
-        dy = point.y - center.y
-        return math.degrees(math.atan2(dy, dx)) % 360
-
-    def check_clockwise(self, a, b, c, center):
-        angle_1 = self.calculate_angle(a, center)
-        angle_2 = self.calculate_angle(b, center)
-        angle_3 = self.calculate_angle(c, center)
-
-        counter_clockwise = (angle_3 - angle_1) % 360 > (angle_3 - angle_2) % 360
-
-        if counter_clockwise:
-            return False
-
-        return True
-
     def check_circles(self, triple_left, triple_right, current_event, verbose=False):
         node_a, node_b, node_c = triple_left
         node_d, node_e, node_f = triple_right
@@ -336,12 +317,14 @@ class Algorithm:
 
         # Check if the circles converge
         if left_event:
-            if not self.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin, left_event.center):
+            if not Algebra.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin,
+                                           left_event.center):
                 print(f"Circle {left_event.point_triple} not clockwise.")
                 left_event = None
 
         if right_event:
-            if not self.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin, right_event.center):
+            if not Algebra.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin,
+                                           right_event.center):
                 print(f"Circle {right_event.point_triple} not clockwise.")
                 right_event = None
 

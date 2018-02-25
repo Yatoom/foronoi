@@ -1,6 +1,6 @@
 from graph import Point, Vertex, HalfEdge
 import math
-from graph.intersection import get_intersection
+from graph.algebra import Algebra
 
 
 class Polygon:
@@ -21,12 +21,12 @@ class Polygon:
         print(self.points)
 
     def order_points(self, points):
-        clockwise = sorted(points, key=lambda point: (-180 - Polygon.calculate_angle(point, self.center)) % 360)
+        clockwise = sorted(points, key=lambda point: (-180 - Algebra.calculate_angle(point, self.center)) % 360)
         return clockwise
 
     def get_ordered_vertices(self, vertices):
         clockwise = sorted(vertices,
-                           key=lambda vertex: (-180 - Polygon.calculate_angle(vertex.position, self.center)) % 360)
+                           key=lambda vertex: (-180 - Algebra.calculate_angle(vertex.position, self.center)) % 360)
         return clockwise
 
     def finish_polygon(self, edges, existing_vertices):
@@ -137,12 +137,6 @@ class Polygon:
         raise Exception("No intersection point could be found.")
 
     @staticmethod
-    def calculate_angle(point, center):
-        dx = point.x - center.x
-        dy = point.y - center.y
-        return math.degrees(math.atan2(dy, dx)) % 360
-
-    @staticmethod
     def check_intersection(a, b, c, d):
         """
             Checks if a ray intersects with a line segment, using angles.
@@ -152,7 +146,7 @@ class Polygon:
             :param c: origin of ray
             :param d: some point along the ray
         """
-        return get_intersection(orig=c, end=d, p1=a, p2=b)
+        return Algebra.get_intersection(orig=c, end=d, p1=a, p2=b)
 
 
 if __name__ == "__main__":
