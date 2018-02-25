@@ -2,6 +2,9 @@ from graph import Point, Vertex, HalfEdge
 import math
 import numpy as np
 
+from graph.geometry import Geometry, LineSegment
+from graph.intersection import get_intersection
+
 
 class Polygon:
     def __init__(self, points):
@@ -128,12 +131,17 @@ class Polygon:
         return inside
 
     def get_intersection_point(self, orig, end):
-        p = self.points
+        p = self.points + [self.points[0]]
         for i in range(0, len(p) - 1):
             point = Polygon.check_intersection(p[i], p[i + 1], orig, end)
             if point:
                 return point
-        return Polygon.check_intersection(p[len(p) - 1], p[0], orig, end)
+
+        if not point:
+            print("oh oh")
+            point = self.get_intersection_point(orig, end)
+
+        return point
 
     @staticmethod
     def calculate_angle(point, center):
@@ -163,37 +171,88 @@ class Polygon:
     @staticmethod
     def check_intersection(a, b, c, d):
         """
-        Checks if a ray intersects with a line segment, using angles.
+            Checks if a ray intersects with a line segment, using angles.
 
-        :param a: first point of line segment
-        :param b: second point of line segment
-        :param c: origin of ray
-        :param d: some point along the ray
-        :return: Returns a Point if intersecting, or False otherwise
+            :param a: first point of line segment
+            :param b: second point of line segment
+            :param c: origin of ray
+            :param d: some point along the ray
         """
+        return get_intersection(orig=c, end=d, p1=a, p2=b)
 
-        # If the point is too close to the edge, we need to move it a little
+    # @staticmethod
+    # def check_intersection(a, b, c, d):
+    #     """
+    #     Checks if a ray intersects with a line segment, using angles.
+    #
+    #     :param a: first point of line segment
+    #     :param b: second point of line segment
+    #     :param c: origin of ray
+    #     :param d: some point along the ray
+    #     :return: Returns a Point if intersecting, or False otherwise
+    #     """
+    #     one = LineSegment(a, b)
+    #     two = LineSegment(c, d)
+    #
+    #     if Geometry.do_lines_intersect(one, two):
+    #         L1 = Polygon.line([a.x, a.y], [b.x, b.y])
+    #         L2 = Polygon.line([c.x, c.y], [d.x, d.y])
+    #         return Polygon.intersection(L1, L2)
+    #     return False
 
-        angle_a = Polygon.calculate_angle(a, c)
-        angle_b = Polygon.calculate_angle(b, c)
-        angle_d = Polygon.calculate_angle(d, c)
+        # # If the point is too close to the edge, we need to move it a little
+        #
+        # angle_a = Polygon.calculate_angle(a, c)
+        # angle_b = Polygon.calculate_angle(b, c)
+        # angle_d = Polygon.calculate_angle(d, c)
+        #
+        # # Check which one is the smallest side
+        # one_side = (angle_a - angle_b) % 360
+        # other_side = 360 - one_side
+        # smallest_side = min(one_side, other_side)
+        #
+        # # Calculate lines
+        # L1 = Polygon.line([a.x, a.y], [b.x, b.y])
+        # L2 = Polygon.line([c.x, c.y], [d.x, d.y])
+        #
+        # # if smallest_side == one_side:
+        # #     if angle_b <= angle_d <= angle_a:
+        # #         return Polygon.intersection(L1, L2)
+        # # elif angle_a <= angle_d <= angle_b:
+        # intersection = Polygon.intersection(L1, L2)
+        # if Polygon.point_on_line(a, b, intersection):
+        #     return intersection
+        # return False
 
-        # Check which one is the smallest side
-        one_side = (angle_a - angle_b) % 360
-        other_side = 360 - one_side
-        smallest_side = min(one_side, other_side)
+        # Check if intersection is on line
 
-        # Calculate lines
-        L1 = Polygon.line([a.x, a.y], [b.x, b.y])
-        L2 = Polygon.line([c.x, c.y], [d.x, d.y])
 
-        if smallest_side == one_side:
-            if angle_b <= angle_d <= angle_a:
-                return Polygon.intersection(L1, L2)
-        elif angle_a <= angle_d <= angle_b:
-            return Polygon.intersection(L1, L2)
-
-        return False
+        # return False
+    #
+    # @staticmethod
+    # def point_on_line(a, b, p):
+    #     dxc = p.x - a.x
+    #     dyc = p.y - a.y
+    #
+    #     dxl = b.x - a.x
+    #     dyl = b.y - a.y
+    #
+    #     cross = dxc * dyl - dyc * dxl
+    #
+    #     if cross != 0:
+    #         return False
+    #
+    #     if abs(dxl) >= abs(dyl):
+    #         if a.x <= p.x <= b.x:
+    #             return dxl > 0
+    #         else:
+    #             return b.x <= p.x <= a.x
+    #     else:
+    #         if a.y <= p.y <= b.y:
+    #             return dyl > 0
+    #         else:
+    #             return b.y <= p.y <= a.y
+    #     raise ValueError()
 
 
 if __name__ == "__main__":
@@ -215,3 +274,5 @@ if __name__ == "__main__":
 
     for i in range(0, len(p) - 1):
         print(poly.check_intersection(p[i], p[i + 1], orig, end_intersect))
+
+    print(poly.inside(Point(0.7, 6.1)))

@@ -115,6 +115,12 @@ class Algorithm:
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
+        if visualize_result:
+            self.beach_line.visualize()
+            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
+                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                      event_queue=self.event_queue)
+
         # Finish with the bounding box
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges)
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices)
@@ -241,23 +247,23 @@ class Algorithm:
         # Get the location where the breakpoints converge
         convergence_point = event.center
 
-        # Create a vertex
-        v = Vertex(point=convergence_point)
-        self.vertices.append(v)
-
-        # Connect the two old edges to the vertex
-        updated.edge.origin = v
-        removed.edge.origin = v
-        v.incident_edges.append(updated.edge)
-        v.incident_edges.append(removed.edge)
-
-        # Get the incident points
-        C = updated.breakpoint[0]
-        B = updated.breakpoint[1]
-
         # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
         # Note: we only create the new edge if the vertex is still inside the bounding box
         if self.bounding_poly.inside(event.center):
+            # Create a vertex
+            v = Vertex(point=convergence_point)
+            self.vertices.append(v)
+
+            # Connect the two old edges to the vertex
+            updated.edge.origin = v
+            removed.edge.origin = v
+            v.incident_edges.append(updated.edge)
+            v.incident_edges.append(removed.edge)
+
+            # Get the incident points
+            C = updated.breakpoint[0]
+            B = updated.breakpoint[1]
+
             new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
             v.incident_edges.append(updated.edge.twin)
 

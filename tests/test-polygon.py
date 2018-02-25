@@ -8,6 +8,8 @@ points = [
     Point(7.5, 2.5),
     Point(6, 7.5),
     Point(4, 4),
+    Point(3, 3),
+    # Point(6, 3),
 ]
 
 p = [
