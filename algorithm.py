@@ -234,8 +234,6 @@ class Algorithm:
         def remove(neighbor_event):
             if neighbor_event is None:
                 return None
-            elif neighbor_event.y == event.y and neighbor_event.x == event.x:
-                return neighbor_event
             return neighbor_event.remove()
 
         remove(predecessor.get_value().circle_event)

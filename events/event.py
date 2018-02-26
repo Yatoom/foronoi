@@ -1,4 +1,6 @@
 class Event:
+    circle_event = False
+
     @property
     def x(self):
         return 0
@@ -9,7 +11,7 @@ class Event:
 
     def __lt__(self, other):
         # if self.y == other.y and self.x == other.x:
-        #     return isinstance(self, SiteEvent)
+        #     return not self.circle_event
 
         if self.y == other.y:
             return self.x < other.x

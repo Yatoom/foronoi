@@ -3,6 +3,8 @@ from graph.point import Point
 
 
 class SiteEvent(Event):
+    circle_event = False
+
     def __init__(self, point: Point):
         """
         Site event

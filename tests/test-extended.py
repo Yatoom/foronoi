@@ -18,7 +18,7 @@ points = [
 ]
 
 v = Algorithm(BoundingBox(0, 25, 0, 25))
-v.create_diagram(points=points, visualize_steps=True, verbose=True)
+v.create_diagram(points=points, visualize_steps=False, verbose=True)
 
 for point in v.points:
     print(point.cell_size(2), end=",")

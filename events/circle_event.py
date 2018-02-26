@@ -8,7 +8,9 @@ from nodes.arc import Arc
 
 
 class CircleEvent(Event):
-    def __init__(self, center: Point, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None):
+    circle_event = True
+
+    def __init__(self, center: Point, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None, created_by_site=False):
         """
         Circle event.
 
@@ -78,11 +80,9 @@ class CircleEvent(Event):
             # Create the circle
             x, y, radius = CircleEvent.create_circle(a, b, c)
 
-            # Check if the bottom of the circle is below the sweep line
-            if y - radius < sweep_line:
-                # Create the circle event
-                return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, point_triple=(a, b, c),
-                                   arc_triple=(left_arc, middle_arc, right_arc))
+            # Return circle event
+            return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, point_triple=(a, b, c),
+                               arc_triple=(left_arc, middle_arc, right_arc))
 
         return None
 
