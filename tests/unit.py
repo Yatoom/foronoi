@@ -26,11 +26,11 @@ def test_diamond():
         Point(5, 7.5),
         Point(2.5, 5),
         Point(7.5, 5),
-        Point(6, 3),
+        Point(5, 2.5),
     ]
     v = Algorithm(BoundingBox(0, 10, 0, 10))
     v.create_diagram(points=points, visualize_steps=False, visualize_result=False, verbose=False)
-    sizes = [24.98, 29.45, 20.34, 25.23]
+    sizes = [25.0,25.0,25.0,25.0,]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 

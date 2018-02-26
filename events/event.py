@@ -10,8 +10,8 @@ class Event:
         return 0
 
     def __lt__(self, other):
-        # if self.y == other.y and self.x == other.x:
-        #     return not self.circle_event
+        if self.y == other.y and self.x == other.x:
+            return self.circle_event and not other.circle_event
 
         if self.y == other.y:
             return self.x < other.x
