@@ -30,7 +30,7 @@ def test_diamond():
     ]
     v = Algorithm(BoundingBox(0, 10, 0, 10))
     v.create_diagram(points=points, visualize_steps=False, visualize_result=False, verbose=False)
-    sizes = [25.0,25.0,25.0,25.0,]
+    sizes = [25.0, 25.0, 25.0, 25.0, ]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
@@ -102,5 +102,20 @@ def test_rounding_errors():
     v = Algorithm(BoundingBox(0, 25, 0, 25))
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
     sizes = [128.59, 465.07, 31.34]
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)
+
+
+def test_corners():
+    points = [
+        Point(0, 10),
+        Point(10, 0),
+        Point(0, 0),
+        Point(10, 10),
+    ]
+
+    v = Algorithm(BoundingBox(0, 10, 0, 10))
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    sizes = [25.0, 25.0, 25.0, 25.0]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
