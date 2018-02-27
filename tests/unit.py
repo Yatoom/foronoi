@@ -154,3 +154,49 @@ def test_left_arc():
     sizes = [39.06, 58.59, 117.19, 0.0, 253.91]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
+
+
+def test_multi_diamond():
+    points = [
+        Point(3.125, 3.125),
+        Point(9.375, 3.125),
+        Point(15.625, 3.125),
+        Point(21.875, 3.125),
+        Point(3.125, 9.375),
+        Point(9.375, 9.375),
+        Point(15.625, 9.375),
+        Point(21.875, 9.375),
+        Point(3.125, 15.625),
+        Point(9.375, 15.625),
+        Point(15.625, 15.625),
+        Point(21.875, 15.625),
+        Point(3.125, 21.875),
+        Point(9.375, 21.875),
+        Point(15.625, 21.875),
+        Point(21.875, 21.875),
+        Point(6.25, 18.75),
+        Point(12.5, 18.75),
+        Point(18.75, 18.75),
+        Point(6.25, 12.5),
+        Point(12.5, 12.5),
+        Point(18.75, 12.5),
+        Point(6.25, 6.25),
+        Point(12.5, 6.25),
+        Point(18.75, 6.25),
+        Point(0.0, 12.5),
+        Point(0.0, 18.75),
+        Point(6.25, 25.0),
+        Point(12.5, 25.0),
+        Point(18.75, 25.0),
+        Point(25.0, 18.75)
+    ]
+
+    v = Algorithm(BoundingBox(-1, 26, -1, 26))
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+
+    sizes = [47.68, 35.55, 35.55, 47.68, 27.04, 19.53, 19.53, 35.55, 19.53, 19.53, 19.53, 27.04, 30.66, 19.53, 19.53,
+             30.66, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 16.52, 16.52, 16.52, 16.02, 16.52,
+             17.02]
+
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)

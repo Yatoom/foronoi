@@ -84,6 +84,12 @@ class Polygon:
 
             resulting_edges.append(edge)
 
+        for i in resulting_edges:
+            if i.get_origin() is not None and i.get_origin().x < -1:
+                indside = self.inside(i.get_origin())
+                print("what?")
+                self.finish_edge(i)
+
         return resulting_edges, self.polygon_vertices
 
     def finish_edge(self, edge):
@@ -109,7 +115,7 @@ class Polygon:
         # http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
         # Javascript implementation from https://github.com/substack/point-in-polygon
 
-        vertices = self.points
+        vertices = self.points + self.points[0:1]
 
         x = point.x
         y = point.y
