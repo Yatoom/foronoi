@@ -35,7 +35,7 @@ points = [
     Point(25.0, 18.75)
 ]
 
-v = Algorithm(BoundingBox(-1, 26, -1, 26))
+v = Algorithm(BoundingBox(-0.1, 25.1, -0.1, 25.1))
 v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=True)
 
 for point in v.points:

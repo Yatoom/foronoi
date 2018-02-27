@@ -9,6 +9,8 @@ class Algebra:
 
     @staticmethod
     def norm(vector):
+        if Algebra.magnitude(np.array(vector)) == 0:
+            return np.array(vector)
         return np.array(vector) / Algebra.magnitude(np.array(vector))
 
     @staticmethod
