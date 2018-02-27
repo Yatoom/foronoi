@@ -119,3 +119,18 @@ def test_corners():
     sizes = [25.0, 25.0, 25.0, 25.0]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
+
+
+def test_horizontal():
+    points = [
+        Point(2, 2.5),
+        Point(4, 2.5),
+        Point(6, 2.5),
+    ]
+
+    v = Algorithm(BoundingBox(0, 8, 0, 10))
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+
+    sizes = [30.0, 20.0, 30.0]
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)

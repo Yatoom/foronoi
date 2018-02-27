@@ -31,7 +31,8 @@ class Algebra:
 
         t1 = np.cross(v2, v1) / np.dot(v2, v3)
         t2 = np.dot(v1, v3) / np.dot(v2, v3)
-        if t1 >= 0.0 and 0.0 <= t2 <= 1.0:
+
+        if t1 > 0.0 and 0.0 <= t2 <= 1.0:
             return [orig + t1 * direction]
         return []
 
