@@ -86,7 +86,7 @@ def test_desmos():
 
     v = Algorithm(BoundingBox(0, 25, 0, 25))
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
-    sizes = [26.01, 202.48, 16.32, 95.95, 12.32, 108.89, 14.05, 57.78, 31.34, 11.63, 31.21, 17.03]
+    sizes = [26.01, 202.48, 15.87, 95.95, 12.32, 108.89, 14.05, 57.78, 31.34, 12.08, 31.21, 17.03]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
@@ -132,5 +132,25 @@ def test_horizontal():
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
 
     sizes = [30.0, 20.0, 30.0]
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)
+
+
+def test_left_arc():
+    from algorithm import Algorithm
+    from graph import Point, BoundingBox
+
+    points = [
+        Point(3.125, 3.125),
+        Point(9.375, 3.125),
+        Point(15.625, 3.125),
+        Point(21.875, 3.125),
+        Point(3.125, 9.375),
+    ]
+
+    v = Algorithm(BoundingBox(0, 25, 0, 25))
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+
+    sizes = [39.06, 58.59, 117.19, 0.0, 253.91]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)

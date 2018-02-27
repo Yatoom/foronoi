@@ -47,15 +47,16 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
         end = edge.twin.get_origin(y, bounding_poly.max_y)
 
         # Draw line
-        plt.plot([start.x, end.x], [start.y, end.y], color="black")
+        if start and end:
+            plt.plot([start.x, end.x], [start.y, end.y], color="black")
 
         # Add arrow
-        if start.y < float('inf'):
+        if start and end and start.y < float('inf'):
             plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
 
         # Point to incident point
         incident_point = edge.incident_point
-        if incident_point is not None:
+        if start and end and incident_point:
             plt.plot(
                 [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
                 color="lightgray",

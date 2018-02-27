@@ -246,34 +246,34 @@ class Algorithm:
 
         # Create a new edge for the new breakpoint, where the edge originates in the new breakpoint
         # Note: we only create the new edge if the vertex is still inside the bounding box
-        if self.bounding_poly.inside(event.center):
-            # Create a vertex
-            v = Vertex(point=convergence_point)
-            self.vertices.append(v)
+        # if self.bounding_poly.inside(event.center):
+        # Create a vertex
+        v = Vertex(point=convergence_point)
+        self.vertices.append(v)
 
-            # Connect the two old edges to the vertex
-            updated.edge.origin = v
-            removed.edge.origin = v
-            v.incident_edges.append(updated.edge)
-            v.incident_edges.append(removed.edge)
+        # Connect the two old edges to the vertex
+        updated.edge.origin = v
+        removed.edge.origin = v
+        v.incident_edges.append(updated.edge)
+        v.incident_edges.append(removed.edge)
 
-            # Get the incident points
-            C = updated.breakpoint[0]
-            B = updated.breakpoint[1]
+        # Get the incident points
+        C = updated.breakpoint[0]
+        B = updated.breakpoint[1]
 
-            new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
-            v.incident_edges.append(updated.edge.twin)
+        new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
+        v.incident_edges.append(updated.edge.twin)
 
-            # Add to list for visualization
-            self.edges.append(new_edge)
+        # Add to list for visualization
+        self.edges.append(new_edge)
 
-            # Set previous and next
-            left.edge.twin.set_next(new_edge.twin)  # yellow
-            right.edge.twin.set_next(left.edge)  # orange
-            new_edge.set_next(right.edge)  # blue
+        # Set previous and next
+        left.edge.twin.set_next(new_edge.twin)  # yellow
+        right.edge.twin.set_next(left.edge)  # orange
+        new_edge.set_next(right.edge)  # blue
 
-            # Let the updated breakpoint now point to the new edge
-            updated.edge = new_edge
+        # Let the updated breakpoint now point to the new edge
+        updated.edge = new_edge
 
         # 3. Check if breakpoints converge for the triples with former left and former right as middle arcs
         former_left = predecessor

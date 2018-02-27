@@ -38,6 +38,9 @@ class Algebra:
 
     @staticmethod
     def get_intersection(orig: Point, end: Point, p1: Point, p2: Point):
+        if not orig or not end:
+            return None
+
         point = Algebra.line_ray_intersection_point([orig.x, orig.y], [end.x, end.y], [p1.x, p1.y], [p2.x, p2.y])
 
         if len(point) == 0:

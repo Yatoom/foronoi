@@ -1,6 +1,7 @@
 from graph import Point, Vertex, HalfEdge
 import math
 from graph.algebra import Algebra
+from nodes import Breakpoint
 
 
 class Polygon:
@@ -25,6 +26,7 @@ class Polygon:
         return clockwise
 
     def get_ordered_vertices(self, vertices):
+        vertices = [vertex for vertex in vertices if vertex.position is not None]
         clockwise = sorted(vertices,
                            key=lambda vertex: (-180 - Algebra.calculate_angle(vertex.position, self.center)) % 360)
         return clockwise
@@ -71,19 +73,18 @@ class Polygon:
         return [(i.x, i.y) for i in self.points]
 
     def finish_edges(self, edges):
+        resulting_edges = []
         for edge in edges:
+
             if edge.get_origin() is None or not self.inside(edge.get_origin()):
                 self.finish_edge(edge)
+
             if edge.twin.get_origin() is None or not self.inside(edge.twin.get_origin()):
                 self.finish_edge(edge.twin)
 
-        for edge in edges:
-            if not isinstance(edge.origin, Vertex):
-                raise Warning('edge has no vertex')
-            if not isinstance(edge.twin.origin, Vertex):
-                raise Warning('edge has no vertex')
+            resulting_edges.append(edge)
 
-        return edges, self.polygon_vertices
+        return resulting_edges, self.polygon_vertices
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
@@ -134,7 +135,8 @@ class Polygon:
             if point:
                 return point
 
-        raise Exception("No intersection point could be found.")
+        return None
+        # raise Exception("No intersection point could be found.")
 
     @staticmethod
     def check_intersection(a, b, c, d):
