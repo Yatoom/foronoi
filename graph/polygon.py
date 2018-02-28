@@ -73,7 +73,7 @@ class Polygon:
     def get_coordinates(self):
         return [(i.x, i.y) for i in self.points]
 
-    def finish_edges(self, edges):
+    def finish_edges(self, edges, points):
         resulting_edges = []
         for edge in edges:
 
@@ -85,11 +85,11 @@ class Polygon:
 
             resulting_edges.append(edge)
 
-        for i in resulting_edges:
-            if i.get_origin() is not None and i.get_origin().x < -1:
-                indside = self.inside(i.get_origin())
-                print("what?")
-                self.finish_edge(i)
+        # Handle cases where the first edge of a point is outside the bounding box
+        for p in points:
+            start = p.first_edge
+            while p.first_edge.get_origin() is None and p.first_edge.next != start:
+                p.first_edge = p.first_edge.next
 
         return resulting_edges, self.polygon_vertices
 

@@ -9,8 +9,9 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
     x = np.linspace(bounding_poly.min_x, bounding_poly.max_x, 1000)
     fig, ax = plt.subplots(figsize=(7, 7))
     plt.title(current_event)
-    plt.ylim((bounding_poly.min_y - 5, bounding_poly.max_y + 5))
-    plt.xlim((bounding_poly.min_x - 5, bounding_poly.max_x + 5))
+    border = (bounding_poly.max_y - bounding_poly.min_y)/10
+    plt.ylim((bounding_poly.min_y - border, bounding_poly.max_y + border))
+    plt.xlim((bounding_poly.min_x - border, bounding_poly.max_x + border))
 
     # Plot the sweep line
     ax.plot(x, x + y - x, color='black')
