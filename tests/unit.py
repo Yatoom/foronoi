@@ -203,7 +203,7 @@ def test_multi_diamond():
     assert (sizes == calculated)
 
 
-def test_triangle():
+def test_triangle_from_left():
     x = 100
     y = 100
 
@@ -215,6 +215,28 @@ def test_triangle():
 
     polygon = Polygon(polygon_points)
     points = [Point(13, 93), Point(20, 89), Point(33, 69)]
+
+    v = Algorithm(polygon)
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+
+    sizes = [218.59, 629.68, 4151.73]
+
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)
+
+
+def test_triangle_from_right():
+    x = 100
+    y = 100
+
+    polygon_points = [
+        Point(0, y),
+        Point(x, y),
+        Point(x / 2, 0)
+    ]
+
+    polygon = Polygon(polygon_points)
+    points = [Point(x - 13, 93), Point(x - 20, 89), Point(x - 33, 69)]
 
     v = Algorithm(polygon)
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
