@@ -2,6 +2,7 @@ from graph import Point, Vertex, HalfEdge
 import math
 from graph.algebra import Algebra
 from nodes import Breakpoint
+import numpy as np
 
 
 class Polygon:
@@ -136,12 +137,18 @@ class Polygon:
 
     def get_intersection_point(self, orig, end):
         p = self.points + [self.points[0]]
+        points = []
         for i in range(0, len(p) - 1):
             point = Polygon.check_intersection(p[i], p[i + 1], orig, end)
             if point:
-                return point
+                points.append(point)
 
-        return None
+        if not points:
+            return None
+        magnitudes = [Algebra.magnitude(np.array([end.x, end.y]) - np.array([i.x, i.y])) for i in points]
+        point = points[np.argmin(magnitudes)]
+
+        return point
         # raise Exception("No intersection point could be found.")
 
     @staticmethod

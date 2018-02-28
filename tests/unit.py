@@ -1,4 +1,5 @@
 from algorithm import Algorithm
+from graph import Polygon
 from graph.bounding_box import BoundingBox
 from graph.point import Point
 
@@ -197,6 +198,28 @@ def test_multi_diamond():
     sizes = [47.68, 35.55, 35.55, 47.68, 27.04, 19.53, 19.53, 35.55, 19.53, 19.53, 19.53, 27.04, 30.66, 19.53, 19.53,
              30.66, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 16.52, 16.52, 16.52, 16.02, 16.52,
              17.02]
+
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)
+
+
+def test_triangle():
+    x = 100
+    y = 100
+
+    polygon_points = [
+        Point(0, y),
+        Point(x, y),
+        Point(x / 2, 0)
+    ]
+
+    polygon = Polygon(polygon_points)
+    points = [Point(13, 93), Point(20, 89), Point(33, 69)]
+
+    v = Algorithm(polygon)
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+
+    sizes = [218.59, 629.68, 4151.73]
 
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
