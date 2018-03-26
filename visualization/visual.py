@@ -4,12 +4,12 @@ import numpy as np
 from events import CircleEvent
 
 
-def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue):
+def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue, calc_cell_sizes=True):
     # Create 1000 equally spaced points between -10 and 10 and setup plot window
     x = np.linspace(bounding_poly.min_x, bounding_poly.max_x, 1000)
     fig, ax = plt.subplots(figsize=(7, 7))
     plt.title(current_event)
-    border = (bounding_poly.max_y - bounding_poly.min_y)/10
+    border = (bounding_poly.max_y - bounding_poly.min_y)/4
     plt.ylim((bounding_poly.min_y - border, bounding_poly.max_y + border))
     plt.xlim((bounding_poly.min_x - border, bounding_poly.max_x + border))
 
@@ -85,8 +85,9 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
     for point in points:
         x, y = point.x, point.y
         ax.scatter(x=[x], y=[y], s=50, color="black")
-        size = f"{point.cell_size(digits=2)}"
-        # ax.text(x-0.5, y+1, size)
-        plt.annotate(s=size, xy=(x, y), xytext=(x, y + 1), arrowprops=dict(arrowstyle='->'))
+
+        if calc_cell_sizes:
+            size = f"{point.cell_size(digits=2)}"
+            plt.annotate(s=size, xy=(x, y), xytext=(x, y + 1), arrowprops=dict(arrowstyle='->'))
 
     plt.show()

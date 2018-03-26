@@ -121,15 +121,27 @@ class Algorithm:
                       event_queue=self.event_queue)
 
         # Finish with the bounding box
-        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, self.points)
-        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices)
+        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges)
 
         # Final visualization
         if visualize_result:
-            self.beach_line.visualize()
             visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                       event_queue=self.event_queue)
+
+        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
+
+        # Final visualization
+        if visualize_result:
+            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
+                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                      event_queue=self.event_queue, calc_cell_sizes=False)
+
+        # Final visualization
+        if visualize_result:
+            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
+                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                      event_queue=self.event_queue, calc_cell_sizes=True)
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 

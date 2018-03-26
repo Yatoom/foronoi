@@ -13,7 +13,7 @@ polygon_points = [
 
 polygon = Polygon(polygon_points)
 points = [
-    # Point(57, 75),
+    Point(57, 75),
     Point(35, 85),
     Point(92, 98),
     Point(81, 87),

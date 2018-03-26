@@ -32,7 +32,7 @@ class Polygon:
                            key=lambda vertex: (-180 - Algebra.calculate_angle(vertex.position, self.center)) % 360)
         return clockwise
 
-    def finish_polygon(self, edges, existing_vertices):
+    def finish_polygon(self, edges, existing_vertices, points):
         vertices = self.get_ordered_vertices(self.polygon_vertices)
         vertices = vertices + [vertices[0]]
         cell = None
@@ -73,7 +73,7 @@ class Polygon:
     def get_coordinates(self):
         return [(i.x, i.y) for i in self.points]
 
-    def finish_edges(self, edges, points):
+    def finish_edges(self, edges):
         resulting_edges = []
         for edge in edges:
 
@@ -86,10 +86,17 @@ class Polygon:
             resulting_edges.append(edge)
 
         # Handle cases where the first edge of a point is outside the bounding box
-        for p in points:
-            start = p.first_edge
-            while p.first_edge.get_origin() is None and p.first_edge.next != start:
-                p.first_edge = p.first_edge.next
+        # print("Handle cases")
+        # for p in points:
+        #     start = p.first_edge
+        #     while p.first_edge.get_origin() is None and p.first_edge.next != start:
+        #         p.first_edge = p.first_edge.next
+        #     if start != p.first_edge:
+        #         print("Adapted")
+        # print("Handled")
+
+        # Re-order polygon vertices
+        self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
         return resulting_edges, self.polygon_vertices
 
