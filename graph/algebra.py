@@ -4,6 +4,15 @@ from graph import Point
 
 class Algebra:
     @staticmethod
+    def distance(point_a, point_b):
+        x1 = point_a.x
+        x2 = point_b.x
+        y1 = point_a.y
+        y2 = point_b.y
+
+        return np.sqrt((x2 - x1) ** 2 + (y2 - y1)**2)
+
+    @staticmethod
     def magnitude(vector):
         return np.sqrt(np.dot(np.array(vector), np.array(vector)))
 

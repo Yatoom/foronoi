@@ -85,16 +85,6 @@ class Polygon:
 
             resulting_edges.append(edge)
 
-        # Handle cases where the first edge of a point is outside the bounding box
-        # print("Handle cases")
-        # for p in points:
-        #     start = p.first_edge
-        #     while p.first_edge.get_origin() is None and p.first_edge.next != start:
-        #         p.first_edge = p.first_edge.next
-        #     if start != p.first_edge:
-        #         print("Adapted")
-        # print("Handled")
-
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
@@ -108,7 +98,7 @@ class Polygon:
         end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
 
         # Get point of intersection
-        point = self.get_intersection_point(end, start)
+        point = self.get_intersection_point(end, start, isinstance(edge.origin, Vertex))
 
         # Create vertex
         v = Vertex(point=point)
@@ -117,6 +107,20 @@ class Polygon:
         self.polygon_vertices.append(v)
 
         return edge
+
+    def on_edge(self, point):
+        vertices = self.points + self.points[0:1]
+        for i in range(0, len(vertices) - 1):
+            dxc = point.x - vertices[i].x
+            dyc = point.y - vertices[i].y
+            dx1 = vertices[i + 1].x - vertices[i].x
+            dy1 = vertices[i + 1].y - vertices[i].y
+
+            cross = dxc * dy1 - dyc * dx1
+
+            if cross == 0:
+                return True
+        return False
 
     def inside(self, point):
         # Ray-casting algorithm based on
@@ -142,33 +146,36 @@ class Polygon:
 
         return inside
 
-    def get_intersection_point(self, orig, end):
+    def get_intersection_point(self, orig, end, end_is_vertex):
         p = self.points + [self.points[0]]
         points = []
+
+        point = None
+
         for i in range(0, len(p) - 1):
-            point = Polygon.check_intersection(p[i], p[i + 1], orig, end)
+            point = Algebra.get_intersection(orig, end, p[i], p[i + 1])
             if point:
                 points.append(point)
 
         if not points:
             return None
-        magnitudes = [Algebra.magnitude(np.array([end.x, end.y]) - np.array([i.x, i.y])) for i in points]
-        point = points[np.argmin(magnitudes)]
+
+        # TODO: Fix this. See test-stuck.py and unit.py
+        max_distance = Algebra.distance(orig, end) if end_is_vertex else np.float("inf")
+
+        # Find the intersection point that is furthest away from the start
+        if points:
+            distances = [Algebra.distance(p, orig) for p in points]
+            distances = [i for i in distances if i <= max_distance]
+            # print(distances)
+            if distances:
+                point = points[np.argmax(distances)]
+
+            # if Algebra.distance(orig, point) > max_distance:
+            #     return None
+
 
         return point
-        # raise Exception("No intersection point could be found.")
-
-    @staticmethod
-    def check_intersection(a, b, c, d):
-        """
-            Checks if a ray intersects with a line segment, using angles.
-
-            :param a: first point of line segment
-            :param b: second point of line segment
-            :param c: origin of ray
-            :param d: some point along the ray
-        """
-        return Algebra.get_intersection(orig=c, end=d, p1=a, p2=b)
 
 
 if __name__ == "__main__":
