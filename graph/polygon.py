@@ -113,8 +113,11 @@ class Polygon:
             elif next_edge:
                 edge.incident_point.first_edge = next_edge
 
-
-
+        if edge.twin.incident_point.first_edge == edge.twin:
+            if prev_edge:
+                edge.twin.incident_point.first_edge = prev_edge.twin
+            elif next_edge:
+                edge.twin.incident_point.first_edge = next_edge.twin
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
@@ -202,7 +205,6 @@ class Polygon:
 
             # if Algebra.distance(orig, point) > max_distance:
             #     return None
-
 
         return point
 

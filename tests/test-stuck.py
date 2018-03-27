@@ -24,3 +24,5 @@ v.create_diagram(points=points, visualize_steps=False, verbose=True)
 
 for point in v.points:
     print(point.cell_size(2), end=",")
+
+sizes = [2590.11,2590.11,147.0,673.12,]
