@@ -78,6 +78,8 @@ class Polygon:
             # Set previous edge
             previous_edge = edge
 
+        existing_vertices = [i for i in existing_vertices if self.inside(i.position)]
+
         return edges, vertices + existing_vertices
 
     def get_coordinates(self):
