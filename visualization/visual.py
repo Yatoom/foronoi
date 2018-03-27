@@ -88,6 +88,7 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
 
         if calc_cell_sizes:
             size = f"{point.cell_size(digits=2)}"
-            plt.annotate(s=size, xy=(x, y), xytext=(x, y + 1), arrowprops=dict(arrowstyle='->'))
+            # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
+            plt.text(s=size, x=x+1, y=y+1, color="#A3CB38")
 
     plt.show()
