@@ -185,26 +185,21 @@ class Polygon:
         point = None
 
         for i in range(0, len(p) - 1):
-            point = Algebra.get_intersection(orig, end, p[i], p[i + 1])
-            if point:
-                points.append(point)
+            intersection_point = Algebra.get_intersection(orig, end, p[i], p[i + 1])
+            if intersection_point:
+                points.append(intersection_point)
 
         if not points:
             return None
 
-        # TODO: Fix this. See test-stuck.py and unit.py
         max_distance = Algebra.distance(orig, end) if end_is_vertex else np.float("inf")
 
         # Find the intersection point that is furthest away from the start
         if points:
-            distances = [Algebra.distance(p, orig) for p in points]
+            distances = [Algebra.distance(orig, p) for p in points]
             distances = [i for i in distances if i <= max_distance]
-            # print(distances)
             if distances:
                 point = points[np.argmax(distances)]
-
-            # if Algebra.distance(orig, point) > max_distance:
-            #     return None
 
         return point
 

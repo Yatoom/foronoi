@@ -250,7 +250,6 @@ def test_triangle_from_right():
 def test_lines_outside_triangle():
     x = 100
     y = 100
-    n = 10
 
     polygon_points = [
         Point(0, y),
@@ -270,6 +269,32 @@ def test_lines_outside_triangle():
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
 
     sizes = [2590.11, 2590.11, 147.0, 673.12]
+
+    calculated = [p.cell_size(2) for p in v.points]
+    assert (sizes == calculated)
+
+
+def test_another_line_outside_triangle():
+    x = 100
+    y = 100
+
+    polygon_points = [
+        Point(0, y),
+        Point(x, y),
+        Point(x / 2, 0)
+    ]
+
+    polygon = Polygon(polygon_points)
+    points = [
+        Point(54, 90),
+        Point(5, 95),
+        Point(16, 85),
+    ]
+
+    v = Algorithm(polygon)
+    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+
+    sizes = [3490.08, 1373.73, 1373.73]
 
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
