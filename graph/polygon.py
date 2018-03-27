@@ -32,10 +32,16 @@ class Polygon:
                            key=lambda vertex: (-180 - Algebra.calculate_angle(vertex.position, self.center)) % 360)
         return clockwise
 
+    @staticmethod
+    def get_closest_point(position, points):
+        distances = [Algebra.distance(position, p) for p in points]
+        index = np.argmin(distances)
+        return points[index]
+
     def finish_polygon(self, edges, existing_vertices, points):
         vertices = self.get_ordered_vertices(self.polygon_vertices)
         vertices = vertices + [vertices[0]]
-        cell = None
+        cell = self.get_closest_point(vertices[0].position, points)
         previous_edge = None
         for index in range(0, len(vertices) - 1):
 
@@ -51,6 +57,10 @@ class Polygon:
             edge = HalfEdge(cell, origin=origin, twin=HalfEdge(None, origin=end))
             origin.incident_edges.append(edge)
             end.incident_edges.append(edge.twin)
+
+            # Add first edge if needed
+            if cell:
+                cell.first_edge = cell.first_edge or edge
 
             # Connect edges
             if len(end.incident_edges) > 0:
