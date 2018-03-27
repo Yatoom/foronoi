@@ -127,7 +127,7 @@ class Algorithm:
         if visualize_result:
             visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue)
+                      event_queue=self.event_queue, calc_cell_sizes=False)
 
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
