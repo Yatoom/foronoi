@@ -1,6 +1,7 @@
 # Voronoi
-Implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. in python.
-Includes careful handling of special cases and optionally, a convex polygon can be used as the bounding box. 
+![](https://raw.githubusercontent.com/Yatoom/voronoi/master/triangle.gif?token=AEAsSe31OClBjmuokyt2nDPS4AxIglUVks5axApWwA%3D%3D)'
+
+A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
 
 ## Example usage
 
