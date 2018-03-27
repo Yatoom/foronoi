@@ -1,4 +1,4 @@
-from graph.point import Point
+from nodes import Arc
 from tree.smart_node import SmartNode
 
 

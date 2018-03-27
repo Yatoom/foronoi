@@ -1,7 +1,5 @@
 from graph import Point, Vertex, HalfEdge
-import math
 from graph.algebra import Algebra
-from nodes import Breakpoint
 import numpy as np
 
 from visualization import Tell

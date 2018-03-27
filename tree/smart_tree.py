@@ -1,5 +1,3 @@
-import time
-
 from tree.smart_node import SmartNode
 
 
