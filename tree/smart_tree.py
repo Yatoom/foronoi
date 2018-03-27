@@ -303,23 +303,3 @@ class SmartTree:
 
         # Return the new root
         return y
-
-
-if __name__ == '__main__':
-    start = time.time()
-    tree = SmartTree()
-
-    nodes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    # nodes = range(1, 100000)
-    for i in nodes:
-        sn = SmartNode(i)
-        tree.root = tree.insert(tree.root, sn)
-        # print("-" * 20)
-        # print(tree.root.visualize())
-
-    # tree.root = tree.balance(tree.root)
-    tree.root = tree.delete(tree.root, key=3)
-
-    end = time.time()
-    print("Time", end - start)
-    print(tree.root.visualize())

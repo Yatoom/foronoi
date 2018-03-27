@@ -6,14 +6,12 @@ from graph.point import Point
 
 def test_grid():
     # Testing square grid
-    print("Test grid.")
-
     points = []
     for i in range(25, 0, -5):
         for j in range(0, 25, 5):
             points.append(Point(j, i))
     v = Algorithm(BoundingBox(-5, 30, -5, 30))
-    v.create_diagram(points=points, visualize_steps=False, visualize_result=False, verbose=False)
+    v.create_diagram(points=points, vis_steps=False, vis_result=False, verbose=False, vis_tree=False)
     sizes = [56.25, 37.5, 37.5, 37.5, 93.75, 37.5, 25.0, 25.0, 25.0, 62.5, 37.5, 25.0, 25.0, 25.0, 62.5, 37.5, 25.0,
              25.0, 25.0, 62.5, 93.75, 62.5, 62.5, 62.5, 156.25]
     calculated = [p.cell_size(2) for p in v.points]
@@ -21,8 +19,8 @@ def test_grid():
 
 
 def test_diamond():
-    print("Test diamond.")
     # Testing diamond
+
     points = [
         Point(5, 7.5),
         Point(2.5, 5),
@@ -30,14 +28,14 @@ def test_diamond():
         Point(5, 2.5),
     ]
     v = Algorithm(BoundingBox(0, 10, 0, 10))
-    v.create_diagram(points=points, visualize_steps=False, visualize_result=False, verbose=False)
+    v.create_diagram(points=points, vis_steps=False, vis_result=False, verbose=False)
     sizes = [25.0, 25.0, 25.0, 25.0, ]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
 
 def test_martijn():
-    print("Test Martijn.")
+
     points = [
         Point(2.241, 3.594),
         Point(3.568, 3.968),
@@ -46,14 +44,14 @@ def test_martijn():
     ]
 
     v = Algorithm(BoundingBox(-1, 26, -1, 26))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
     sizes = [42.86, 209.3, 380.84, 96.0]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
 
 def test_roel():
-    print("Test Roel.")
+
     points = [
         Point(8.333, 8.333),
         Point(8.333, 26),
@@ -62,14 +60,14 @@ def test_roel():
     ]
 
     v = Algorithm(BoundingBox(0, 30, 0, 30))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
     sizes = [214.58, 229.05, 221.56, 234.8]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
 
 def test_desmos():
-    print("Test Desmos.")
+
     points = [
         Point(4.6, 11.44),
         Point(10, 15.44),
@@ -86,14 +84,14 @@ def test_desmos():
     ]
 
     v = Algorithm(BoundingBox(0, 25, 0, 25))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
     sizes = [26.01, 202.48, 15.87, 95.95, 12.32, 108.89, 14.05, 57.78, 31.34, 12.08, 31.21, 17.03]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
 
 def test_rounding_errors():
-    print("Test rounding errors.")
+
     points = [
         Point(10, 3),
         Point(13.9, 6.76),
@@ -101,13 +99,14 @@ def test_rounding_errors():
     ]
 
     v = Algorithm(BoundingBox(0, 25, 0, 25))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
     sizes = [128.59, 465.07, 31.34]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
 
 def test_corners():
+
     points = [
         Point(0, 10),
         Point(10, 0),
@@ -116,13 +115,14 @@ def test_corners():
     ]
 
     v = Algorithm(BoundingBox(0, 10, 0, 10))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
     sizes = [25.0, 25.0, 25.0, 25.0]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
 
 def test_horizontal():
+
     points = [
         Point(2, 2.5),
         Point(4, 2.5),
@@ -130,7 +130,7 @@ def test_horizontal():
     ]
 
     v = Algorithm(BoundingBox(0, 8, 0, 10))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [30.0, 20.0, 30.0]
     calculated = [p.cell_size(2) for p in v.points]
@@ -138,6 +138,7 @@ def test_horizontal():
 
 
 def test_left_arc():
+
     from algorithm import Algorithm
     from graph import Point, BoundingBox
 
@@ -150,7 +151,7 @@ def test_left_arc():
     ]
 
     v = Algorithm(BoundingBox(0, 25, 0, 25))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [39.06, 58.59, 117.19, 156.25, 253.91]
     calculated = [p.cell_size(2) for p in v.points]
@@ -158,6 +159,7 @@ def test_left_arc():
 
 
 def test_multi_diamond():
+
     points = [
         Point(3.125, 3.125),
         Point(9.375, 3.125),
@@ -193,7 +195,7 @@ def test_multi_diamond():
     ]
 
     v = Algorithm(BoundingBox(-1, 26, -1, 26))
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [47.68, 35.55, 35.55, 47.68, 27.04, 19.53, 19.53, 35.55, 19.53, 19.53, 19.53, 27.04, 30.66, 19.53, 19.53,
              30.66, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 19.53, 16.52, 16.52, 16.52, 16.02, 16.52,
@@ -204,6 +206,7 @@ def test_multi_diamond():
 
 
 def test_triangle_from_left():
+
     x = 100
     y = 100
 
@@ -217,7 +220,7 @@ def test_triangle_from_left():
     points = [Point(13, 93), Point(20, 89), Point(33, 69)]
 
     v = Algorithm(polygon)
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [218.59, 629.68, 4151.73]
 
@@ -226,6 +229,7 @@ def test_triangle_from_left():
 
 
 def test_triangle_from_right():
+
     x = 100
     y = 100
 
@@ -239,7 +243,7 @@ def test_triangle_from_right():
     points = [Point(x - 13, 93), Point(x - 20, 89), Point(x - 33, 69)]
 
     v = Algorithm(polygon)
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [218.59, 629.68, 4151.73]
 
@@ -248,6 +252,7 @@ def test_triangle_from_right():
 
 
 def test_lines_outside_triangle():
+
     x = 100
     y = 100
 
@@ -266,7 +271,7 @@ def test_lines_outside_triangle():
     ]
 
     v = Algorithm(polygon)
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [2590.11, 2590.11, 147.0, 673.12]
 
@@ -275,6 +280,7 @@ def test_lines_outside_triangle():
 
 
 def test_another_line_outside_triangle():
+
     x = 100
     y = 100
 
@@ -292,14 +298,16 @@ def test_another_line_outside_triangle():
     ]
 
     v = Algorithm(polygon)
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [3490.08, 1373.73, 1373.73]
 
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
+
 def test_max_distance():
+
     x = 100
     y = 100
 
@@ -313,26 +321,22 @@ def test_max_distance():
 
     points = [
         Point(45, 13),
-        # Point(43, 85),
         Point(57, 71),
         Point(39, 82),
-        # Point(49, 22),
         Point(61, 81),
-        # Point(22, 95),
-        # Point(17, 78),
-        # Point(23, 77),
-        # Point(27, 90),
     ]
 
     v = Algorithm(polygon)
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [899.09, 1299.22, 1629.42, 1172.27]
 
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
+
 def test_calc_cell_sizes():
+
     x = 100
     y = 100
 
@@ -347,18 +351,13 @@ def test_calc_cell_sizes():
     points = [
         Point(45, 13),
         Point(43, 85),
-        # Point(57, 71),
         Point(39, 82),
-        # Point(49, 22),
-        # Point(61, 81),
         Point(22, 95),
-        # Point(17, 78),
-        # Point(23, 77),
         Point(27, 90),
     ]
 
     v = Algorithm(polygon)
-    v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
+    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
 
     sizes = [1161.4, 1958.77, 1128.36, 341.33, 410.13]
 

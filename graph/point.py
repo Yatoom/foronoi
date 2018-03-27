@@ -19,7 +19,6 @@ class Point:
         return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
     def cell_size(self, digits=None):
-        print("Calculating cell size...", end=" ")
         x = []
         y = []
 
@@ -28,7 +27,6 @@ class Point:
         while edge != self.first_edge or start:
 
             if edge is None or edge.get_origin() is None:
-                print("Calculated! - 1")
                 return None
 
             x.append(edge.get_origin().x)
@@ -36,13 +34,9 @@ class Point:
             edge = edge.next
             start = False
 
-
-
         if digits is not None:
-            print("Calculated! - 2")
             return round(self.shoelace(x, y), digits)
 
-        print("Calculated! - 3")
         return self.shoelace(x, y)
 
     @staticmethod

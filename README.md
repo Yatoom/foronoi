@@ -37,7 +37,7 @@ polygon_points = [
 v = Algorithm(Polygon(polygon_points))
 
 # Create the diagram
-v.create_diagram(points=voronoi_points, visualize_steps=False, verbose=False, visualize_result=True)
+v.create_diagram(points=voronoi_points, vis_steps=False, verbose=False, vis_result=True, vis_tree=True)
 
 # Get properties
 edges = v.edges

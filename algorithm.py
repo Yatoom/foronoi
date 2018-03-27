@@ -3,7 +3,8 @@ from graph import HalfEdge, Vertex, Algebra
 from nodes import LeafNode, Arc, Breakpoint, InternalNode
 from events import CircleEvent, SiteEvent
 from tree import SmartTree, SmartNode
-from visualization.visual import visualize
+from visualization import visualize
+from visualization import Tell
 
 
 class Algorithm:
@@ -49,7 +50,7 @@ class Algorithm:
 
         return self.event_queue
 
-    def create_diagram(self, points: list, visualize_steps=True, visualize_result=True, verbose=True):
+    def create_diagram(self, points: list, vis_steps=False, vis_result=False, vis_tree=False, verbose=False):
 
         # Initialize all points
         self.initialize(points)
@@ -59,8 +60,8 @@ class Algorithm:
         genesis_point = None
 
         while not self.event_queue.empty():
-            if verbose:
-                print("Queue", self.event_queue.queue)
+
+            Tell.print(verbose, "Queue", self.event_queue.queue)
 
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
@@ -70,22 +71,23 @@ class Algorithm:
 
             # Handle circle events
             if isinstance(event, CircleEvent) and event.is_valid:
-
                 # Update sweep line position
                 self.sweep_line = event.y
 
                 # Debugging
-                if verbose:
-                    print(
-                        f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.point_triple}")
+                Tell.print(
+                    verbose,
+                    f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.point_triple}"
+                )
 
                 # Handle the event
                 self.handle_circle_event(event, verbose=verbose)
 
                 # Visualization
-                if visualize_steps:
-                    if verbose:
-                        self.beach_line.visualize()
+                if vis_steps and vis_tree:
+                    self.beach_line.visualize()
+
+                if vis_steps:
                     visualize(self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
@@ -101,44 +103,29 @@ class Algorithm:
                 self.sweep_line = event.y
 
                 # Debugging
-                if verbose:
-                    print(f"-> Handle site event at {event.y} with point {event.point}")
+                Tell.print(verbose, f"-> Handle site event at {event.y} with point {event.point}")
 
                 # Handle the event
                 self.handle_site_event(event, verbose=verbose)
 
                 # Visualization
-                if visualize_steps:
+                if vis_steps and vis_tree:
                     self.beach_line.visualize()
+
+                if vis_steps:
                     visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
-        if visualize_result:
-            self.beach_line.visualize()
-            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
-                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue)
-
         # Finish with the bounding box
-        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges)
-
-        # Final visualization
-        if visualize_result:
-            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
-                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue, calc_cell_sizes=False)
-
+        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose)
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
         # Final visualization
-        if visualize_result:
-            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
-                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue, calc_cell_sizes=False)
+        if vis_tree and vis_result:
+            self.beach_line.visualize()
 
-        # Final visualization
-        if visualize_result:
+        if vis_result:
             visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                       event_queue=self.event_queue, calc_cell_sizes=True)
@@ -226,7 +213,7 @@ class Algorithm:
         node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
         node_c, node_d, node_e = node_c, root.right.right, root.right.right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e), event, verbose)
+        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e), verbose)
 
         # 7. Rebalance the tree
         self.beach_line = SmartTree.balance_and_propagate(root)
@@ -294,9 +281,9 @@ class Algorithm:
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
         node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), event, verbose)
+        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), verbose)
 
-    def check_circles(self, triple_left, triple_right, current_event, verbose=False):
+    def check_circles(self, triple_left, triple_right, verbose=False):
         node_a, node_b, node_c = triple_left
         node_d, node_e, node_f = triple_right
 
@@ -305,37 +292,17 @@ class Algorithm:
         right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line,
                                                       verbose=verbose)
 
-        # # Check triple equality
-        # def check_triple(triple_A, triple_B):
-        #     similar = 0
-        #     for i in triple_A:
-        #         for j in triple_B:
-        #             if i.x == j.x and i.y == j.y:
-        #                 similar += 1
-        #                 break
-        #     return similar
-        #
-        # # Fix for inserting the same circle event twice
-        # if isinstance(current_event, CircleEvent):
-        #     if node_a and node_b and node_c:
-        #         similar = check_triple(current_event.point_triple, [i.data.origin for i in triple_left])
-        #         left_event = None if similar == 3 else left_event
-        #
-        #     if node_d and node_e and node_f:
-        #         similar = check_triple(current_event.point_triple, [i.data.origin for i in triple_right])
-        #         right_event = None if similar == 3 else right_event
-        #
         # Check if the circles converge
         if left_event:
             if not Algebra.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin,
                                            left_event.center):
-                print(f"Circle {left_event.point_triple} not clockwise.")
+                Tell.print(verbose, f"Circle {left_event.point_triple} not clockwise.")
                 left_event = None
 
         if right_event:
             if not Algebra.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin,
                                            right_event.center):
-                print(f"Circle {right_event.point_triple} not clockwise.")
+                Tell.print(verbose, f"Circle {right_event.point_triple} not clockwise.")
                 right_event = None
 
         if left_event is not None:
@@ -346,10 +313,10 @@ class Algorithm:
             self.event_queue.put(right_event)
             node_e.data.circle_event = right_event
 
-        if left_event is not None and verbose:
-            print(f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
-        if right_event is not None and verbose:
-            print(f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
+        if left_event is not None:
+            Tell.print(verbose, f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
+        if right_event is not None:
+            Tell.print(verbose, f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
 
         return left_event, right_event
 

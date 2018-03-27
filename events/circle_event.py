@@ -5,6 +5,7 @@ from events.event import Event
 from graph.point import Point
 from nodes.leaf_node import LeafNode
 from nodes.arc import Arc
+from visualization import Tell
 
 
 class CircleEvent(Event):
@@ -45,7 +46,7 @@ class CircleEvent(Event):
 
     def remove(self, verbose=False):
         if verbose:
-            print(f"Circle event for {self.y} removed.")
+            Tell.print(verbose, f"Circle event for {self.y} removed.")
         self.is_valid = False
         return self
 

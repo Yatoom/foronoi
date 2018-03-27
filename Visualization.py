@@ -27,7 +27,7 @@ class Visualization(GameState):
     def create_visualization(self, name):
         # Construct a Voronoi for the points in the GameState
         voronoi = Algorithm(BoundingBox(0, 25, 0, 25))
-        voronoi.create_diagram(self.state.points, visualize_steps=False)
+        voronoi.create_diagram(self.state.points, vis_steps=False)
 
         # Check whether name has .svg extension
         if name[-4:] != '.svg':

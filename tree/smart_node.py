@@ -250,17 +250,3 @@ class SmartNode:
             ret += self.left._visualize(depth=depth + 1)
 
         return ret
-
-
-if __name__ == '__main__':
-    node = SmartNode(5)
-    node.left = SmartNode(3)
-    node.right = SmartNode(7)
-    node.left.left = SmartNode(2)
-    node.left.right = SmartNode(4)
-    node.right.left = SmartNode(6)
-    node.right.right = SmartNode(8)
-    node = node.right.right.replace_leaf(None, node)
-    node = node.left.left.replace_leaf(None, node)
-
-    print(node.visualize())

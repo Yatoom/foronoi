@@ -31,7 +31,7 @@ def main():
 
 
     voronoi = Algorithm(BoundingBox(-0.1, 25.1, -0.1, 25.1))
-    voronoi.create_diagram(state.points, visualize_steps=False)
+    voronoi.create_diagram(state.points, vis_steps=False)
     print(state.points)
 
     visualization = Visualization(state)

@@ -4,6 +4,8 @@ from graph.algebra import Algebra
 from nodes import Breakpoint
 import numpy as np
 
+from visualization import Tell
+
 
 class Polygon:
     def __init__(self, points):
@@ -19,8 +21,6 @@ class Polygon:
         self.polygon_vertices = []
         for point in self.points:
             self.polygon_vertices.append(Vertex(point=point))
-
-        print(self.points)
 
     def order_points(self, points):
         clockwise = sorted(points, key=lambda point: (-180 - Algebra.calculate_angle(point, self.center)) % 360)
@@ -73,7 +73,7 @@ class Polygon:
     def get_coordinates(self):
         return [(i.x, i.y) for i in self.points]
 
-    def finish_edges(self, edges):
+    def finish_edges(self, edges, verbose=False):
         resulting_edges = []
         for edge in edges:
 
@@ -86,8 +86,8 @@ class Polygon:
             if edge.get_origin() is not None and edge.twin.get_origin() is not None:
                 resulting_edges.append(edge)
             else:
-                self.delete_edge(edge)
-                print("Edge deleted!")
+                self.delete_edge(edge, verbose)
+                Tell.print(verbose, "Edge deleted!")
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
@@ -95,7 +95,7 @@ class Polygon:
         return resulting_edges, self.polygon_vertices
 
     @staticmethod
-    def delete_edge(edge):
+    def delete_edge(edge, verbose=False):
         prev_edge = edge.prev
         next_edge = edge.next
 
@@ -105,7 +105,7 @@ class Polygon:
         if next_edge:
             next_edge.twin.set_next(prev_edge)
 
-        print(f"Deleting edge {edge} for point {edge.incident_point}, selecting one of {prev_edge} or {next_edge}")
+        Tell.print(verbose, f"Edge {edge} deleted, selecting neighbor edge {prev_edge or next_edge}.")
 
         if edge.incident_point.first_edge == edge:
             if prev_edge:
@@ -127,7 +127,7 @@ class Polygon:
         end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
 
         # Get point of intersection
-        point = self.get_intersection_point(end, start, isinstance(edge.origin, Vertex))
+        point = self.get_intersection_point(end, start)
 
         # Create vertex
         v = Vertex(point=point)
@@ -178,7 +178,7 @@ class Polygon:
 
         return inside
 
-    def get_intersection_point(self, orig, end, end_is_vertex):
+    def get_intersection_point(self, orig, end):
         p = self.points + [self.points[0]]
         points = []
 
@@ -202,26 +202,3 @@ class Polygon:
                 point = points[np.argmax(distances)]
 
         return point
-
-
-if __name__ == "__main__":
-    p = [
-        Point(1, 3),
-        Point(2, 3),
-        Point(3, 2),
-        Point(3, 1),
-        Point(2, 0),
-        Point(1, 0),
-        Point(0, 1),
-        Point(0, 2),
-    ]
-
-    poly = Polygon(p)
-    orig = Point(1.5, 1.5)
-    end_intersect = Point(1.5, -5)
-    end_not_intersect = Point(1.5, 5)
-
-    for i in range(0, len(p) - 1):
-        print(poly.check_intersection(p[i], p[i + 1], orig, end_intersect))
-
-    print(poly.inside(Point(0.7, 6.1)))
