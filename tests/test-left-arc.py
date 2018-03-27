@@ -12,6 +12,11 @@ points = [
 v = Algorithm(BoundingBox(0, 25, 0, 25))
 v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=True)
 
-sizes = [39.06, 58.59, 117.19, 0.0, 253.91]
+sizes = [39.06, 58.59, 117.19, 156.25, 253.91]
 calculated = [p.cell_size(2) for p in v.points]
+print(calculated)
+points = v.points
 assert (sizes == calculated)
+
+
+print("Done")

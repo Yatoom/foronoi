@@ -83,12 +83,38 @@ class Polygon:
             if edge.twin.get_origin() is None or not self.inside(edge.twin.get_origin()):
                 self.finish_edge(edge.twin)
 
-            resulting_edges.append(edge)
+            if edge.get_origin() is not None and edge.twin.get_origin() is not None:
+                resulting_edges.append(edge)
+            else:
+                self.delete_edge(edge)
+                print("Edge deleted!")
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
         return resulting_edges, self.polygon_vertices
+
+    @staticmethod
+    def delete_edge(edge):
+        prev_edge = edge.prev
+        next_edge = edge.next
+
+        if prev_edge:
+            prev_edge.set_next(next_edge)
+
+        if next_edge:
+            next_edge.twin.set_next(prev_edge)
+
+        print(f"Deleting edge {edge} for point {edge.incident_point}, selecting one of {prev_edge} or {next_edge}")
+
+        if edge.incident_point.first_edge == edge:
+            if prev_edge:
+                edge.incident_point.first_edge = prev_edge
+            elif next_edge:
+                edge.incident_point.first_edge = next_edge
+
+
+
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
@@ -123,6 +149,9 @@ class Polygon:
         return False
 
     def inside(self, point):
+        # if self.on_edge(point):
+        #     return False
+
         # Ray-casting algorithm based on
         # http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
         # Javascript implementation from https://github.com/substack/point-in-polygon

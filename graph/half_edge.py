@@ -24,7 +24,8 @@ class HalfEdge:
         return f"HalfEdge({self.incident_point})"
 
     def set_next(self, next):
-        next.prev = self
+        if next:
+            next.prev = self
         self.next = next
 
     def get_origin(self, y=None, max_y=None):

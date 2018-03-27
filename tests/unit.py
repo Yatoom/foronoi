@@ -152,7 +152,7 @@ def test_left_arc():
     v = Algorithm(BoundingBox(0, 25, 0, 25))
     v.create_diagram(points=points, visualize_steps=False, verbose=False, visualize_result=False)
 
-    sizes = [39.06, 58.59, 117.19, 0.0, 253.91]
+    sizes = [39.06, 58.59, 117.19, 156.25, 253.91]
     calculated = [p.cell_size(2) for p in v.points]
     assert (sizes == calculated)
 
