@@ -192,7 +192,7 @@ class Polygon:
         if not points:
             return None
 
-        max_distance = Algebra.distance(orig, end) if end_is_vertex else np.float("inf")
+        max_distance = Algebra.distance(orig, end)
 
         # Find the intersection point that is furthest away from the start
         if points:

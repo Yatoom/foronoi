@@ -14,16 +14,16 @@ polygon_points = [
 polygon = Polygon(polygon_points)
 
 points = [
-    Point(54, 90),
-    Point(69, 85),
-    Point(41, 26),
-    Point(69, 46),
-    Point(54, 13),
-    Point(54, 26),
-    Point(5, 95), # <--
-    Point(16, 85), # <--
-    Point(45, 53),
-    Point(22, 59),
+    Point(45, 13),
+    # Point(43, 85),
+    Point(57, 71),
+    Point(39, 82),
+    # Point(49, 22),
+    Point(61, 81),
+    # Point(22, 95),
+    # Point(17, 78),
+    # Point(23, 77),
+    # Point(27, 90),
 ]
 
 v = Algorithm(polygon)
