@@ -1,5 +1,5 @@
 # Voronoi
-![](https://raw.githubusercontent.com/Yatoom/voronoi/master/triangle.gif?token=AEAsSe31OClBjmuokyt2nDPS4AxIglUVks5axApWwA%3D%3D)'
+![](https://raw.githubusercontent.com/Yatoom/voronoi/master/triangle.gif)
 
 A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
 
