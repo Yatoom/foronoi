@@ -1,5 +1,5 @@
 import math
-from graph.point import Point
+from voronoi.graph.point import Point
 
 
 class Breakpoint:

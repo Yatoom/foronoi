@@ -1,5 +1,5 @@
 import numpy as np
-from graph import Point
+from voronoi.graph import Point
 
 
 class Algebra:

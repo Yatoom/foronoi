@@ -1,4 +1,4 @@
-from tree.smart_node import SmartNode
+from voronoi.tree.smart_node import SmartNode
 
 
 class InternalNode(SmartNode):

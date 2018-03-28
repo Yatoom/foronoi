@@ -1,4 +1,4 @@
-from graph import Polygon, Point
+from voronoi.graph import Polygon, Point
 
 
 class BoundingBox(Polygon):

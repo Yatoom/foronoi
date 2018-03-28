@@ -6,10 +6,21 @@ class Point:
     A simple point
     """
 
-    def __init__(self, x=None, y=None, player: int = None, name=None, first_edge=None):
+    def __init__(self, x=None, y=None, metadata=None, name=None, first_edge=None):
+        """
+        A point in 2D space.
+        :param x: (float) The x-coordinate
+        :param y: (float) The y-coordinate
+        :param metadata: (dict) Optional metadata stored in a dictionary
+        :param name: (str) A one-letter string (assigned automatically by algorithm)
+        :param first_edge: (HalfEdge) Pointer to the first edge (assigned automatically by the algorithm)
+        """
+        if metadata is None:
+            metadata = {}
+
+        self.metadata = metadata
         self.x: float = x
         self.y: float = y
-        self.player = player
         self.name = name
         self.first_edge = first_edge
 

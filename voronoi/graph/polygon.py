@@ -1,8 +1,8 @@
-from graph import Point, Vertex, HalfEdge
-from graph.algebra import Algebra
+from voronoi.graph import Point, Vertex, HalfEdge
+from voronoi.graph.algebra import Algebra
 import numpy as np
 
-from visualization import Tell
+from voronoi.visualization import Tell
 
 
 class Polygon:

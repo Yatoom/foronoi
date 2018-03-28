@@ -1,4 +1,4 @@
-from graph.vertex import Vertex
+from voronoi.graph.vertex import Vertex
 
 
 class HalfEdge:

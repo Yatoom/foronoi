@@ -1,11 +1,11 @@
 import math
 from decimal import *
 
-from events.event import Event
-from graph.point import Point
-from nodes.leaf_node import LeafNode
-from nodes.arc import Arc
-from visualization import Tell
+from voronoi.events.event import Event
+from voronoi.graph.point import Point
+from voronoi.nodes.leaf_node import LeafNode
+from voronoi.nodes.arc import Arc
+from voronoi.visualization import Tell
 
 
 class CircleEvent(Event):

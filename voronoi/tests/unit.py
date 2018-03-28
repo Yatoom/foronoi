@@ -1,7 +1,7 @@
-from algorithm import Algorithm
-from graph import Polygon
-from graph.bounding_box import BoundingBox
-from graph.point import Point
+from voronoi.algorithm import Algorithm
+from voronoi.graph import Polygon
+from voronoi.graph.bounding_box import BoundingBox
+from voronoi.graph.point import Point
 
 
 # -----------------

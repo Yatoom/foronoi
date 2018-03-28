@@ -1,5 +1,5 @@
-from events.event import Event
-from graph.point import Point
+from voronoi.events.event import Event
+from voronoi.graph.point import Point
 
 
 class SiteEvent(Event):

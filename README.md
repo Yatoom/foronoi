@@ -3,16 +3,24 @@
 
 A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
 
+## Manual Installation
+
+First, clone the repository and then install the package.
+```bash
+git clone https://github.com/Yatoom/voronoi.git
+cd voronoi
+python setup.py install
+```
+
 ## Example usage
 
 Example that uses a polygon as a bounding box.
 
 ```python
-from algorithm import Algorithm
-from graph import Polygon, Point
+from voronoi import Voronoi, Polygon, Point, BoundingBox
 
 # Define a set of points
-voronoi_points = [
+points = [
     Point(2.5, 2.5),
     Point(4, 7.5),
     Point(7.5, 2.5),
@@ -23,7 +31,7 @@ voronoi_points = [
 ]
 
 # Define a bounding box
-polygon_points = [
+polygon = Polygon([
     Point(2.5, 10),
     Point(5, 10),
     Point(10, 5),
@@ -32,13 +40,13 @@ polygon_points = [
     Point(2.5, 0),
     Point(0, 2.5),
     Point(0, 5),
-]
+])
 
-# Initalize the algorithm
-v = Algorithm(Polygon(polygon_points))
+# Initialize the algorithm
+v = Voronoi(polygon)
 
 # Create the diagram
-v.create_diagram(points=voronoi_points, vis_steps=False, verbose=False, vis_result=True, vis_tree=True)
+v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=True, vis_tree=True)
 
 # Get properties
 edges = v.edges

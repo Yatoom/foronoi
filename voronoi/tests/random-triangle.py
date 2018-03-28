@@ -1,7 +1,7 @@
 import random
 
-from algorithm import Algorithm
-from graph import Polygon, Point
+from voronoi.algorithm import Algorithm
+from voronoi.graph import Polygon, Point
 
 x = 100
 y = 100

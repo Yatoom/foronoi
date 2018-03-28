@@ -1,7 +1,7 @@
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
-from events import CircleEvent
+from voronoi.events import CircleEvent
 
 
 def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue, calc_cell_sizes=True):

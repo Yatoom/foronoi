@@ -1,5 +1,5 @@
-from nodes import Arc
-from tree.smart_node import SmartNode
+from voronoi.nodes import Arc
+from voronoi.tree.smart_node import SmartNode
 
 
 class LeafNode(SmartNode):

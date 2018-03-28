@@ -1,10 +1,10 @@
 from queue import PriorityQueue
-from graph import HalfEdge, Vertex, Algebra
-from nodes import LeafNode, Arc, Breakpoint, InternalNode
-from events import CircleEvent, SiteEvent
-from tree import SmartTree, SmartNode
-from visualization import visualize
-from visualization import Tell
+from voronoi.graph import HalfEdge, Vertex, Algebra
+from voronoi.nodes import LeafNode, Arc, Breakpoint, InternalNode
+from voronoi.events import CircleEvent, SiteEvent
+from voronoi.tree import SmartTree, SmartNode
+from voronoi.visualization import visualize
+from voronoi.visualization import Tell
 
 
 class Algorithm:
@@ -51,6 +51,15 @@ class Algorithm:
         return self.event_queue
 
     def create_diagram(self, points: list, vis_steps=False, vis_result=False, vis_tree=False, verbose=False):
+        """
+        Create the Voronoi diagram.
+
+        :param points: (list) The list of cell points to make the diagram for
+        :param vis_steps: (bool) Visualize intermediate steps
+        :param vis_result: (bool) Visualize the final result
+        :param vis_tree: (bool) Visualize the status of the binary tree (text-based)
+        :param verbose: (bool) Print debug information
+        """
 
         # Initialize all points
         self.initialize(points)
