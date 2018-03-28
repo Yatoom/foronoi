@@ -11,7 +11,7 @@ print_input = True
 polygon_points = [
     Point(0, y),
     Point(x, y),
-    Point(x/2, 0)
+    Point(x / 2, 0)
 ]
 
 polygon = Polygon(polygon_points)

@@ -1,5 +1,5 @@
 import math
-from voronoi.graph.point import Point
+from voronoi.graph.coordinate import Coordinate
 
 
 class Breakpoint:
@@ -44,8 +44,8 @@ class Breakpoint:
         i, j = self.breakpoint
 
         # Initialize the resulting point
-        result = Point()
-        p: Point = i
+        result = Coordinate()
+        p: Coordinate = i
 
         # First we replace some stuff to make it easier
         a = i.x

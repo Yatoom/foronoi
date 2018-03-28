@@ -54,11 +54,39 @@ edges = v.edges
 vertices = v.vertices
 arcs = v.arcs
 points = v.points
-
-# Calculate the sell size for each  point
+```
+Calculate the shell size for each point:
+```python
 for point in v.points:
     print(point.cell_size())
 ```
+Output:
+```
+11.529761904761905
+15.064062500000006
+11.75
+10.520833333333329
+7.640625
+5.946354166666666
+9.423363095238095
+```
+
+Get coordinates for a point:
+```python
+v.points[0].get_coordinates()
+```
+Output:
+```python
+[
+    Point(0.167, 5.333), 
+    Point(4.5, 1.0), 
+    Point(4.643, 0.0), 
+    Point(2.5, 0), 
+    Point(0, 2.5), 
+    Point(0, 5)
+]
+```
+
 ## Testing
 To run unit tests, run the following comand.
 ```

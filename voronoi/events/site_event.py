@@ -1,11 +1,11 @@
 from voronoi.events.event import Event
-from voronoi.graph.point import Point
+from voronoi.graph.coordinate import Coordinate
 
 
 class SiteEvent(Event):
     circle_event = False
 
-    def __init__(self, point: Point):
+    def __init__(self, point: Coordinate):
         """
         Site event
         :param point:

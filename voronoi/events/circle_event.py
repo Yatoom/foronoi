@@ -2,7 +2,7 @@ import math
 from decimal import *
 
 from voronoi.events.event import Event
-from voronoi.graph.point import Point
+from voronoi.graph.coordinate import Coordinate
 from voronoi.nodes.leaf_node import LeafNode
 from voronoi.nodes.arc import Arc
 from voronoi.visualization import Tell
@@ -11,7 +11,7 @@ from voronoi.visualization import Tell
 class CircleEvent(Event):
     circle_event = True
 
-    def __init__(self, center: Point, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None, created_by_site=False):
+    def __init__(self, center: Coordinate, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None, created_by_site=False):
         """
         Circle event.
 
@@ -82,7 +82,7 @@ class CircleEvent(Event):
             x, y, radius = CircleEvent.create_circle(a, b, c)
 
             # Return circle event
-            return CircleEvent(center=Point(x, y), radius=radius, arc_node=middle_node, point_triple=(a, b, c),
+            return CircleEvent(center=Coordinate(x, y), radius=radius, arc_node=middle_node, point_triple=(a, b, c),
                                arc_triple=(left_arc, middle_arc, right_arc))
 
         return None

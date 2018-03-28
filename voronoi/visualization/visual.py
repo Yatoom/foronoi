@@ -22,6 +22,7 @@ class Colors:
 def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue, calc_cell_sizes=True):
     fig, ax = plt.subplots(figsize=(7, 7))
     plt.title(current_event)
+    scale = (bounding_poly.max_y - bounding_poly.min_y)
     border = (bounding_poly.max_y - bounding_poly.min_y) / 4
     plt.ylim((bounding_poly.min_y - border, bounding_poly.max_y + border))
     plt.xlim((bounding_poly.min_x - border, bounding_poly.max_x + border))
@@ -106,6 +107,6 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
         if calc_cell_sizes:
             size = f"{point.cell_size(digits=2)}"
             # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
-            plt.text(s=size, x=x + 1, y=y + 1, color=Colors.TEXT)
+            plt.text(s=size, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
 
     plt.show()

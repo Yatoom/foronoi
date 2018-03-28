@@ -1,5 +1,5 @@
 import numpy as np
-from voronoi.graph import Point
+from voronoi.graph import Coordinate
 
 
 class Algebra:
@@ -48,7 +48,7 @@ class Algebra:
         return []
 
     @staticmethod
-    def get_intersection(orig: Point, end: Point, p1: Point, p2: Point):
+    def get_intersection(orig: Coordinate, end: Coordinate, p1: Coordinate, p2: Coordinate):
         if not orig or not end:
             return None
 
@@ -57,7 +57,7 @@ class Algebra:
         if len(point) == 0:
             return None
 
-        return Point(point[0][0], point[0][1])
+        return Coordinate(point[0][0], point[0][1])
 
     @staticmethod
     def calculate_angle(point, center):

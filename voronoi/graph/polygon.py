@@ -1,4 +1,4 @@
-from voronoi.graph import Point, Vertex, HalfEdge
+from voronoi.graph import Coordinate, Vertex, HalfEdge
 from voronoi.graph.algebra import Algebra
 import numpy as np
 
@@ -12,7 +12,7 @@ class Polygon:
         min_x = min([p.x for p in self.points])
         max_y = max([p.y for p in self.points])
         max_x = max([p.x for p in self.points])
-        center = Point((max_x + min_x) / 2, (max_y + min_y) / 2)
+        center = Coordinate((max_x + min_x) / 2, (max_y + min_y) / 2)
         self.min_y, self.min_x, self.max_y, self.max_x, self.center = min_y, min_x, max_y, max_x, center
 
         self.points = self.order_points(self.points)

@@ -1,4 +1,4 @@
-from voronoi.graph.point import Point
+from voronoi.graph.coordinate import Coordinate
 
 
 class Arc:
@@ -8,7 +8,7 @@ class Arc:
     will disappear, or this circle event has not been detected yet.
     """
 
-    def __init__(self, origin: Point, circle_event=None):
+    def __init__(self, origin: Coordinate, circle_event=None):
         """
         :param origin: The point that caused the arc
         :param circle_event: The pointer to the circle event in which the arc will disappear

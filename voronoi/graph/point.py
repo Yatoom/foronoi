@@ -1,10 +1,8 @@
 import numpy as np
+from voronoi.graph import Coordinate
 
 
-class Point:
-    """
-    A simple point
-    """
+class Point(Coordinate):
 
     def __init__(self, x=None, y=None, metadata=None, name=None, first_edge=None):
         """
@@ -15,12 +13,12 @@ class Point:
         :param name: (str) A one-letter string (assigned automatically by algorithm)
         :param first_edge: (HalfEdge) Pointer to the first edge (assigned automatically by the algorithm)
         """
+        super().__init__(x, y)
+
         if metadata is None:
             metadata = {}
 
         self.metadata = metadata
-        self.x: float = x
-        self.y: float = y
         self.name = name
         self.first_edge = first_edge
 
@@ -29,7 +27,21 @@ class Point:
             return f"{self.name}"
         return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
-    def cell_size(self, digits=None):
+    def get_coordinates(self):
+        coordinates = []
+        edge = self.first_edge
+        start = True
+        while edge != self.first_edge or start:
+            if edge is None or edge.get_origin() is None:
+                return None
+
+            coordinates.append(edge.get_origin())
+            edge = edge.next
+            start = False
+
+        return coordinates
+
+    def get_xy(self):
         x = []
         y = []
 
@@ -38,12 +50,17 @@ class Point:
         while edge != self.first_edge or start:
 
             if edge is None or edge.get_origin() is None:
-                return None
+                return [], []
 
             x.append(edge.get_origin().x)
             y.append(edge.get_origin().y)
             edge = edge.next
             start = False
+
+        return x, y
+
+    def cell_size(self, digits=None):
+        x, y = self.get_xy()
 
         if digits is not None:
             return round(self.shoelace(x, y), digits)
