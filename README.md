@@ -55,7 +55,9 @@ vertices = v.vertices
 arcs = v.arcs
 points = v.points
 ```
-Calculate the shell size for each point:
+![](https://raw.githubusercontent.com/Yatoom/voronoi/master/example.png)
+
+### Calculate the shell size for each point
 ```python
 for point in v.points:
     print(point.cell_size())
@@ -71,7 +73,7 @@ Output:
 9.423363095238095
 ```
 
-Get coordinates for a point:
+### Get coordinates for a point
 ```python
 v.points[0].get_coordinates()
 ```
