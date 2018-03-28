@@ -21,4 +21,4 @@ class SiteEvent(Event):
         return self.point.y
 
     def __repr__(self):
-        return f"SiteEvent(x={self.point.x}, y={self.point.y}, pl={self.point.player})"
+        return f"SiteEvent(x={self.point.x}, y={self.point.y})"

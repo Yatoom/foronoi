@@ -11,6 +11,7 @@ git clone https://github.com/Yatoom/voronoi.git
 cd voronoi
 python setup.py install
 ```
+Note: you need to use `sudo python3 setup.py install` on most Linux distributions.
 
 ## Example usage
 
@@ -57,4 +58,9 @@ points = v.points
 # Calculate the sell size for each  point
 for point in v.points:
     print(point.cell_size())
+```
+## Testing
+To run unit tests, run the following comand.
+```
+python3 -m "nose" voronoi/tests/unit.py
 ```
