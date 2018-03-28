@@ -18,29 +18,29 @@ Note: you need to use `sudo python3 setup.py install` on most Linux distribution
 Example that uses a polygon as a bounding box.
 
 ```python
-from voronoi import Voronoi, Polygon, Point, BoundingBox
+from voronoi import Voronoi, Polygon
 
 # Define a set of points
 points = [
-    Point(2.5, 2.5),
-    Point(4, 7.5),
-    Point(7.5, 2.5),
-    Point(6, 7.5),
-    Point(4, 4),
-    Point(3, 3),
-    Point(6, 3),
+    (2.5, 2.5),
+    (4, 7.5),
+    (7.5, 2.5),
+    (6, 7.5),
+    (4, 4),
+    (3, 3),
+    (6, 3),
 ]
 
 # Define a bounding box
 polygon = Polygon([
-    Point(2.5, 10),
-    Point(5, 10),
-    Point(10, 5),
-    Point(10, 2.5),
-    Point(5, 0),
-    Point(2.5, 0),
-    Point(0, 2.5),
-    Point(0, 5),
+    (2.5, 10),
+    (5, 10),
+    (10, 5),
+    (10, 2.5),
+    (5, 0),
+    (2.5, 0),
+    (0, 2.5),
+    (0, 5),
 ])
 
 # Initialize the algorithm
@@ -60,17 +60,17 @@ points = v.points
 ### Calculate the shell size for each point
 ```python
 for point in v.points:
-    print(point.cell_size())
+    print(f"{(point.x, point.y)} \t {point.cell_size()}")
 ```
 Output:
 ```
-11.529761904761905
-15.064062500000006
-11.75
-10.520833333333329
-7.640625
-5.946354166666666
-9.423363095238095
+(2.5, 2.5) 	 11.529761904761905
+(4, 7.5) 	 15.064062500000006
+(7.5, 2.5) 	 11.75
+(6, 7.5) 	 10.520833333333329
+(4, 4) 	     7.640625
+(3, 3) 	     5.946354166666666
+(6, 3) 	     9.423363095238095
 ```
 
 ### Get coordinates for a point
@@ -79,14 +79,7 @@ v.points[0].get_coordinates()
 ```
 Output:
 ```python
-[
-    Point(0.167, 5.333), 
-    Point(4.5, 1.0), 
-    Point(4.643, 0.0), 
-    Point(2.5, 0), 
-    Point(0, 2.5), 
-    Point(0, 5)
-]
+[(0.167, 5.333), (4.5, 1.0), (4.643, 0.0), (2.5, 0), (0, 2.5), (0, 5)]
 ```
 
 ## Testing

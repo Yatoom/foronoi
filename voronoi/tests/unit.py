@@ -1,7 +1,6 @@
 from voronoi.algorithm import Algorithm
 from voronoi.graph import Polygon
 from voronoi.graph.bounding_box import BoundingBox
-from voronoi.graph.point import Point
 
 
 # -----------------
@@ -10,9 +9,9 @@ from voronoi.graph.point import Point
 
 def _triangle(x, y):
     return Polygon([
-        Point(0, y),
-        Point(x, y),
-        Point(x / 2, 0)
+        (0, y),
+        (x, y),
+        (x / 2, 0)
     ])
 
 
@@ -33,7 +32,7 @@ def test_single_point_triangle():
 
     # Points
     points = [
-        Point(50, 50),
+        (50, 50),
     ]
 
     # Expected sizes
@@ -51,7 +50,7 @@ def test_grid():
     points = []
     for i in range(25, 0, -5):
         for j in range(0, 25, 5):
-            points.append(Point(j, i))
+            points.append((j, i))
 
     # Expected sizes
     sizes = [56.25, 37.5, 37.5, 37.5, 93.75, 37.5, 25.0, 25.0, 25.0, 62.5, 37.5, 25.0, 25.0, 25.0, 62.5, 37.5, 25.0,
@@ -67,10 +66,10 @@ def test_diamond():
 
     # Points
     points = [
-        Point(5, 7.5),
-        Point(2.5, 5),
-        Point(7.5, 5),
-        Point(5, 2.5),
+        (5, 7.5),
+        (2.5, 5),
+        (7.5, 5),
+        (5, 2.5),
     ]
 
     # Expected sizes
@@ -86,10 +85,10 @@ def test_martijn():
 
     # Points
     points = [
-        Point(2.241, 3.594),
-        Point(3.568, 3.968),
-        Point(6.401, 16.214),
-        Point(2.925, 18.298),
+        (2.241, 3.594),
+        (3.568, 3.968),
+        (6.401, 16.214),
+        (2.925, 18.298),
     ]
 
     # Expected sizes
@@ -105,10 +104,10 @@ def test_roel():
 
     # Points
     points = [
-        Point(8.333, 8.333),
-        Point(8.333, 26),
-        Point(16.667, 8.333),
-        Point(26, 17.667)
+        (8.333, 8.333),
+        (8.333, 26),
+        (16.667, 8.333),
+        (26, 17.667)
     ]
 
     # Expected sizes
@@ -124,18 +123,18 @@ def test_desmos():
 
     # Points
     points = [
-        Point(4.6, 11.44),
-        Point(10, 15.44),
-        Point(10, 3),
-        Point(12.7, 10.6),
-        Point(8.7, 7.7),
-        Point(13.9, 6.76),
-        Point(7.1, 4.24),
-        Point(2.3, 12),
-        Point(12, 1.20),
-        Point(5.3, 2),
-        Point(3.4, 2.9),
-        Point(7.8, 8.4),
+        (4.6, 11.44),
+        (10, 15.44),
+        (10, 3),
+        (12.7, 10.6),
+        (8.7, 7.7),
+        (13.9, 6.76),
+        (7.1, 4.24),
+        (2.3, 12),
+        (12, 1.20),
+        (5.3, 2),
+        (3.4, 2.9),
+        (7.8, 8.4),
     ]
 
     # Expected sizes
@@ -151,9 +150,9 @@ def test_rounding_errors():
 
     # Points
     points = [
-        Point(10, 3),
-        Point(13.9, 6.76),
-        Point(12, 1.20),
+        (10, 3),
+        (13.9, 6.76),
+        (12, 1.20),
     ]
 
     # Expected sizes
@@ -169,10 +168,10 @@ def test_corners():
 
     # Points
     points = [
-        Point(0, 10),
-        Point(10, 0),
-        Point(0, 0),
-        Point(10, 10),
+        (0, 10),
+        (10, 0),
+        (0, 0),
+        (10, 10),
     ]
 
     # Expected sizes
@@ -188,9 +187,9 @@ def test_horizontal():
 
     # Points
     points = [
-        Point(2, 2.5),
-        Point(4, 2.5),
-        Point(6, 2.5),
+        (2, 2.5),
+        (4, 2.5),
+        (6, 2.5),
     ]
 
     # Expected sizes
@@ -206,11 +205,11 @@ def test_left_arc():
 
     # Points
     points = [
-        Point(3.125, 3.125),
-        Point(9.375, 3.125),
-        Point(15.625, 3.125),
-        Point(21.875, 3.125),
-        Point(3.125, 9.375),
+        (3.125, 3.125),
+        (9.375, 3.125),
+        (15.625, 3.125),
+        (21.875, 3.125),
+        (3.125, 9.375),
     ]
 
     # Expected sizes
@@ -226,37 +225,37 @@ def test_multi_diamond():
 
     # Points
     points = [
-        Point(3.125, 3.125),
-        Point(9.375, 3.125),
-        Point(15.625, 3.125),
-        Point(21.875, 3.125),
-        Point(3.125, 9.375),
-        Point(9.375, 9.375),
-        Point(15.625, 9.375),
-        Point(21.875, 9.375),
-        Point(3.125, 15.625),
-        Point(9.375, 15.625),
-        Point(15.625, 15.625),
-        Point(21.875, 15.625),
-        Point(3.125, 21.875),
-        Point(9.375, 21.875),
-        Point(15.625, 21.875),
-        Point(21.875, 21.875),
-        Point(6.25, 18.75),
-        Point(12.5, 18.75),
-        Point(18.75, 18.75),
-        Point(6.25, 12.5),
-        Point(12.5, 12.5),
-        Point(18.75, 12.5),
-        Point(6.25, 6.25),
-        Point(12.5, 6.25),
-        Point(18.75, 6.25),
-        Point(0.0, 12.5),
-        Point(0.0, 18.75),
-        Point(6.25, 25.0),
-        Point(12.5, 25.0),
-        Point(18.75, 25.0),
-        Point(25.0, 18.75)
+        (3.125, 3.125),
+        (9.375, 3.125),
+        (15.625, 3.125),
+        (21.875, 3.125),
+        (3.125, 9.375),
+        (9.375, 9.375),
+        (15.625, 9.375),
+        (21.875, 9.375),
+        (3.125, 15.625),
+        (9.375, 15.625),
+        (15.625, 15.625),
+        (21.875, 15.625),
+        (3.125, 21.875),
+        (9.375, 21.875),
+        (15.625, 21.875),
+        (21.875, 21.875),
+        (6.25, 18.75),
+        (12.5, 18.75),
+        (18.75, 18.75),
+        (6.25, 12.5),
+        (12.5, 12.5),
+        (18.75, 12.5),
+        (6.25, 6.25),
+        (12.5, 6.25),
+        (18.75, 6.25),
+        (0.0, 12.5),
+        (0.0, 18.75),
+        (6.25, 25.0),
+        (12.5, 25.0),
+        (18.75, 25.0),
+        (25.0, 18.75)
     ]
 
     # Expected sizes
@@ -273,7 +272,7 @@ def test_triangle_from_left():
     polygon = _triangle(100, 100)
 
     # Points
-    points = [Point(13, 93), Point(20, 89), Point(33, 69)]
+    points = [(13, 93), (20, 89), (33, 69)]
 
     # Expected sizes
     sizes = [218.59, 629.68, 4151.73]
@@ -287,7 +286,7 @@ def test_triangle_from_right():
     polygon = _triangle(100, 100)
 
     # Points
-    points = [Point(100 - 13, 93), Point(100 - 20, 89), Point(100 - 33, 69)]
+    points = [(100 - 13, 93), (100 - 20, 89), (100 - 33, 69)]
 
     # Expected sizes
     sizes = [218.59, 629.68, 4151.73]
@@ -302,10 +301,10 @@ def test_lines_outside_triangle():
 
     # Points
     points = [
-        Point(57, 75),
-        Point(35, 85),
-        Point(92, 98),
-        Point(81, 87),
+        (57, 75),
+        (35, 85),
+        (92, 98),
+        (81, 87),
     ]
 
     # Expected sizes
@@ -321,9 +320,9 @@ def test_another_line_outside_triangle():
 
     # Points
     points = [
-        Point(54, 90),
-        Point(5, 95),
-        Point(16, 85),
+        (54, 90),
+        (5, 95),
+        (16, 85),
     ]
 
     # Expected sizes
@@ -339,10 +338,10 @@ def test_max_distance():
 
     # Points
     points = [
-        Point(45, 13),
-        Point(57, 71),
-        Point(39, 82),
-        Point(61, 81),
+        (45, 13),
+        (57, 71),
+        (39, 82),
+        (61, 81),
     ]
 
     # Expected sizes
@@ -358,11 +357,11 @@ def test_calc_cell_sizes():
 
     # Points
     points = [
-        Point(45, 13),
-        Point(43, 85),
-        Point(39, 82),
-        Point(22, 95),
-        Point(27, 90),
+        (45, 13),
+        (43, 85),
+        (39, 82),
+        (22, 95),
+        (27, 90),
     ]
 
     # Expected sizes

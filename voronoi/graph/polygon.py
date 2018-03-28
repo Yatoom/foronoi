@@ -6,7 +6,8 @@ from voronoi.visualization import Tell
 
 
 class Polygon:
-    def __init__(self, points):
+    def __init__(self, tuples):
+        points = [Coordinate(x, y) for x, y in tuples]
         self.points = points
         min_y = min([p.y for p in self.points])
         min_x = min([p.x for p in self.points])

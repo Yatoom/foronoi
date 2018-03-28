@@ -1,4 +1,6 @@
 from queue import PriorityQueue
+
+from voronoi.graph import Point
 from voronoi.graph import HalfEdge, Vertex, Algebra
 from voronoi.nodes import LeafNode, Arc, Breakpoint, InternalNode
 from voronoi.events import CircleEvent, SiteEvent
@@ -60,6 +62,8 @@ class Algorithm:
         :param vis_tree: (bool) Visualize the status of the binary tree (text-based)
         :param verbose: (bool) Print debug information
         """
+
+        points = [Point(x, y) for x, y in points]
 
         # Initialize all points
         self.initialize(points)

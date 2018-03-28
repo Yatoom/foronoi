@@ -9,4 +9,4 @@ class Coordinate:
         self.y: float = y
 
     def __repr__(self):
-        return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
+        return f"({round(self.x, 3)}, {round(self.y, 3)})"
