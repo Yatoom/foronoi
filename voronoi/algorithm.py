@@ -52,7 +52,8 @@ class Algorithm:
 
         return self.event_queue
 
-    def create_diagram(self, points: list, vis_steps=False, vis_result=False, vis_tree=False, verbose=False):
+    def create_diagram(self, points: list, vis_steps=False, vis_result=False, vis_tree=False,
+                       vis_before_clipping=False, verbose=False):
         """
         Create the Voronoi diagram.
 
@@ -60,6 +61,7 @@ class Algorithm:
         :param vis_steps: (bool) Visualize intermediate steps
         :param vis_result: (bool) Visualize the final result
         :param vis_tree: (bool) Visualize the status of the binary tree (text-based)
+        :param vis_before_clipping: Visualize the intermediate final result before clipping
         :param verbose: (bool) Print debug information
         """
 
@@ -130,14 +132,16 @@ class Algorithm:
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
+        if vis_before_clipping:
+            visualize(y=-1000, current_event="nothing", bounding_poly=self.bounding_poly,
+                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                      event_queue=self.event_queue)
+
         # Finish with the bounding box
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose)
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
         # Final visualization
-        if vis_tree and vis_result:
-            self.beach_line.visualize()
-
         if vis_result:
             visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,

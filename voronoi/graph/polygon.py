@@ -132,7 +132,8 @@ class Polygon:
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
-        start = edge.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
+        start = edge.get_origin(y=2*(self.min_y - self.max_y), max_y=self.max_y)
+        # TODO: check if this is correct
 
         # End should be a vertex
         end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
