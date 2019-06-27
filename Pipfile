@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 numpy = "*"
 matplotlib = "*"
-nosetests = "*"
+pytest = "*"
 
 [dev-packages]
 nose = "*"
