@@ -60,6 +60,8 @@ class Point(Coordinate):
 
     def _get_xy(self):
         coordinates = self.get_coordinates()
+        if coordinates is None:
+            return [], []
         x = [coordinate.x for coordinate in coordinates]
         y = [coordinate.y for coordinate in coordinates]
         return x, y

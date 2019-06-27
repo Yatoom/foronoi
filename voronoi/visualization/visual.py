@@ -21,7 +21,7 @@ class Colors:
 
 def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue, calc_cell_sizes=True):
     fig, ax = plt.subplots(figsize=(7, 7))
-    plt.title(current_event)
+    plt.title(str(current_event))
     scale = (bounding_poly.max_y - bounding_poly.min_y)
     border = (bounding_poly.max_y - bounding_poly.min_y) / 4
     plt.ylim((bounding_poly.min_y - border, bounding_poly.max_y + border))
