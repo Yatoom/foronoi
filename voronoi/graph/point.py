@@ -1,4 +1,5 @@
 import numpy as np
+
 from voronoi.graph import Coordinate
 
 
@@ -27,7 +28,23 @@ class Point(Coordinate):
             return f"{self.name}"
         return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
+    def cell_size(self, digits=None):
+        """
+        Calculate cell size if the point is a site.
+        :param digits: (int) number of digits to round to
+        :return: (float) the area of the cell
+        """
+        x, y = self._get_xy()
+
+        if digits is not None:
+            return round(self._shoelace(x, y), digits)
+
+        return self._shoelace(x, y)
+
     def get_coordinates(self):
+        """
+        Find the coordinates of the associated cell's vertices.
+        """
         coordinates = []
         edge = self.first_edge
         start = True
@@ -41,32 +58,12 @@ class Point(Coordinate):
 
         return coordinates
 
-    def get_xy(self):
-        x = []
-        y = []
-
-        edge = self.first_edge
-        start = True
-        while edge != self.first_edge or start:
-
-            if edge is None or edge.get_origin() is None:
-                return [], []
-
-            x.append(edge.get_origin().x)
-            y.append(edge.get_origin().y)
-            edge = edge.next
-            start = False
-
+    def _get_xy(self):
+        coordinates = self.get_coordinates()
+        x = [coordinate.x for coordinate in coordinates]
+        y = [coordinate.y for coordinate in coordinates]
         return x, y
 
-    def cell_size(self, digits=None):
-        x, y = self.get_xy()
-
-        if digits is not None:
-            return round(self.shoelace(x, y), digits)
-
-        return self.shoelace(x, y)
-
     @staticmethod
-    def shoelace(x, y):
+    def _shoelace(x, y):
         return 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
