@@ -1,4 +1,6 @@
 # Voronoi
+[![Build Status](https://travis-ci.org/Yatoom/voronoi.svg?branch=master)](https://travis-ci.org/Yatoom/voronoi)
+
 ![](https://raw.githubusercontent.com/Yatoom/voronoi/master/triangle.gif)
 
 A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
