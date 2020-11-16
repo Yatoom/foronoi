@@ -22,7 +22,7 @@ class BoundingCircle(Polygon):
     def inside(self, point):
         return (self.x - point.x)**2 + (self.y - point.y)**2 < self.radius**2
 
-    def finish_edges(self, edges, vertices, points, event_queue, verbose=False):
+    def finish_edges(self, edges, verbose=False, vertices=None, points=None, event_queue=None):
         resulting_edges = []
         for edge in edges:
             A = edge.get_origin()
@@ -35,9 +35,9 @@ class BoundingCircle(Polygon):
                 self.trim_edge(edge.twin)
 
             resulting_edges.append(edge)
-
-            visualize(y=-1000, current_event="nothing", bounding_poly=self,
-                      points=points, vertices=vertices + self.polygon_vertices, edges=edges, arc_list=[], event_queue=event_queue)
+            if vertices and points and event_queue:
+                visualize(y=-1000, current_event="nothing", bounding_poly=self,
+                          points=points, vertices=vertices + self.polygon_vertices, edges=edges, arc_list=[], event_queue=event_queue)
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)

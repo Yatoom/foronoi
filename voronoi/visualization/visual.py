@@ -89,10 +89,17 @@ def visualize(y, current_event, bounding_poly, points, vertices, edges, arc_list
         if isinstance(event, CircleEvent):
             plot_circle(event)
 
-    # Draw bounding box
-    ax.add_patch(
-        patches.Polygon(bounding_poly.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
-    )
+    if hasattr(bounding_poly, 'radius') :
+        # Draw bounding box
+        ax.add_patch(
+                patches.Circle((bounding_poly.x, bounding_poly.x), bounding_poly.radius, fill=False,
+                        edgecolor=Colors.BOUNDING_BOX)
+        )
+    else:
+        # Draw bounding box
+        ax.add_patch(
+            patches.Polygon(bounding_poly.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
+        )
 
     # Plot vertices
     for vertex in vertices:
