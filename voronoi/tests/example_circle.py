@@ -5,8 +5,8 @@ from voronoi.graph.bounding_circle import BoundingCircle
 points = [
     (1, 2),
     (7, 13),
-#    (12, 6),
-#    (5, 5),
+    (12, 6),
+    (5, 5),
 ]
 
 # Define a bounding circle
