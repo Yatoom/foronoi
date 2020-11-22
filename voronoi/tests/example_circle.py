@@ -5,16 +5,16 @@ from voronoi.graph.bounding_circle import BoundingCircle
 points = [
     (1, 2),
     (7, 13),
-    (12, 6),
-    (5, 5),
+#    (12, 6),
+#    (5, 5),
 ]
 
 # Define a bounding circle
-bounding_circle = BoundingCircle(5., 5., 15.)
+bounding_circle = BoundingCircle(5., 5., 9.)
 
 v = Voronoi(bounding_circle)
 
-v.create_diagram(points=points, vis_before_clipping=True, vis_steps=False, verbose=False, vis_result=True, vis_tree=True)
+v.create_diagram(points=points, vis_before_clipping=True, vis_steps=True, verbose=True, vis_result=True, vis_tree=True)
 
 edges = v.edges
 vertices = v.vertices

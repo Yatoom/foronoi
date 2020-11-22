@@ -10,3 +10,6 @@ class Coordinate:
 
     def __repr__(self):
         return f"({round(self.x, 3)}, {round(self.y, 3)})"
+
+    def __sub__(self, other):
+        return Coordinate(x=self.x-other.x, y=self.y-other.y)
