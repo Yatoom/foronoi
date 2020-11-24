@@ -24,11 +24,14 @@ class Visualization(object):
 
     def __init__(self):
         self.init()
+        plt.show()
 
     def init(self):
-        self.fig, self.ax = plt.subplots(figsize=(7, 7))
+        self.fig, self.ax = plt.subplots(figsize=(17, 17))
 
     def visualize(self, y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue, calc_cell_sizes=True):
+        plt.close()
+        self.init()
         self.ax.set_title( str(current_event) )
         scale = (bounding_poly.max_y - bounding_poly.min_y)
         border = (bounding_poly.max_y - bounding_poly.min_y) / 4
@@ -76,6 +79,12 @@ class Visualization(object):
             # Draw line
             if start and end:
                 self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
+                # Add Name
+                plt.annotate(
+                        text=str(edge),
+                        xy=((end.x+start.x)/2, (end.y+start.y)/2)
+                )
+
 
             # Add arrow
             if start and end and start.y < float('inf'):
@@ -119,13 +128,11 @@ class Visualization(object):
             x, y = point.x, point.y
             self.ax.scatter(x=[x], y=[y], s=50, color=Colors.CELL_POINTS)
 
-            if calc_cell_sizes:
-                size = f"{point.cell_size(digits=2)}"
-                # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
-                self.ax.text(s=size, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
-
+#            if calc_cell_sizes:
+#                size = f"{point.cell_size(digits=2)}"
+#               # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
+#                self.ax.text(s=size, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
         self.fig.show()
-
 
     def plot_helper_points(self, A, B, center, start_ray, a, b, c):
         self.ax.scatter(x=[A.x, B.x, center.x, start_ray.x], y=[A.y, B.y, center.y, start_ray.y], s=50, color=Colors.HELPER)

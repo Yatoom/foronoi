@@ -2,11 +2,10 @@ from math import sqrt
 
 from voronoi import Polygon, Point, Coordinate
 from voronoi.graph import Vertex
-from voronoi.visualization import Visualization
+from voronoi.visualization import vis
 
 DEBUG = False
 
-vis = Visualization()
 
 class BoundingCircle(Polygon):
 
@@ -16,10 +15,10 @@ class BoundingCircle(Polygon):
         self.radius = radius
         self.polygon_vertices = []
         self.center = Coordinate(self.x, self.y)
-        self.max_x = self.x + self.radius
-        self.min_x = self.x - self.radius
-        self.max_y = self.y + self.radius
-        self.min_y = self.y - self.radius
+        self.max_x = self.x + 2 * self.radius
+        self.min_x = self.x - 2 * self.radius
+        self.max_y = self.y + 2 * self.radius
+        self.min_y = self.y - 2 * self.radius
 
     def inside(self, point):
         return (self.x - point.x)**2 + (self.y - point.y)**2 < self.radius**2
@@ -31,6 +30,13 @@ class BoundingCircle(Polygon):
             A = edge.get_origin(y=-1000)
             B = edge.twin.get_origin(y=-1000)
             if DEBUG:
+                if vertices and points and event_queue:
+                    vis.visualize(y=-1000, current_event="nothing",
+                            bounding_poly=self,
+                            points=points,
+                            vertices=vertices + self.polygon_vertices,
+                            edges=edges, arc_list=[],
+                            event_queue=event_queue)
                 vis.highlight_edge(-1000, self, edge)
 
             if A is None :
@@ -44,11 +50,13 @@ class BoundingCircle(Polygon):
 
             if DEBUG:
                 if vertices and points and event_queue:
-                    vis.visualize(y=-1000, current_event="nothing", bounding_poly=self,
-                              points=points, vertices=vertices + self.polygon_vertices, edges=edges, arc_list=[], event_queue=event_queue)
-
-            if DEBUG:
-                vis.highlight_edge(-1000, self, edge.twin)
+                    vis.visualize(y=-1000, current_event="nothing",
+                            bounding_poly=self,
+                            points=points,
+                            vertices=vertices + self.polygon_vertices,
+                            edges=edges, arc_list=[],
+                            event_queue=event_queue)
+                vis.highlight_edge(-1000, self, edge)
 
             if B is None or not self.inside(B):
                 result = self.trim_edge(edge.twin)
@@ -139,7 +147,8 @@ class BoundingCircle(Polygon):
         point1, point2 = self.cut_circle(a, b, c)
         if DEBUG:
             vis.plot_points( point1, point2 )
-
+        if point1 is None :
+            return None
         points = []
         if self.on_line(A, B, point1):
             points.append(point1)
@@ -161,7 +170,10 @@ class BoundingCircle(Polygon):
     def cut_circle(self, a, b, c):
         d = c - a * self.x - b * self.y
         a_sq_b_sq = a**2 + b**2
-        big_sqrt = sqrt(self.radius**2 * a_sq_b_sq - d**2).real
+        try:
+            big_sqrt = sqrt(self.radius**2 * a_sq_b_sq - d**2).real
+        except ValueError:
+            return None, None
 
         x1 = self.x + (a * d + b * big_sqrt)/a_sq_b_sq
         y1 = self.y + (b * d - a * big_sqrt)/a_sq_b_sq

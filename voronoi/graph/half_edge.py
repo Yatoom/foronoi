@@ -17,15 +17,17 @@ class HalfEdge:
         # Next and previous
         self.next = None
         self.prev = None
+        self.index = 0
 
         self.removed = False
 
     def __repr__(self):
-        return f"HalfEdge({self.incident_point})"
+        return f"{self.incident_point}_{self.index}"
 
     def set_next(self, next):
         if next:
             next.prev = self
+            next.index = self.index + 1
         self.next = next
 
     def get_origin(self, y=None, max_y=None):

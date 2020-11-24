@@ -5,11 +5,9 @@ from voronoi.graph import HalfEdge, Vertex, Algebra
 from voronoi.nodes import LeafNode, Arc, Breakpoint, InternalNode
 from voronoi.events import CircleEvent, SiteEvent
 from voronoi.tree import SmartTree, SmartNode
-from voronoi.visualization import Visualization
+from voronoi.visualization import vis
 from voronoi.visualization import Tell
 
-
-vis = Visualization()
 
 class Algorithm:
     def __init__(self, bounding_poly=None):
@@ -146,10 +144,10 @@ class Algorithm:
 
         # Final visualization
         if vis_result:
-            vis2 = Visualization()
-            vis2.visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
+            vis.visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                       event_queue=self.event_queue, calc_cell_sizes=True)
+            vis.fig.show()
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
