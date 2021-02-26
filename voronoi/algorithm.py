@@ -5,7 +5,7 @@ from voronoi.graph import HalfEdge, Vertex, Algebra
 from voronoi.nodes import LeafNode, Arc, Breakpoint, InternalNode
 from voronoi.events import CircleEvent, SiteEvent
 from voronoi.tree import SmartTree, SmartNode
-from voronoi.visualization import visualize
+from voronoi.visualization import vis
 from voronoi.visualization import Tell
 
 
@@ -103,7 +103,7 @@ class Algorithm:
                     self.beach_line.visualize()
 
                 if vis_steps:
-                    visualize(self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
+                    vis.visualize(self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
@@ -128,24 +128,26 @@ class Algorithm:
                     self.beach_line.visualize()
 
                 if vis_steps:
-                    visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
+                    vis.visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                               points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                               event_queue=self.event_queue)
 
         if vis_before_clipping:
-            visualize(y=-1000, current_event="nothing", bounding_poly=self.bounding_poly,
+            vis.visualize(y=-1000, current_event="nothing", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                       event_queue=self.event_queue)
 
         # Finish with the bounding box
-        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose)
+        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose, self.vertices, self.points, self.event_queue, )
+#        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose)
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
         # Final visualization
         if vis_result:
-            visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
+            vis.visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                       points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
                       event_queue=self.event_queue, calc_cell_sizes=True)
+            vis.fig.show()
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
