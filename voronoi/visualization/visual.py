@@ -1,3 +1,5 @@
+import time
+
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,19 +22,13 @@ class Colors:
     HELPER = "#ff0000"
     HIGH_LIGHT = "#00ff00"
 
+
 class Visualization(object):
 
-    def __init__(self):
-        self.init()
-        plt.show()
-
-    def init(self):
+    def visualize(self, y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue,
+                  calc_cell_sizes=True):
         self.fig, self.ax = plt.subplots(figsize=(17, 17))
-
-    def visualize(self, y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue, calc_cell_sizes=True):
-        plt.close()
-        self.init()
-        self.ax.set_title( str(current_event) )
+        self.ax.set_title(str(current_event))
         scale = (bounding_poly.max_y - bounding_poly.min_y)
         border = (bounding_poly.max_y - bounding_poly.min_y) / 4
         plt.ylim((bounding_poly.min_y - border, bounding_poly.max_y + border))
@@ -54,63 +50,27 @@ class Visualization(object):
             else:
                 self.ax.plot(x_full, plot_line, linestyle="--", color=Colors.ARC)
                 plot_lines.append(plot_line)
+
+        # Plot the beach line, i.e. the bottom of all the arcs
         if len(plot_lines) > 0:
             self.ax.plot(x_full, np.min(plot_lines, axis=0), color=Colors.BEACH_LINE)
 
-        # Plot circle events
-        def plot_circle(evt):
-            x, y = evt.center.x, evt.center.y
-            radius = evt.radius
-            color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
-
-            # if evt.is_valid:
-            circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
-            triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
-            self.ax.add_artist(circle)
-            self.ax.add_artist(triangle)
-
         # Plot half-edges
         for edge in edges:
-
-            # Get start and end of edges
-            start = edge.get_origin(y, bounding_poly.max_y)
-            end = edge.twin.get_origin(y, bounding_poly.max_y)
-
-            # Draw line
-            if start and end:
-                self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
-                # Add Name
-                plt.annotate(
-                        text=str(edge),
-                        xy=((end.x+start.x)/2, (end.y+start.y)/2)
-                )
-
-
-            # Add arrow
-            if start and end and start.y < float('inf'):
-                plt.annotate(s='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
-
-            # Point to incident point
-            incident_point = edge.incident_point
-            if start and end and incident_point:
-                self.ax.plot(
-                    [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
-                    color=Colors.INCIDENT_POINT_POINTER,
-                    linestyle="--"
-                )
+            self._plot_edge(edge, y, bounding_poly)
 
         if isinstance(current_event, CircleEvent):
-            plot_circle(current_event)
+            self._plot_circle(current_event, self.ax)
 
         for event in event_queue.queue:
             if isinstance(event, CircleEvent):
-                plot_circle(event)
+                self._plot_circle(event, self.ax)
 
-        if hasattr(bounding_poly, 'radius') :
+        if hasattr(bounding_poly, 'radius'):
             # Draw bounding box
             self.ax.add_patch(
-                    patches.Circle((bounding_poly.x, bounding_poly.x), bounding_poly.radius, fill=False,
-                            edgecolor=Colors.BOUNDING_BOX)
+                patches.Circle((bounding_poly.x, bounding_poly.x), bounding_poly.radius, fill=False,
+                               edgecolor=Colors.BOUNDING_BOX)
             )
         else:
             # Draw bounding box
@@ -128,24 +88,38 @@ class Visualization(object):
             x, y = point.x, point.y
             self.ax.scatter(x=[x], y=[y], s=50, color=Colors.CELL_POINTS)
 
-#            if calc_cell_sizes:
-#                size = f"{point.cell_size(digits=2)}"
-#               # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
-#                self.ax.text(s=size, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
-        self.fig.show()
+            if calc_cell_sizes:
+                size = f"{point.cell_size(digits=2)}"
+                # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
+                self.ax.text(s=size, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
+
+        plt.show(block=True)
+
+    # Plot circle events
+    @staticmethod
+    def _plot_circle(evt, ax):
+        x, y = evt.center.x, evt.center.y
+        radius = evt.radius
+        color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
+
+        # if evt.is_valid:
+        circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
+        triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
+        ax.add_artist(circle)
+        ax.add_artist(triangle)
 
     def plot_helper_points(self, A, B, center, start_ray, a, b, c):
-        self.ax.scatter(x=[A.x, B.x, center.x, start_ray.x], y=[A.y, B.y, center.y, start_ray.y], s=50, color=Colors.HELPER)
+        self.ax.scatter(x=[A.x, B.x, center.x, start_ray.x], y=[A.y, B.y, center.y, start_ray.y], s=50,
+                        color=Colors.HELPER)
         self.ax.plot(
-            [start_ray.x , center.x], [start_ray.y, (c - a* center.x)/b],
-                    color=Colors.HELPER
-                )
+            [start_ray.x, center.x], [start_ray.y, (c - a * center.x) / b],
+            color=Colors.HELPER
+        )
         self.fig.show()
 
     def plot_points(self, A, B):
         self.ax.scatter(x=[A.x, B.x], y=[A.y, B.y], s=50, color=Colors.HELPER)
         self.fig.show()
-
 
     def highlight_edge(self, y, bounding_poly, edge):
         # Get start and end of edges
@@ -159,16 +133,41 @@ class Visualization(object):
         # Add arrow
         if start and end and start.y < float('inf'):
             self.ax.annotate(
-                    s='',
-                    xy=(end.x, end.y),
-                    xytext=(start.x, start.y),
-                    arrowprops=dict(
-                            arrowstyle='->',
-                            linewidth=5,
-                            color=Colors.HIGH_LIGHT
-                    )
+                s='',
+                xy=(end.x, end.y),
+                xytext=(start.x, start.y),
+                arrowprops=dict(
+                    arrowstyle='->',
+                    linewidth=5,
+                    color=Colors.HIGH_LIGHT
+                )
             )
 
         self.fig.show()
 
+    def _plot_edge(self, edge, y, bounding_poly):
+        # Get start and end of edges
+        start = edge.get_origin(y, bounding_poly.max_y)
+        end = edge.twin.get_origin(y, bounding_poly.max_y)
 
+        # Draw line
+        if start and end:
+            self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
+            # Add Name
+            plt.annotate(
+                text=str(edge),
+                xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
+            )
+
+        # Add arrow
+        if start and end and start.y < float('inf'):
+            plt.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
+
+        # Point to incident point
+        incident_point = edge.incident_point
+        if start and end and incident_point:
+            self.ax.plot(
+                [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
+                color=Colors.INCIDENT_POINT_POINTER,
+                linestyle="--"
+            )

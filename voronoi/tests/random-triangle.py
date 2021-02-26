@@ -29,4 +29,4 @@ if print_input:
     print("]")
 
 v = Algorithm(polygon)
-v.create_diagram(points=points, vis_steps=True, vis_result=True, verbose=False, vis_tree=False)
+v.create_diagram(points=[(p.x, p.y) for p in points], vis_steps=True, vis_result=True, verbose=False, vis_tree=False)

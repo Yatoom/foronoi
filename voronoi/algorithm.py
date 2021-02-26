@@ -104,8 +104,9 @@ class Algorithm:
 
                 if vis_steps:
                     vis.visualize(self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
-                              points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                              event_queue=self.event_queue)
+                                  points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                                  event_queue=self.event_queue)
+
 
             # Handle site events
             elif isinstance(event, SiteEvent):
@@ -129,25 +130,25 @@ class Algorithm:
 
                 if vis_steps:
                     vis.visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
-                              points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                              event_queue=self.event_queue)
+                                  points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                                  event_queue=self.event_queue) # FIXME: generates one normal and one empty figure
 
         if vis_before_clipping:
-            vis.visualize(y=-1000, current_event="nothing", bounding_poly=self.bounding_poly,
-                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue)
+            vis.visualize(y=-1000, current_event="Before clipping", bounding_poly=self.bounding_poly,
+                          points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                          event_queue=self.event_queue)
 
         # Finish with the bounding box
-        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose, self.vertices, self.points, self.event_queue, )
-#        self.edges, polygon_vertices = self.bounding_poly.finish_edges(self.edges, verbose)
+        self.edges, polygon_vertices = self.bounding_poly.finish_edges(
+            edges=self.edges, verbose=verbose, vertices=self.vertices, points=self.points, event_queue=self.event_queue
+        )
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
         # Final visualization
         if vis_result:
             vis.visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
-                      points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                      event_queue=self.event_queue, calc_cell_sizes=True)
-            vis.fig.show()
+                          points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
+                          event_queue=self.event_queue, calc_cell_sizes=True)
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
