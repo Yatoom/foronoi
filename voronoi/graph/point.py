@@ -66,6 +66,9 @@ class Point(Coordinate):
         y = [coordinate.y for coordinate in coordinates]
         return x, y
 
+    def __sub__(self, other):
+        return Point(x=self.x-other.x, y=self.y-other.y)
+
     @staticmethod
     def _shoelace(x, y):
         return 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))

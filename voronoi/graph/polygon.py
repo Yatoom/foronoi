@@ -84,7 +84,7 @@ class Polygon:
     def get_coordinates(self):
         return [(i.x, i.y) for i in self.points]
 
-    def finish_edges(self, edges, verbose=False):
+    def finish_edges(self, edges, verbose=False, **kwargs):
         resulting_edges = []
         for edge in edges:
 
