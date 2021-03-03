@@ -1,7 +1,7 @@
+import warnings
 from math import sqrt
 
-from voronoi import Polygon, Point, Coordinate
-from voronoi.graph import Vertex
+from voronoi.graph import Polygon, Point, Coordinate, Vertex
 from voronoi.visualization import vis
 
 DEBUG = False
@@ -19,6 +19,15 @@ class BoundingCircle(Polygon):
         self.min_x = self.x - 2 * self.radius
         self.max_y = self.y + 2 * self.radius
         self.min_y = self.y - 2 * self.radius
+
+        # Important warning about visualization
+        warnings.warn("""
+        The bounding circle has a few limitations:
+        
+        1) The edges point towards the correct node, but do not follow the shape of the circle during visualization.
+           Instead, they follow a straight line towards the other node.
+        2) Because of the above, cell size calculation is not supported for bounding circles. 
+        """)
 
     def inside(self, point):
         return (self.x - point.x) ** 2 + (self.y - point.y) ** 2 < self.radius ** 2

@@ -1,7 +1,9 @@
+import warnings
 from queue import PriorityQueue
 
 from voronoi.graph import Point
 from voronoi.graph import HalfEdge, Vertex, Algebra
+from voronoi.graph.bounding_circle import BoundingCircle
 from voronoi.nodes import LeafNode, Arc, Breakpoint, InternalNode
 from voronoi.events import CircleEvent, SiteEvent
 from voronoi.tree import SmartTree, SmartNode
@@ -146,9 +148,12 @@ class Algorithm:
 
         # Final visualization
         if vis_result:
+            # Cell size calculation is not supported for bounding circles
+            calc_cell_sizes = not isinstance(self.bounding_poly, BoundingCircle)
+
             vis.visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
                           points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                          event_queue=self.event_queue, calc_cell_sizes=True)
+                          event_queue=self.event_queue, calc_cell_sizes=calc_cell_sizes)
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 

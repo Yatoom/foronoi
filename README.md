@@ -75,6 +75,8 @@ Output:
 (6, 3) 	     9.423363095238095
 ```
 
+More examples can be found in the `voronoi/examples` folder.
+
 ### Get coordinates for a point
 ```python
 v.points[0].get_coordinates()
