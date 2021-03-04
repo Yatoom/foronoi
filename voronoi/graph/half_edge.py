@@ -1,3 +1,4 @@
+from voronoi.graph.point import Point
 from voronoi.graph.vertex import Vertex
 
 
@@ -22,12 +23,11 @@ class HalfEdge:
         self.removed = False
 
     def __repr__(self):
-        return f"{self.incident_point}_{self.index}"
+        return f"{self.incident_point}/{self.twin.incident_point or '-'} ({self.index})"
 
     def set_next(self, next):
         if next:
             next.prev = self
-            next.index = self.index + 1
         self.next = next
 
     def get_origin(self, y=None, max_y=None):

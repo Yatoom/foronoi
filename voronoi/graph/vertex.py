@@ -1,9 +1,9 @@
 class Vertex:
-    def __init__(self, incident_edges=None, point=None):
-        if incident_edges is None:
-            incident_edges = []
+    def __init__(self, connected_edges=None, point=None):
+        if connected_edges is None:
+            connected_edges = []
 
-        self.incident_edges = incident_edges
+        self.connected_edges = connected_edges
 
         self.point = point
 

@@ -96,7 +96,7 @@ class BoundingCircle(Polygon):
             return False
         # Create vertex
         v = Vertex(point=point)
-        v.incident_edges.append(edge)
+        v.connected_edges.append(edge)
         edge.origin = v
         self.polygon_vertices.append(v)
 

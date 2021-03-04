@@ -29,7 +29,7 @@ v = Voronoi(polygon)
 # Create the diagram
 v.create_diagram(
     points=points,
-    vis_steps=True,   # Visualize the individual steps
+    vis_steps=False,   # Visualize the individual steps
     verbose=True,     # Print the event queue and events that handled at each step
     vis_result=True,  # Visualize the end-result
     vis_tree=False    # Print the binary tree at each step

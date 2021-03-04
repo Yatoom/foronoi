@@ -13,6 +13,7 @@ class Colors:
     EDGE = "#636e72"
     ARC = "#b2bec3"
     INCIDENT_POINT_POINTER = "#dfe6e9"
+    INCIDENT_POINT_POINTER_TWIN = "#FDAB81"
     INVALID_CIRCLE = "#d63031"  # red
     VALID_CIRCLE = "#0984e3"  # blue
     VERTICES = "#0984e3"  # blue
@@ -87,11 +88,12 @@ class Visualization(object):
         for point in points:
             x, y = point.x, point.y
             self.ax.scatter(x=[x], y=[y], s=50, color=Colors.CELL_POINTS)
+            text = str(point)
 
             if calc_cell_sizes:
-                size = f"{point.cell_size(digits=2)}"
-                # plt.annotate(s=size, xy=(x, y), xytext=(100, y), arrowprops=dict(arrowstyle='->', facecolor="white"))
-                self.ax.text(s=size, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
+                text += " " + str(point.cell_size(digits=2))
+
+            self.ax.text(s=text, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
 
         plt.show(block=True)
 
@@ -164,10 +166,14 @@ class Visualization(object):
             plt.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
 
         # Point to incident point
+        self.draw_pointer_to_incident_point(edge, start, end, Colors.INCIDENT_POINT_POINTER)
+        self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
+
+    def draw_pointer_to_incident_point(self, edge, start, end, color):
         incident_point = edge.incident_point
         if start and end and incident_point:
             self.ax.plot(
                 [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
-                color=Colors.INCIDENT_POINT_POINTER,
+                color=color,
                 linestyle="--"
             )

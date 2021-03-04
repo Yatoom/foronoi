@@ -1,6 +1,6 @@
 import numpy as np
 
-from voronoi.graph import Coordinate
+from voronoi.graph.coordinate import Coordinate
 
 
 class Point(Coordinate):
