@@ -382,3 +382,16 @@ def test_alexdiab():
     ])
     sizes = [14.04, 5.63, 6.11, 16.66, 11.57]
     _execute(polygon, points, sizes)
+
+# Test case added thanks to mars0001 (https://github.com/Yatoom/voronoi/issues/5)
+def test_mars0001():
+    points = [(20.1273, 18.7303), (26.5107, 18.7303), (20.1273, 23.8437), (26.5107, 23.8437)]
+
+    polygon = Polygon([
+        (15., 15.),
+        (15., 30.),
+        (30., 30.),
+        (30., 15.),
+    ])
+    sizes = [52.3, 42.0, 72.48, 58.21]
+    _execute(polygon, points, sizes)
