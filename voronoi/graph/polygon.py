@@ -86,7 +86,6 @@ class Polygon:
 
     def finish_edges(self, edges, verbose=False, **kwargs):
         resulting_edges = []
-        # edges = edges + [edge.twin for edge in edges]
         for edge in edges:
 
             if edge.get_origin() is None or not self.inside(edge.get_origin()):
@@ -98,9 +97,9 @@ class Polygon:
             if edge.get_origin() is not None and edge.twin.get_origin() is not None:
                 resulting_edges.append(edge)
             else:
-                self.delete_edge(edge, verbose)
-                # self.delete_edge_2(edge.twin, verbose)
-                Tell.print(verbose, "Edge deleted!")
+                self.delete_edge(edge)
+                self.delete_edge(edge.twin)
+                Tell.print(verbose, f"Edges {edge} and {edge.twin} deleted!")
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
@@ -108,39 +107,26 @@ class Polygon:
         return resulting_edges, self.polygon_vertices
 
     @staticmethod
-    def delete_edge(edge, verbose=False):
-        prev_edge = edge.prev
-        next_edge = edge.next
+    def delete_edge(edge):
 
-        if prev_edge:
-            prev_edge.set_next(next_edge)
+        # Link previous edge to next edge
+        if edge.prev is not None:
+            edge.prev.set_next(edge.next)
 
-        if next_edge:                           # Edge A/B is connected to B/C, which is going to be deleted as well
-            next_edge.twin.set_next(prev_edge)  # B/C is going to have twin None
-
-        Tell.print(verbose, f"Edge {edge} deleted, selecting neighbor edge {prev_edge or next_edge}.")
-
-        # If the edge we are deleting is the first edge for the incident point, we need to give it a new first edge
+        # If the incident point had a pointer to this edge, we need to point it to a new one
         if edge.incident_point.first_edge == edge:
-            if prev_edge:
-                edge.incident_point.first_edge = prev_edge
-                assert(edge.incident_point == prev_edge.incident_point)  # Incident point should not change
-            elif next_edge:
-                edge.incident_point.first_edge = next_edge
-                assert(edge.incident_point == next_edge.incident_point)  # Incident point should not change
 
-        # Do the same for the twin
-        if edge.twin.incident_point.first_edge == edge.twin:
-            if edge.twin.next:
-                edge.twin.incident_point.first_edge = edge.twin.next
-                assert(edge.twin.incident_point == edge.twin.next.incident_point)  # Incident point should not change
-            elif edge.twin.prev:
-                edge.twin.incident_point.first_edge = edge.twin.prev
-                assert(edge.twin.incident_point == edge.twin.prev.incident_point)  # Incident point should not change
+            # Incident points should remain the same
+            assert (
+                edge.next is None or edge.next.incident_point == edge.incident_point
+            ), f"Incident points {edge.next.incident_point} and {edge.incident_point} do not match"
+
+            # Set the new "first edge" pointer
+            edge.incident_point.first_edge = edge.next
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
-        start = edge.get_origin(y=2*(self.min_y - self.max_y), max_y=self.max_y)
+        start = edge.get_origin(y=2 * (self.min_y - self.max_y), max_y=self.max_y)
         # TODO: check if this is correct
 
         # End should be a vertex
