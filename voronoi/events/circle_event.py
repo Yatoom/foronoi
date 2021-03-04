@@ -90,7 +90,12 @@ class CircleEvent(Event):
     @staticmethod
     def create_circle(a, b, c):
 
-        a, b, c = sorted((a, b, c), key=lambda item: item.x)
+        # Due to small rounding errors, two circles that should have the same coordinates (e.g. in case of a 2x2 grid),
+        # can get slightly different coordinates from each other. This line will make sure this problem is avoided,
+        # by sorting the points, such that the calculations will be executed in the same order, and thus the rounding
+        # errors will be the same for both circles. This in turn, ensures that the priority of the two circle events
+        # is the same, so that first inserted circle event will be handled first.
+        a, b, c = sorted((a, b, c), key=lambda item: (item.y, item.x))
 
         # Algorithm from O'Rourke 2ed p. 189
         A = Decimal(b.x - a.x)
