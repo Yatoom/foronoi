@@ -133,7 +133,7 @@ class Algorithm:
                 if vis_steps:
                     vis.visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
                                   points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                                  event_queue=self.event_queue) # FIXME: generates one normal and one empty figure
+                                  event_queue=self.event_queue)
 
         if vis_before_clipping:
             vis.visualize(y=-1000, current_event="Before clipping", bounding_poly=self.bounding_poly,
@@ -278,15 +278,15 @@ class Algorithm:
         # Connect the two old edges to the vertex
         updated.edge.origin = v
         removed.edge.origin = v
-        v.incident_edges.append(updated.edge)
-        v.incident_edges.append(removed.edge)
+        v.connected_edges.append(updated.edge)
+        v.connected_edges.append(removed.edge)
 
         # Get the incident points
         C = updated.breakpoint[0]
         B = updated.breakpoint[1]
 
         new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
-        v.incident_edges.append(updated.edge.twin)
+        v.connected_edges.append(updated.edge.twin)
 
         # Add to list for visualization
         self.edges.append(new_edge)

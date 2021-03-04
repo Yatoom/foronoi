@@ -49,25 +49,25 @@ class Polygon:
             end = vertices[index + 1]
 
             # If vertex is connected to other edges, update the cell
-            if len(origin.incident_edges) > 0:
-                cell = origin.incident_edges[0].twin.incident_point
+            if len(origin.connected_edges) > 0:
+                cell = origin.connected_edges[0].twin.incident_point
 
             # Create the edge
             edge = HalfEdge(cell, origin=origin, twin=HalfEdge(None, origin=end))
-            origin.incident_edges.append(edge)
-            end.incident_edges.append(edge.twin)
+            origin.connected_edges.append(edge)
+            end.connected_edges.append(edge.twin)
 
             # Add first edge if needed
             if cell:
                 cell.first_edge = cell.first_edge or edge
 
             # Connect edges
-            if len(end.incident_edges) > 0:
-                edge.set_next(end.incident_edges[0])
+            if len(end.connected_edges) > 0:
+                edge.set_next(end.connected_edges[0])
 
             # Connect to incoming edge, or previous edge
-            if len(origin.incident_edges) > 0:
-                origin.incident_edges[0].twin.set_next(edge)
+            if len(origin.connected_edges) > 0:
+                origin.connected_edges[0].twin.set_next(edge)
             elif previous_edge is not None:
                 previous_edge.set_next(edge)
 
@@ -86,6 +86,7 @@ class Polygon:
 
     def finish_edges(self, edges, verbose=False, **kwargs):
         resulting_edges = []
+        # edges = edges + [edge.twin for edge in edges]
         for edge in edges:
 
             if edge.get_origin() is None or not self.inside(edge.get_origin()):
@@ -98,6 +99,7 @@ class Polygon:
                 resulting_edges.append(edge)
             else:
                 self.delete_edge(edge, verbose)
+                # self.delete_edge_2(edge.twin, verbose)
                 Tell.print(verbose, "Edge deleted!")
 
         # Re-order polygon vertices
@@ -113,22 +115,28 @@ class Polygon:
         if prev_edge:
             prev_edge.set_next(next_edge)
 
-        if next_edge:
-            next_edge.twin.set_next(prev_edge)
+        if next_edge:                           # Edge A/B is connected to B/C, which is going to be deleted as well
+            next_edge.twin.set_next(prev_edge)  # B/C is going to have twin None
 
         Tell.print(verbose, f"Edge {edge} deleted, selecting neighbor edge {prev_edge or next_edge}.")
 
+        # If the edge we are deleting is the first edge for the incident point, we need to give it a new first edge
         if edge.incident_point.first_edge == edge:
             if prev_edge:
                 edge.incident_point.first_edge = prev_edge
+                assert(edge.incident_point == prev_edge.incident_point)  # Incident point should not change
             elif next_edge:
                 edge.incident_point.first_edge = next_edge
+                assert(edge.incident_point == next_edge.incident_point)  # Incident point should not change
 
+        # Do the same for the twin
         if edge.twin.incident_point.first_edge == edge.twin:
-            if prev_edge:
-                edge.twin.incident_point.first_edge = prev_edge.twin
-            elif next_edge:
-                edge.twin.incident_point.first_edge = next_edge.twin
+            if edge.twin.next:
+                edge.twin.incident_point.first_edge = edge.twin.next
+                assert(edge.twin.incident_point == edge.twin.next.incident_point)  # Incident point should not change
+            elif edge.twin.prev:
+                edge.twin.incident_point.first_edge = edge.twin.prev
+                assert(edge.twin.incident_point == edge.twin.prev.incident_point)  # Incident point should not change
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
@@ -143,7 +151,7 @@ class Polygon:
 
         # Create vertex
         v = Vertex(point=point)
-        v.incident_edges.append(edge)
+        v.connected_edges.append(edge)
         edge.origin = v
         self.polygon_vertices.append(v)
 

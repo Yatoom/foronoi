@@ -19,7 +19,7 @@ def _execute(polygon, points, sizes):
     v = Algorithm(polygon)
     v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
     calculated = [p.cell_size(2) for p in v.points]
-    assert (sizes == calculated)
+    assert sizes == calculated, calculated
 
 
 # -----------
@@ -308,7 +308,7 @@ def test_lines_outside_triangle():
     ]
 
     # Expected sizes
-    sizes = [2590.11, 2590.11, 147.0, 673.12]
+    sizes = [2590.11, 1589.77, 147.0, 673.12]
 
     # Execute test
     _execute(polygon, points, sizes)
@@ -326,7 +326,7 @@ def test_another_line_outside_triangle():
     ]
 
     # Expected sizes
-    sizes = [3490.08, 1373.73, 1373.73]
+    sizes = [3490.08, 136.19, 1373.73]
 
     # Execute test
     _execute(polygon, points, sizes)
@@ -368,4 +368,17 @@ def test_calc_cell_sizes():
     sizes = [1161.4, 1958.77, 1128.36, 341.33, 410.13]
 
     # Execute test
+    _execute(polygon, points, sizes)
+
+
+# Test case added thanks to alexdiab (https://github.com/Yatoom/voronoi/issues/4)
+def test_alexdiab():
+    points = [(3.45, 3.66), (6.0, 4.54), (7.82, 5.35), (5.65, 3.09), (1.99, 4.66)]
+    polygon = Polygon([
+        (0, 0),
+        (0, 6),
+        (9, 0),
+        (9, 6)
+    ])
+    sizes = [14.04, 5.63, 6.11, 16.66, 11.57]
     _execute(polygon, points, sizes)
