@@ -22,10 +22,11 @@ class BoundingCircle(Polygon):
 
         # Important warning about visualization
         warnings.warn("""
-        The bounding circle has a few limitations:
+        Warning! The bounding circle has a few limitations:
         
-        1) The edges point towards the correct node, but do not follow the shape of the circle during visualization.
-           Instead, they follow a straight line towards the other node.
+        1) The edges point towards the correct node, and get correctly clipped by the circle, 
+           but do not follow the shape of the circle during visualization. Instead, they follow 
+           a straight line towards the other node.
         2) Because of the above, cell size calculation is not supported for bounding circles. 
         """)
 

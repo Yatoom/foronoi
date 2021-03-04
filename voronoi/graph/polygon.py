@@ -107,14 +107,6 @@ class Polygon:
 
         return resulting_edges, self.polygon_vertices
 
-    # @staticmethod
-    # def delete_edge_2(edge, verbose=False):
-    #     if edge.prev:
-    #         edge.prev.set_next(edge.next)
-    #
-    #     if edge.incident_point.first_edge == edge:
-    #         edge.incident_point.first_edge = edge.prev or edge.next
-
     @staticmethod
     def delete_edge(edge, verbose=False):
         prev_edge = edge.prev
@@ -132,19 +124,19 @@ class Polygon:
         if edge.incident_point.first_edge == edge:
             if prev_edge:
                 edge.incident_point.first_edge = prev_edge
-                assert(edge.incident_point == prev_edge.incident_point)
+                assert(edge.incident_point == prev_edge.incident_point)  # Incident point should not change
             elif next_edge:
-                edge.incident_point.first_edge = next_edge  # B/C is now it's first edge
-                assert(edge.incident_point == next_edge.incident_point)
+                edge.incident_point.first_edge = next_edge
+                assert(edge.incident_point == next_edge.incident_point)  # Incident point should not change
 
         # Do the same for the twin
         if edge.twin.incident_point.first_edge == edge.twin:
             if edge.twin.next:
                 edge.twin.incident_point.first_edge = edge.twin.next
-                # assert(edge.twin.incident_point == prev_edge.twin.incident_point)
+                assert(edge.twin.incident_point == edge.twin.next.incident_point)  # Incident point should not change
             elif edge.twin.prev:
-                edge.twin.incident_point.first_edge = edge.twin.prev  # C/B is now it's first edge
-                # assert(edge.twin.incident_point == next_edge.twin.incident_point)
+                edge.twin.incident_point.first_edge = edge.twin.prev
+                assert(edge.twin.incident_point == edge.twin.prev.incident_point)  # Incident point should not change
 
     def finish_edge(self, edge):
         # Start should be a breakpoint

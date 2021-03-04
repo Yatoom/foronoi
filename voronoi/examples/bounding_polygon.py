@@ -29,10 +29,11 @@ v = Voronoi(polygon)
 # Create the diagram
 v.create_diagram(
     points=points,
-    vis_steps=False,   # Visualize the individual steps
-    verbose=True,     # Print the event queue and events that handled at each step
-    vis_result=True,  # Visualize the end-result
-    vis_tree=False    # Print the binary tree at each step
+    vis_steps=True,            # Visualize intermediate steps
+    vis_result=True,           # Visualize the final result
+    vis_tree=True,             # Print the binary tree at each step
+    vis_before_clipping=True,  # Visualize the intermediate final result before clipping
+    verbose=True               # Print the event queue and events that handled at each step
 )
 
 # Get properties

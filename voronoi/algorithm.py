@@ -141,9 +141,6 @@ class Algorithm:
                           event_queue=self.event_queue)
 
         # Finish with the bounding box
-        # FIXME: self.points[2].first_edge is A/B with prev = A/C and twin B/A
-        # FIXME: However, this first edge is completely outside of the bounding box
-        # FIXME: It's twin B/A is in self.edges
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(
             edges=self.edges, verbose=verbose, vertices=self.vertices, points=self.points, event_queue=self.event_queue
         )

@@ -12,8 +12,8 @@ class Colors:
     BEACH_LINE = "#636e72"
     EDGE = "#636e72"
     ARC = "#b2bec3"
-    INCIDENT_POINT_POINTER = "#dfe6e9"
-    INCIDENT_POINT_POINTER_TWIN = "#FDAB81"
+    INCIDENT_POINT_POINTER = "#FDAB81"
+    INCIDENT_POINT_POINTER_TWIN = "#dfe6e9"
     INVALID_CIRCLE = "#d63031"  # red
     VALID_CIRCLE = "#0984e3"  # blue
     VERTICES = "#0984e3"  # blue
@@ -156,10 +156,10 @@ class Visualization(object):
         if start and end:
             self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
             # Add Name
-            plt.annotate(
-                text=str(edge),
-                xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
-            )
+            # plt.annotate(
+            #     text=str(edge),
+            #     xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
+            # )
 
         # Add arrow
         if start and end and start.y < float('inf'):
@@ -167,7 +167,7 @@ class Visualization(object):
 
         # Point to incident point
         self.draw_pointer_to_incident_point(edge, start, end, Colors.INCIDENT_POINT_POINTER)
-        self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
+        # self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
 
     def draw_pointer_to_incident_point(self, edge, start, end, color):
         incident_point = edge.incident_point
