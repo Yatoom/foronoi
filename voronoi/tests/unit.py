@@ -383,8 +383,9 @@ def test_alexdiab():
     sizes = [14.04, 5.63, 6.11, 16.66, 11.57]
     _execute(polygon, points, sizes)
 
+
 # Test case added thanks to mars0001 (https://github.com/Yatoom/voronoi/issues/5)
-def test_mars0001():
+def test_mars0001_1():
     points = [(20.1273, 18.7303), (26.5107, 18.7303), (20.1273, 23.8437), (26.5107, 23.8437)]
 
     polygon = Polygon([
@@ -394,4 +395,22 @@ def test_mars0001():
         (30., 15.),
     ])
     sizes = [52.3, 42.0, 72.48, 58.21]
+    _execute(polygon, points, sizes)
+
+
+# Test case added thanks to mars0001 (https://github.com/Yatoom/voronoi/issues/5)
+def test_mars0001_2():
+    points = [(0.3308, 0.204), (10.1432, 0.204), (19.9556, 0.204), (29.768, 0.204), (0.3308, 7.942), (10.1432, 7.942),
+              (19.9556, 7.942), (29.768, 7.942), (0.3308, 15.6801), (10.1432, 15.6801), (19.9556, 15.6801),
+              (29.768, 15.6801), (0.3308, 23.4181), (10.1432, 23.4181), (19.9556, 23.4181), (29.768, 23.4181)]
+
+    polygon = Polygon([
+        (0, -10),
+        (0., 35.),
+        (35., 35.),
+        (35., -10.),
+    ])
+
+    sizes = [73.7, 138.09, 138.09, 142.67, 40.52, 75.93, 75.93, 78.45, 40.52, 75.93, 75.93, 78.45, 80.92, 151.61,
+             151.61, 156.64]
     _execute(polygon, points, sizes)

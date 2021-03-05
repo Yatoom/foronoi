@@ -11,11 +11,10 @@ from voronoi.visualization import Tell
 class CircleEvent(Event):
     circle_event = True
 
-    def __init__(self, center: Coordinate, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None, created_by_site=False):
+    def __init__(self, center: Coordinate, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None):
         """
         Circle event.
 
-        :param y: Lowest point on the circle
         :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
         :param point_triple: The tuple of points that caused the event
         """
@@ -27,7 +26,8 @@ class CircleEvent(Event):
         self.arc_triple = arc_triple
 
     def __repr__(self):
-        return f"CircleEvent({self.point_triple}, {round(self.center.y - self.radius, 3)})"
+        # return f"CircleEvent({self.point_triple}, {round(self.center.y - self.radius, 3)})"
+        return f"CircleEvent({self.point_triple}, y-radius={self.center.y - self.radius}, y={self.center.y}, radius={self.radius})"
 
     @property
     def x(self):
@@ -77,7 +77,6 @@ class CircleEvent(Event):
 
         # Check if we can create a circle event
         if CircleEvent.create_circle(a, b, c):
-
             # Create the circle
             x, y, radius = CircleEvent.create_circle(a, b, c)
 
@@ -90,12 +89,20 @@ class CircleEvent(Event):
     @staticmethod
     def create_circle(a, b, c):
 
+        class DecimalCoordinate:
+            def __init__(self, x: Decimal, y: Decimal):
+                self.x = x
+                self.y = y
+
+            @staticmethod
+            def convert(coordinate: Coordinate):
+                return DecimalCoordinate(Decimal(str(coordinate.x)), Decimal(str(coordinate.y)))
+
         # Due to small rounding errors, two circles that should have the same coordinates (e.g. in case of a 2x2 grid),
-        # can get slightly different coordinates from each other. This line will make sure this problem is avoided,
-        # by sorting the points, such that the calculations will be executed in the same order, and thus the rounding
-        # errors will be the same for both circles. This in turn, ensures that the priority of the two circle events
-        # is the same, so that first inserted circle event will be handled first.
-        a, b, c = sorted((a, b, c), key=lambda item: (item.y, item.x))
+        # can get slightly different coordinates from each other. Using Decimal Coordinates avoids this problem.
+        # This in turn, ensures that the priority of the two circle events is the same, so that first inserted circle
+        # event will be handled first.
+        a, b, c = [DecimalCoordinate.convert(i) for i in (a, b, c)]
 
         # Algorithm from O'Rourke 2ed p. 189
         A = Decimal(b.x - a.x)
@@ -113,6 +120,11 @@ class CircleEvent(Event):
         # Center and radius of the circle
         x = (D * E - B * F) / G
         y = (A * F - C * E) / G
-        radius = Decimal(math.sqrt(math.pow(Decimal(a.x) - x, 2) + math.pow(Decimal(a.y) - y, 2)))
+
+        radius = Decimal(
+            math.sqrt(
+                math.pow(Decimal(a.x) - x, 2) + math.pow(Decimal(a.y) - y, 2)
+            )
+        )
 
         return float(x), float(y), float(radius)
