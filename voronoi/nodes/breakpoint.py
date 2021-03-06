@@ -1,7 +1,7 @@
 import math
 from decimal import Decimal
 
-from voronoi.graph.coordinate import Coordinate
+from voronoi.graph.coordinate import DecimalCoordinate
 
 
 class Breakpoint:
@@ -28,6 +28,9 @@ class Breakpoint:
     def __repr__(self):
         return f"Breakpoint({self.breakpoint[0].name}, {self.breakpoint[1].name})"
 
+    def tuple_name(self):
+        return self.breakpoint[0].name + self.breakpoint[1].name
+
     def does_intersect(self):
         i, j = self.breakpoint
         return not (i.y == j.y and j.x < i.x)
@@ -46,8 +49,8 @@ class Breakpoint:
         i, j = self.breakpoint
 
         # Initialize the resulting point
-        result = Coordinate()
-        p: Coordinate = i
+        result = DecimalCoordinate()
+        p: DecimalCoordinate = i
 
         # First we replace some stuff to make it easier
         a = i.x

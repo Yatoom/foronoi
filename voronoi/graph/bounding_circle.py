@@ -1,7 +1,7 @@
 import warnings
 from math import sqrt
 
-from voronoi.graph import Polygon, Point, Coordinate, Vertex
+from voronoi.graph import Polygon, Point, DecimalCoordinate, Vertex
 from voronoi.visualization import vis
 
 DEBUG = False
@@ -14,7 +14,7 @@ class BoundingCircle(Polygon):
         self.y = y
         self.radius = radius
         self.polygon_vertices = []
-        self.center = Coordinate(self.x, self.y)
+        self.center = DecimalCoordinate(self.x, self.y)
         self.max_x = self.x + 2 * self.radius
         self.min_x = self.x - 2 * self.radius
         self.max_y = self.y + 2 * self.radius

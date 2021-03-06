@@ -18,12 +18,11 @@ class HalfEdge:
         # Next and previous
         self.next = None
         self.prev = None
-        self.index = 0
 
         self.removed = False
 
     def __repr__(self):
-        return f"{self.incident_point}/{self.twin.incident_point or '-'} ({self.index})"
+        return f"{self.incident_point}/{self.twin.incident_point or '-'}"
 
     def set_next(self, next):
         if next:

@@ -1,5 +1,5 @@
 import numpy as np
-from voronoi.graph import Coordinate
+from voronoi.graph import DecimalCoordinate
 
 
 class Algebra:
@@ -48,7 +48,7 @@ class Algebra:
         return []
 
     @staticmethod
-    def get_intersection(orig: Coordinate, end: Coordinate, p1: Coordinate, p2: Coordinate):
+    def get_intersection(orig: DecimalCoordinate, end: DecimalCoordinate, p1: DecimalCoordinate, p2: DecimalCoordinate):
         if not orig or not end:
             return None
 
@@ -57,7 +57,7 @@ class Algebra:
         if len(point) == 0:
             return None
 
-        return Coordinate(point[0][0], point[0][1])
+        return DecimalCoordinate(point[0][0], point[0][1])
 
     @staticmethod
     def calculate_angle(point, center):

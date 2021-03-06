@@ -1,9 +1,9 @@
 import numpy as np
 
-from voronoi.graph.coordinate import Coordinate
+from voronoi.graph.coordinate import DecimalCoordinate
 
 
-class Point(Coordinate):
+class Point(DecimalCoordinate):
 
     def __init__(self, x=None, y=None, metadata=None, name=None, first_edge=None):
         """
@@ -25,7 +25,7 @@ class Point(Coordinate):
 
     def __repr__(self):
         if self.name is not None:
-            return f"{self.name}"
+            return f"P{self.name}"
         return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
 
     def cell_size(self, digits=None):

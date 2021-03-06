@@ -24,6 +24,11 @@ class Colors:
     HIGH_LIGHT = "#00ff00"
 
 
+class Settings:
+    plot_arcs = False
+    plot_edge_names = False
+
+
 class Visualization(object):
 
     def visualize(self, y, current_event, bounding_poly, points, vertices, edges, arc_list, event_queue,
@@ -47,9 +52,11 @@ class Visualization(object):
         for arc in arc_list:
             plot_line = arc.get_plot(x_full, y)
             if plot_line is None:
-                self.ax.axvline(x=arc.origin.x)
+                if Settings.plot_arcs:
+                    self.ax.axvline(x=arc.origin.x)
             else:
-                self.ax.plot(x_full, plot_line, linestyle="--", color=Colors.ARC)
+                if Settings.plot_arcs:
+                    self.ax.plot(x_full, plot_line, linestyle="--", color=Colors.ARC)
                 plot_lines.append(plot_line)
 
         # Plot the beach line, i.e. the bottom of all the arcs
@@ -58,7 +65,8 @@ class Visualization(object):
 
         # Plot half-edges
         for edge in edges:
-            self._plot_edge(edge, y, bounding_poly)
+            self._plot_edge(edge, y, bounding_poly, print_name=Settings.plot_edge_names)
+            self._plot_edge(edge.twin, y, bounding_poly, print_name=False)  # Plot edge name only once
 
         if isinstance(current_event, CircleEvent):
             self._plot_circle(current_event, self.ax)
@@ -91,7 +99,7 @@ class Visualization(object):
             text = str(point)
 
             if calc_cell_sizes:
-                text += " " + str(point.cell_size(digits=2))
+                text += f" ({point.cell_size(digits=2)})"
 
             self.ax.text(s=text, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
 
@@ -147,7 +155,11 @@ class Visualization(object):
 
         self.fig.show()
 
-    def _plot_edge(self, edge, y, bounding_poly):
+    def _plot_edge(self, edge, y, bounding_poly, print_name=False):
+
+        if edge.incident_point is None:
+            return
+
         # Get start and end of edges
         start = edge.get_origin(y, bounding_poly.max_y)
         end = edge.twin.get_origin(y, bounding_poly.max_y)
@@ -156,24 +168,26 @@ class Visualization(object):
         if start and end:
             self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
             # Add Name
-            plt.annotate(
-                text=str(edge),
-                xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
-            )
+            if print_name:
+                plt.annotate(
+                    text=str(edge),
+                    xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
+                )
 
         # Add arrow
         if start and end and start.y < float('inf'):
             plt.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
 
         # Point to incident point
-        self.draw_pointer_to_incident_point(edge, start, end, Colors.INCIDENT_POINT_POINTER)
-        self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
+        self.draw_pointer_to_incident_point(edge, start, end, Colors.INCIDENT_POINT_POINTER_TWIN)
+        # self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
 
     def draw_pointer_to_incident_point(self, edge, start, end, color):
+        is_first_edge = edge.incident_point is not None and edge.incident_point.first_edge == edge
         incident_point = edge.incident_point
         if start and end and incident_point:
             self.ax.plot(
                 [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
-                color=color,
+                color="green" if is_first_edge else color,
                 linestyle="--"
             )

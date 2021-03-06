@@ -1,11 +1,11 @@
 from voronoi.events.event import Event
-from voronoi.graph.coordinate import Coordinate
+from voronoi.graph.coordinate import DecimalCoordinate
 
 
 class SiteEvent(Event):
     circle_event = False
 
-    def __init__(self, point: Coordinate):
+    def __init__(self, point: DecimalCoordinate):
         """
         Site event
         :param point:

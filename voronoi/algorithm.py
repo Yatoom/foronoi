@@ -114,7 +114,7 @@ class Algorithm:
             elif isinstance(event, SiteEvent):
 
                 # Give the points a simple name
-                event.point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
+                event.point.name = index
                 index += 1
 
                 # Update sweep line position
