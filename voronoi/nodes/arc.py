@@ -1,4 +1,6 @@
-from voronoi.graph.coordinate import Coordinate
+from decimal import Decimal
+
+from voronoi.graph.coordinate import DecimalCoordinate
 
 
 class Arc:
@@ -8,7 +10,7 @@ class Arc:
     will disappear, or this circle event has not been detected yet.
     """
 
-    def __init__(self, origin: Coordinate, circle_event=None):
+    def __init__(self, origin: DecimalCoordinate, circle_event=None):
         """
         :param origin: The point that caused the arc
         :param circle_event: The pointer to the circle event in which the arc will disappear
@@ -27,8 +29,8 @@ class Arc:
         :param sweep_line: The y-coordinate of the sweep line
         :return: A list of y-values
         """
-        sweep_line = sweep_line
-        i = self.origin
+        sweep_line = float(sweep_line)
+        i = self.origin.as_floats()
 
         if i.y - sweep_line == 0:
             return None

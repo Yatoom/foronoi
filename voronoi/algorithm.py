@@ -78,7 +78,7 @@ class Algorithm:
 
         while not self.event_queue.empty():
 
-            Tell.print(verbose, "Queue", self.event_queue.queue)
+            Tell.print_queue(self.event_queue, verbose)
 
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
@@ -114,7 +114,7 @@ class Algorithm:
             elif isinstance(event, SiteEvent):
 
                 # Give the points a simple name
-                event.point.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[index % 26]
+                event.point.name = index
                 index += 1
 
                 # Update sweep line position
@@ -254,6 +254,10 @@ class Algorithm:
         self.beach_line, updated, removed, left, right = self.update_breakpoints(
             self.beach_line, self.sweep_line, arc_node, predecessor, successor)
 
+        if updated is None:
+            # raise Exception("Oh.")
+            return
+
         # Delete all circle events involving arc from the event queue.
         def remove(neighbor_event):
             if neighbor_event is None:
@@ -307,6 +311,8 @@ class Algorithm:
         node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
 
         self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), verbose)
+        #
+        # return True
 
     def check_circles(self, triple_left, triple_right, verbose=False):
         node_a, node_b, node_c = triple_left
@@ -368,6 +374,7 @@ class Algorithm:
             breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
 
             # Update the breakpoint
+            # assert(breakpoint is not None)
             if breakpoint is not None:
                 breakpoint.data.breakpoint = (breakpoint.get_value().breakpoint[0], successor.get_value().origin)
 
@@ -395,6 +402,7 @@ class Algorithm:
             breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
 
             # Update the breakpoint
+            # assert(breakpoint is not None)
             if breakpoint is not None:
                 breakpoint.data.breakpoint = (predecessor.get_value().origin, breakpoint.get_value().breakpoint[1])
 

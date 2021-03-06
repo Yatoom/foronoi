@@ -1,4 +1,4 @@
-from voronoi.graph import Coordinate, Vertex, HalfEdge
+from voronoi.graph import DecimalCoordinate, Vertex, HalfEdge
 from voronoi.graph.algebra import Algebra
 import numpy as np
 
@@ -7,13 +7,13 @@ from voronoi.visualization import Tell
 
 class Polygon:
     def __init__(self, tuples):
-        points = [Coordinate(x, y) for x, y in tuples]
+        points = [DecimalCoordinate(x, y) for x, y in tuples]
         self.points = points
         min_y = min([p.y for p in self.points])
         min_x = min([p.x for p in self.points])
         max_y = max([p.y for p in self.points])
         max_x = max([p.x for p in self.points])
-        center = Coordinate((max_x + min_x) / 2, (max_y + min_y) / 2)
+        center = DecimalCoordinate((max_x + min_x) / 2, (max_y + min_y) / 2)
         self.min_y, self.min_x, self.max_y, self.max_x, self.center = min_y, min_x, max_y, max_x, center
 
         self.points = self.order_points(self.points)
