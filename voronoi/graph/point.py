@@ -52,7 +52,7 @@ class Point(Coordinate):
             if edge is None or edge.get_origin() is None:
                 return None
 
-            coordinates.append(edge.get_origin())
+            coordinates.append(edge.get_origin().as_floats())
             edge = edge.next
             start = False
 

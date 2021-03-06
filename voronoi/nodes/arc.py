@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from voronoi.graph.coordinate import Coordinate
 
 
@@ -27,8 +29,8 @@ class Arc:
         :param sweep_line: The y-coordinate of the sweep line
         :return: A list of y-values
         """
-        sweep_line = sweep_line
-        i = self.origin
+        sweep_line = float(sweep_line)
+        i = self.origin.as_floats()
 
         if i.y - sweep_line == 0:
             return None

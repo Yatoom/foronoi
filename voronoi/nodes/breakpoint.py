@@ -1,4 +1,6 @@
 import math
+from decimal import Decimal
+
 from voronoi.graph.coordinate import Coordinate
 
 
@@ -73,7 +75,7 @@ class Breakpoint:
             # We now need to solve for x
             # 1/u * (x**2 - 2*a*x + a**2 + b**2 - l**2) = 1/v * (x**2 - 2*c*x + c**2 + d**2 - l**2)
             # Then we let Wolfram alpha do the heavy work for us, and we put it here in the code :D
-            x = -(math.sqrt(
+            x = -(Decimal.sqrt(
                 v * (a ** 2 * u - 2 * a * c * u + b ** 2 * (u - v) + c ** 2 * u) + d ** 2 * u * (v - u) + l ** 2 * (
                     u - v) ** 2) + a * v - c * u) / (u - v)
             result.x = x

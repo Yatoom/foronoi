@@ -11,7 +11,7 @@ from voronoi.visualization import Tell
 class CircleEvent(Event):
     circle_event = True
 
-    def __init__(self, center: Coordinate, radius: float, arc_node: LeafNode, point_triple=None, arc_triple=None):
+    def __init__(self, center: Coordinate, radius: Decimal, arc_node: LeafNode, point_triple=None, arc_triple=None):
         """
         Circle event.
 
@@ -89,29 +89,14 @@ class CircleEvent(Event):
     @staticmethod
     def create_circle(a, b, c):
 
-        class DecimalCoordinate:
-            def __init__(self, x: Decimal, y: Decimal):
-                self.x = x
-                self.y = y
-
-            @staticmethod
-            def convert(coordinate: Coordinate):
-                return DecimalCoordinate(Decimal(str(coordinate.x)), Decimal(str(coordinate.y)))
-
-        # Due to small rounding errors, two circles that should have the same coordinates (e.g. in case of a 2x2 grid),
-        # can get slightly different coordinates from each other. Using Decimal Coordinates avoids this problem.
-        # This in turn, ensures that the priority of the two circle events is the same, so that first inserted circle
-        # event will be handled first.
-        a, b, c = [DecimalCoordinate.convert(i) for i in (a, b, c)]
-
         # Algorithm from O'Rourke 2ed p. 189
-        A = Decimal(b.x - a.x)
-        B = Decimal(b.y - a.y)
-        C = Decimal(c.x - a.x)
-        D = Decimal(c.y - a.y)
-        E = Decimal((b.x - a.x) * (a.x + b.x) + (b.y - a.y) * (a.y + b.y))
-        F = Decimal((c.x - a.x) * (a.x + c.x) + (c.y - a.y) * (a.y + c.y))
-        G = Decimal(2 * ((b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x)))
+        A = b.x - a.x
+        B = b.y - a.y
+        C = c.x - a.x
+        D = c.y - a.y
+        E = (b.x - a.x) * (a.x + b.x) + (b.y - a.y) * (a.y + b.y)
+        F = (c.x - a.x) * (a.x + c.x) + (c.y - a.y) * (a.y + c.y)
+        G = 2 * ((b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x))
 
         if G == 0:
             # Points are all on one line (collinear), so no circle can be made
@@ -121,10 +106,6 @@ class CircleEvent(Event):
         x = (D * E - B * F) / G
         y = (A * F - C * E) / G
 
-        radius = Decimal(
-            math.sqrt(
-                math.pow(Decimal(a.x) - x, 2) + math.pow(Decimal(a.y) - y, 2)
-            )
-        )
+        radius = Decimal.sqrt((a.x - x) ** 2 + (a.y - y) ** 2)
 
-        return float(x), float(y), float(radius)
+        return x, y, radius

@@ -36,8 +36,8 @@ class Visualization(object):
         plt.xlim((bounding_poly.min_x - border, bounding_poly.max_x + border))
 
         # Create 1000 equally spaced points between -10 and 10 and setup plot window
-        x = np.linspace(bounding_poly.min_x, bounding_poly.max_x, 1000)
-        x_full = np.linspace(bounding_poly.min_x - border, bounding_poly.max_x + border, 1000)
+        x = np.linspace(float(bounding_poly.min_x), float(bounding_poly.max_x), 1000)
+        x_full = np.linspace(float(bounding_poly.min_x) - float(border), float(bounding_poly.max_x + border), 1000)
 
         # Plot the sweep line
         self.ax.plot([bounding_poly.min_x - border, bounding_poly.max_x + border], [y, y], color=Colors.SWEEP_LINE)
@@ -156,10 +156,10 @@ class Visualization(object):
         if start and end:
             self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
             # Add Name
-            # plt.annotate(
-            #     text=str(edge),
-            #     xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
-            # )
+            plt.annotate(
+                text=str(edge),
+                xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
+            )
 
         # Add arrow
         if start and end and start.y < float('inf'):
@@ -167,7 +167,7 @@ class Visualization(object):
 
         # Point to incident point
         self.draw_pointer_to_incident_point(edge, start, end, Colors.INCIDENT_POINT_POINTER)
-        # self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
+        self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
 
     def draw_pointer_to_incident_point(self, edge, start, end, color):
         incident_point = edge.incident_point
