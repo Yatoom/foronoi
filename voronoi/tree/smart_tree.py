@@ -1,3 +1,4 @@
+from voronoi.nodes import Arc, Breakpoint
 from voronoi.tree.smart_node import SmartNode
 
 
@@ -49,12 +50,17 @@ class SmartTree:
                 return left
 
             elif key < node.get_key(**kwargs):
-                node = node.left
+                # Normally, the three should go left and find the correct value there,
+                # but due to rounding errors, it sometimes takes the wrong turn. So if the left
+                # branch doesn't get a result, we try the other branch.
+                return SmartTree.find_value(node.left, query, compare, **kwargs) or \
+                       SmartTree.find_value(node.right, query, compare, **kwargs)
             else:
-                node = node.right
-
-        # Return node, None if not found
-        return node
+                # Normally, the three should go right and find the correct value there,
+                # but due to rounding errors, it sometimes takes the wrong turn. So if the right
+                # branch doesn't get a result, we try the other branch.
+                return SmartTree.find_value(node.right, query, compare, **kwargs) or \
+                       SmartTree.find_value(node.left, query, compare, **kwargs)
 
     @staticmethod
     def find_leaf_node(root: SmartNode, key, **kwargs):
