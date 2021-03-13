@@ -286,22 +286,26 @@ class Algorithm:
         v.connected_edges.append(removed.edge)
 
         # Get the incident points
-        C = updated.breakpoint[0]
-        B = updated.breakpoint[1]
+        breakpoint_a = updated.breakpoint[0]
+        breakpoint_b = updated.breakpoint[1]
 
-        new_edge = HalfEdge(B, origin=updated, twin=HalfEdge(C, origin=v))
-        v.connected_edges.append(updated.edge.twin)
+        # Create a new edge that originates from the new vertex v,
+        # and points towards the newly updated (moving) breakpoint.
+        new_edge = HalfEdge(breakpoint_a, origin=v, twin=HalfEdge(breakpoint_b, origin=updated))
+
+        # Set previous and next
+        left.edge.twin.set_next(new_edge)    # yellow
+        right.edge.twin.set_next(left.edge)  # orange
+        new_edge.twin.set_next(right.edge)   # blue
 
         # Add to list for visualization
         self.edges.append(new_edge)
 
-        # Set previous and next
-        left.edge.twin.set_next(new_edge.twin)  # yellow
-        right.edge.twin.set_next(left.edge)  # orange
-        new_edge.set_next(right.edge)  # blue
+        # Add the new_edge to the list of connected edges of the vertex
+        v.connected_edges.append(new_edge)
 
-        # Let the updated breakpoint now point to the new edge
-        updated.edge = new_edge
+        # Let the updated breakpoint point back to the new edge
+        updated.edge = new_edge.twin
 
         # 3. Check if breakpoints converge for the triples with former left and former right as middle arcs
         former_left = predecessor
@@ -311,8 +315,6 @@ class Algorithm:
         node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
 
         self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), verbose)
-        #
-        # return True
 
     def check_circles(self, triple_left, triple_right, verbose=False):
         node_a, node_b, node_c = triple_left
