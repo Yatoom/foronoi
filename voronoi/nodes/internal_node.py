@@ -15,4 +15,4 @@ class InternalNode(SmartNode):
         return self.data
 
     def get_label(self):
-        return f"{self.data.breakpoint[0].name}{self.data.breakpoint[1].name}"
+        return f"{self.data.breakpoint[0].name},{self.data.breakpoint[1].name}"

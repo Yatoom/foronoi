@@ -1,6 +1,9 @@
 from voronoi import Voronoi, Polygon
+import matplotlib.pyplot as plt
 
 # Define a set of points
+from voronoi.visualization import Visualization
+
 points = [
     (2.5, 2.5),
     (4, 7.5),
@@ -37,16 +40,22 @@ v.create_diagram(
 )
 
 # Get properties
-edges = v.edges
+# edges = v.edges
 vertices = v.vertices
-arcs = v.arcs
-points = v.points
+# arcs = v.arcs
+# points = v.points
 
-# Calculate the sell size for each  point
-for point in v.points:
-    print(f"{(point.x, point.y)} \t {point.cell_size()}")
+fig, ax = plt.subplots(figsize=(17, 17))
 
-# for point in v.points:
-#     print([(round(p.x, 2), round(p.y, 2)) for p in point.get_coordinates()])
+for vertex in vertices:
+    for edge in vertex.connected_edges:
+        Visualization.plot_edge(ax, edge, None, polygon, zorder=0)
 
-print(v.points[0].get_coordinates())
+for vertex in vertices:
+    for edge in vertex.connected_edges:
+        Visualization.plot_edge_direction(ax, edge, None, polygon, scale=0.5, zorder=5)
+
+Visualization.plot_vertices(ax, vertices, zorder=10)
+
+plt.show()
+print()

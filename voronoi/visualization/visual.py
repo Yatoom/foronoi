@@ -105,7 +105,8 @@ class Visualization(object):
 
             self.ax.text(s=text, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
 
-        plt.show(block=True)
+        # plt.show(block=True)
+        return self.fig
 
     @staticmethod
     def plot_vertices(ax, vertices, **kwargs):

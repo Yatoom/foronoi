@@ -1,6 +1,10 @@
 from voronoi import Voronoi, Polygon
 
 # Define a set of points
+from voronoi.beta.debug_observer import DebugObserver
+from voronoi.beta.tree_observer import TreeObserver
+from voronoi.beta.voronoi_observer import VoronoiObserver
+
 points = [
     (2.5, 2.5),
     (4, 7.5),
@@ -25,15 +29,13 @@ polygon = Polygon([
 
 # Initialize the algorithm
 v = Voronoi(polygon)
+v.attach(VoronoiObserver(visualize_result=True, visualize_before_clipping=True, visualize_steps=True))
+v.attach(DebugObserver())
+v.attach(TreeObserver())
 
 # Create the diagram
 v.create_diagram(
     points=points,
-    vis_steps=False,            # Visualize intermediate steps
-    vis_result=False,           # Visualize the final result
-    vis_tree=False,             # Print the binary tree at each step
-    vis_before_clipping=False,  # Visualize the intermediate final result before clipping
-    verbose=False               # Print the event queue and events that handled at each step
 )
 
 # Get properties
