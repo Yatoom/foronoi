@@ -1,9 +1,12 @@
+import math
 import time
+from decimal import Decimal
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 from voronoi.events import CircleEvent
+from voronoi.graph.coordinate import Coordinate, DecimalCoordinate
 
 
 class Colors:
@@ -22,6 +25,7 @@ class Colors:
     TEXT = "#00cec9"  # green
     HELPER = "#ff0000"
     HIGH_LIGHT = "#00ff00"
+    EDGE_DIRECTION = "#fdcb6e"
 
 
 class Settings:
@@ -65,8 +69,8 @@ class Visualization(object):
 
         # Plot half-edges
         for edge in edges:
-            self._plot_edge(edge, y, bounding_poly, print_name=Settings.plot_edge_names)
-            self._plot_edge(edge.twin, y, bounding_poly, print_name=False)  # Plot edge name only once
+            self.plot_edge(self.ax, edge, y, bounding_poly, print_name=Settings.plot_edge_names)
+            self.plot_edge(self.ax, edge.twin, y, bounding_poly, print_name=False)  # Plot edge name only once
 
         if isinstance(current_event, CircleEvent):
             self._plot_circle(current_event, self.ax)
@@ -88,9 +92,7 @@ class Visualization(object):
             )
 
         # Plot vertices
-        for vertex in vertices:
-            x, y = vertex.position.x, vertex.position.y
-            self.ax.scatter(x=[x], y=[y], s=50, color=Colors.VERTICES)
+        Visualization.plot_vertices(self.ax, vertices)
 
         # Plot points
         for point in points:
@@ -104,6 +106,12 @@ class Visualization(object):
             self.ax.text(s=text, x=x + scale / 100, y=y + scale / 100, color=Colors.TEXT)
 
         plt.show(block=True)
+
+    @staticmethod
+    def plot_vertices(ax, vertices, **kwargs):
+        for vertex in vertices:
+            x, y = vertex.position.x, vertex.position.y
+            ax.scatter(x=[x], y=[y], s=50, color=Colors.VERTICES, **kwargs)
 
     # Plot circle events
     @staticmethod
@@ -155,7 +163,34 @@ class Visualization(object):
 
         self.fig.show()
 
-    def _plot_edge(self, edge, y, bounding_poly, print_name=False):
+    @staticmethod
+    def plot_edge_direction(ax, edge, y, bounding_poly, scale=1, **kwargs):
+
+        scale = Decimal(str(scale))
+
+        if edge.incident_point is None:
+            return
+
+        # Get start and end of edges
+        start = edge.get_origin(y, bounding_poly.max_y)
+        end = edge.twin.get_origin(y, bounding_poly.max_y)
+
+        # Direction vector
+        x_diff = end.x - start.x
+        y_diff = end.y - start.y
+        length = Decimal.sqrt(x_diff ** 2 + y_diff ** 2)
+        if length == 0:
+            return
+        direction = (x_diff / length, y_diff / length)
+        new_end = DecimalCoordinate(start.x + direction[0] * scale, start.y + direction[1] * scale)
+        # ax.plot([start.x, new_end.x], [start.y, new_end.y], Colors.EDGE_DIRECTION, linewidth=5)
+
+        # props = {"arrowstyle": "->", "color": Colors.EDGE_DIRECTION, "linewidth": 3}
+        props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=2, **kwargs)
+        ax.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
+
+    @staticmethod
+    def plot_edge(ax, edge, y, bounding_poly, print_name=False, **kwargs):
 
         if edge.incident_point is None:
             return
@@ -166,27 +201,29 @@ class Visualization(object):
 
         # Draw line
         if start and end:
-            self.ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
+            ax.plot([start.x, end.x], [start.y, end.y], Colors.EDGE)
             # Add Name
             if print_name:
                 plt.annotate(
                     text=str(edge),
-                    xy=((end.x + start.x) / 2, (end.y + start.y) / 2)
+                    xy=((end.x + start.x) / 2, (end.y + start.y) / 2),
+                    **kwargs
                 )
 
         # Add arrow
         if start and end and start.y < float('inf'):
-            plt.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->'))
+            plt.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y), arrowprops=dict(arrowstyle='->', **kwargs))
 
         # Point to incident point
-        self.draw_pointer_to_incident_point(edge, start, end, Colors.INCIDENT_POINT_POINTER_TWIN)
+        Visualization.draw_pointer_to_incident_point(ax, edge, start, end, Colors.INCIDENT_POINT_POINTER_TWIN)
         # self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
 
-    def draw_pointer_to_incident_point(self, edge, start, end, color):
+    @staticmethod
+    def draw_pointer_to_incident_point(ax, edge, start, end, color):
         is_first_edge = edge.incident_point is not None and edge.incident_point.first_edge == edge
         incident_point = edge.incident_point
         if start and end and incident_point:
-            self.ax.plot(
+            ax.plot(
                 [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
                 color="green" if is_first_edge else color,
                 linestyle="--"
