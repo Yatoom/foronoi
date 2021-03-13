@@ -3,7 +3,7 @@ from decimal import Decimal
 
 class Coordinate:
     def __repr__(self):
-        return f"({round(self.x, 3)}, {round(self.y, 3)})"
+        return f"Coordinate({round(self.x, 3)}, {round(self.y, 3)})"
 
 
 class DecimalCoordinate(Coordinate):
@@ -18,6 +18,9 @@ class DecimalCoordinate(Coordinate):
 
     def __sub__(self, other):
         return DecimalCoordinate(x=self.x - other.x, y=self.y - other.y)
+
+    def __repr__(self):
+        return f"DecimalCoordinate('{self.x}', '{self.y}')"
 
     @property
     def x(self):
@@ -37,6 +40,9 @@ class DecimalCoordinate(Coordinate):
 
     def as_floats(self):
         return FloatCoordinate(self.x, self.y)
+
+    def as_float_tuple(self):
+        return float(self.x), float(self.y)
 
 
 class FloatCoordinate(Coordinate):
