@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 import numpy as np
 
+from voronoi import DecimalCoordinate
 from voronoi.events import CircleEvent
 
 
@@ -22,6 +25,11 @@ class Colors:
 
 
 class Visualizer:
+
+    def __init__(self, bounding_polygon, canvas_offset):
+        self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(bounding_polygon, canvas_offset)
+
+
     @staticmethod
     def plot_vertices(ax, vertices, **kwargs):
         xs = [vertex.position.x for vertex in vertices]
@@ -31,6 +39,25 @@ class Visualizer:
         ax.scatter(xs, ys, s=50, color=Colors.VERTICES, **kwargs)
 
         return ax
+
+    def plot_outgoing_edges(self, ax, vertices, scale=1, **kwargs):
+        for vertex in vertices:
+            for edge in vertex.connected_edges:
+                start, end = self._origins(edge, None)
+
+                # Direction vector
+                x_diff = end.x - start.x
+                y_diff = end.y - start.y
+                length = Decimal.sqrt(x_diff ** 2 + y_diff ** 2)
+
+                if length == 0:
+                    continue
+
+                direction = (x_diff / length, y_diff / length)
+                new_end = DecimalCoordinate(start.x + direction[0] * scale, start.y + direction[1] * scale)
+
+                props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=2, **kwargs)
+                ax.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
 
     @staticmethod
     def plot_sites(ax, points):
@@ -42,24 +69,21 @@ class Visualizer:
 
         # Add descriptions
         for point in points:
-            ax.text(f"{point} ({point.cell_size(digits=2)})")
+            ax.text(point.x, point.y, s=f"{point} ({point.cell_size(digits=2)})")
 
         return ax
 
-    @staticmethod
-    def plot_edges(ax, edges, sweep_line=None, print_name=True, color=Colors.EDGE, indicate_incident=True, **kwargs):
+    def plot_edges(self, ax, edges, sweep_line=None, print_name=True, color=Colors.EDGE, indicate_incident=True, **kwargs):
         for edge in edges:
-            ax = Visualizer._plot_edge(ax, edge, sweep_line, print_name, color)
+            ax = self._plot_edge(ax, edge, sweep_line, print_name, color)
             if indicate_incident:
-                ax = Visualizer._draw_line_from_edge_midpoint_to_incident_point(ax, edge, sweep_line)
+                ax = self._draw_line_from_edge_midpoint_to_incident_point(ax, edge, sweep_line)
         return ax
 
-    @staticmethod
-    def plot_arcs(ax, arcs, sweep_line=None, plot_arcs=True):
+    def plot_arcs(self, ax, arcs, sweep_line=None, plot_arcs=True):
 
         # Get axis limits
-        min_x, max_x = ax.get_xlim()
-        min_y, max_y = ax.get_ylim()
+        min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
         sweep_line = max_y if sweep_line is None else sweep_line
 
         # Create 1000 equally spaced points
@@ -85,12 +109,10 @@ class Visualizer:
 
         return ax
 
-    @staticmethod
-    def plot_sweep_line(ax, sweep_line):
+    def plot_sweep_line(self, ax, sweep_line):
 
         # Get axis limits
-        min_x, max_x = ax.get_xlim()
-        min_y, max_y = ax.get_ylim()
+        min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
 
         ax.plot([min_x, max_x], [sweep_line, sweep_line], color=Colors.SWEEP_LINE)
 
@@ -115,11 +137,9 @@ class Visualizer:
 
         return ax
 
+    def _plot_edge(self, ax, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
 
-    @staticmethod
-    def _plot_edge(ax, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
-
-        start, end = Visualizer._origins(ax, edge, sweep_line)
+        start, end = self._origins(edge, sweep_line)
 
         # Return if conditions not met
         if not (start and end):
@@ -142,9 +162,8 @@ class Visualizer:
 
         return ax
 
-    @staticmethod
-    def _draw_line_from_edge_midpoint_to_incident_point(ax, edge, sweep_line=None):
-        start, end = Visualizer._origins(ax, edge, sweep_line)
+    def _draw_line_from_edge_midpoint_to_incident_point(self, ax, edge, sweep_line=None):
+        start, end = self._origins(edge, sweep_line)
         is_first_edge = edge.incident_point is not None and edge.incident_point.first_edge == edge
         incident_point = edge.incident_point
         if start and end and incident_point:
@@ -155,25 +174,30 @@ class Visualizer:
             )
         return ax
 
-    @staticmethod
-    def _origins(ax, edge, sweep_line=None):
+    def _origins(self, edge, sweep_line=None):
 
         # Get axis limits
-        min_y, max_y = ax.get_ylim()
+        max_y = self.max_y
 
         # Get start and end of edges
         start = edge.get_origin(sweep_line, max_y)
         end = edge.twin.get_origin(sweep_line, max_y)
-        start, end = Visualizer._cut_line(ax, start, end)
+        start, end = self._cut_line(start, end)
 
         return start, end
 
-    @staticmethod
-    def _cut_line(ax, start, end):
-        min_x, max_x = ax.get_xlim()
-        min_y, max_y = ax.get_ylim()
+    def _cut_line(self, start, end):
+        min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
         start.x = max(min_x, min(max_x, start.x))
         start.y = max(min_y, min(max_y, start.y))
         end.x = max(min_x, min(max_x, end.x))
         end.y = max(min_y, min(max_y, end.y))
         return start, end
+
+    @staticmethod
+    def canvas_size(bounding_polygon, offset):
+        max_y = bounding_polygon.max_y + offset
+        max_x = bounding_polygon.max_x + offset
+        min_x = bounding_polygon.min_x - offset
+        min_y = bounding_polygon.min_y - offset
+        return min_x, max_x, min_y, max_y
