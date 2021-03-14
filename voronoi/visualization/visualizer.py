@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 import numpy as np
+from matplotlib import patches
 
 from voronoi import DecimalCoordinate
 from voronoi.events import CircleEvent
+import matplotlib.pyplot as plt
 
 
 class Colors:
@@ -27,8 +29,23 @@ class Colors:
 class Visualizer:
 
     def __init__(self, bounding_polygon, canvas_offset):
+        self.bounding_polygon = bounding_polygon
         self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(bounding_polygon, canvas_offset)
 
+    def plot_polygon(self, ax):
+        if hasattr(self.bounding_polygon, 'radius'):
+            # Draw bounding box
+            ax.add_patch(
+                patches.Circle((self.bounding_polygon.x, self.bounding_polygon.x), self.bounding_polygon.radius,
+                               fill=False,
+                               edgecolor=Colors.BOUNDING_BOX)
+            )
+        else:
+            # Draw bounding box
+            ax.add_patch(
+                patches.Polygon(self.bounding_polygon.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
+            )
+        return ax
 
     @staticmethod
     def plot_vertices(ax, vertices, **kwargs):
@@ -44,6 +61,9 @@ class Visualizer:
         for vertex in vertices:
             for edge in vertex.connected_edges:
                 start, end = self._origins(edge, None)
+
+                if start is None or end is None:
+                    continue
 
                 # Direction vector
                 x_diff = end.x - start.x
@@ -73,7 +93,8 @@ class Visualizer:
 
         return ax
 
-    def plot_edges(self, ax, edges, sweep_line=None, print_name=True, color=Colors.EDGE, indicate_incident=True, **kwargs):
+    def plot_edges(self, ax, edges, sweep_line=None, print_name=True, color=Colors.EDGE, indicate_incident=True,
+                   **kwargs):
         for edge in edges:
             ax = self._plot_edge(ax, edge, sweep_line, print_name, color)
             if indicate_incident:
@@ -82,17 +103,19 @@ class Visualizer:
 
     def plot_arcs(self, ax, arcs, sweep_line=None, plot_arcs=True):
 
+        # FIXME: These shouldn't make the axes go larger
+
         # Get axis limits
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
         sweep_line = max_y if sweep_line is None else sweep_line
 
         # Create 1000 equally spaced points
-        x = np.linspace(min_x, max_x, 1000)
+        x = np.linspace(float(min_x), float(max_x), 1000)
 
         plot_lines = []
 
         for arc in arcs:
-            plot_line = arc.get_plot(min_x, sweep_line)
+            plot_line = arc.get_plot(x, sweep_line)
 
             if plot_line is None:
                 if plot_arcs:
@@ -130,8 +153,10 @@ class Visualizer:
         radius = evt.radius
         color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
 
-        circle = ax.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
-        triangle = ax.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
+        circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
+        triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
+        # circle = ax.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
+        # triangle = ax.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
         ax.add_artist(circle)
         ax.add_artist(triangle)
 
@@ -187,11 +212,17 @@ class Visualizer:
         return start, end
 
     def _cut_line(self, start, end):
+
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
-        start.x = max(min_x, min(max_x, start.x))
-        start.y = max(min_y, min(max_y, start.y))
-        end.x = max(min_x, min(max_x, end.x))
-        end.y = max(min_y, min(max_y, end.y))
+
+        if start is not None:
+            start.x = max(min_x, min(max_x, start.x))
+            start.y = max(min_y, min(max_y, start.y))
+
+        if end is not None:
+            end.x = max(min_x, min(max_x, end.x))
+            end.y = max(min_y, min(max_y, end.y))
+
         return start, end
 
     @staticmethod
