@@ -42,4 +42,4 @@ class VoronoiObserver(Observer, ABC):
             self.callback(visualization)
         else:
             # visualization.show(block=True)
-            plt.show()
+            plt.show(block=True)

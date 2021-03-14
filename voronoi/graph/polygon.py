@@ -109,6 +109,13 @@ class Polygon:
     @staticmethod
     def delete_edge(edge):
 
+        if edge.incident_point is None:
+            return
+
+        # Remove the edge from the vertex' connected edges list
+        if isinstance(edge.origin, Vertex):
+            edge.origin.connected_edges.remove(edge)
+
         # Link previous edge to next edge
         if edge.prev is not None:
             edge.prev.set_next(edge.next)

@@ -18,7 +18,7 @@ def _triangle(x, y):
 
 def _execute(polygon, points, sizes):
     v = Algorithm(polygon)
-    v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=False)
+    v.create_diagram(points=points)
     calculated = [p.cell_size(2) for p in v.points]
     assert sizes == calculated, calculated
 

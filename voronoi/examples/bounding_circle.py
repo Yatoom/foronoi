@@ -16,11 +16,6 @@ v = Voronoi(bounding_circle)
 
 v.create_diagram(
     points=points,
-    vis_steps=True,            # Visualize intermediate steps
-    vis_result=True,           # Visualize the final result
-    vis_tree=True,             # Print the binary tree at each step
-    vis_before_clipping=True,  # Visualize the intermediate final result before clipping
-    verbose=True               # Print the event queue and events that handled at each step
 )
 
 edges = v.edges

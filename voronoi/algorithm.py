@@ -129,9 +129,36 @@ class Algorithm(Subject):
         )
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
+        self.notify(Message.VORONOI_FINISHED)
+        self.clean_up_zero_length_edges()
+
         # Final visualization
         self.notify(Message.DEBUG, payload="# Voronoi finished")
         self.notify(Message.VORONOI_FINISHED)
+
+    def clean_up_zero_length_edges(self):
+        resulting_edges = []
+        for edge in self.edges:
+            start = edge.get_origin()
+            end = edge.twin.get_origin()
+            if start.x == end.x and start.y == end.y:
+
+                # Combine the vertices
+                v1: Vertex = edge.origin
+                v2: Vertex = edge.twin.origin
+
+                # Delete the edge
+                Polygon.delete_edge(edge)
+                Polygon.delete_edge(edge.twin)
+
+                # Move connected edges from v1 to v2
+                for connected in v1.connected_edges:
+                    connected.origin = v2
+                    v1.connected_edges.remove(connected)
+                    v2.connected_edges.append(connected)
+            else:
+                resulting_edges.append(edge)
+            self.edges = resulting_edges
 
     def handle_site_event(self, event: SiteEvent, verbose=False):
 
