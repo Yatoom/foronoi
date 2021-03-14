@@ -416,10 +416,6 @@ class Algorithm(Subject):
                 v1: Vertex = edge.origin
                 v2: Vertex = edge.twin.origin
 
-                # Delete the edge
-                Polygon.delete_edge(edge)
-                Polygon.delete_edge(edge.twin)
-
                 # Move connected edges from v1 to v2
                 for connected in v1.connected_edges:
                     connected.origin = v2
@@ -428,6 +424,10 @@ class Algorithm(Subject):
 
                 # Remove vertex v1
                 self.vertices.remove(v1)
+
+                # Delete the edge
+                edge.delete()
+                edge.twin.delete()
 
             else:
                 resulting_edges.append(edge)

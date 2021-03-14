@@ -97,39 +97,14 @@ class Polygon:
             if edge.get_origin() is not None and edge.twin.get_origin() is not None:
                 resulting_edges.append(edge)
             else:
-                self.delete_edge(edge)
-                self.delete_edge(edge.twin)
+                edge.delete()
+                edge.twin.delete()
                 Tell.print(verbose, f"Edges {edge} and {edge.twin} deleted!")
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
         return resulting_edges, self.polygon_vertices
-
-    @staticmethod
-    def delete_edge(edge):
-
-        if edge.incident_point is None:
-            return
-
-        # Remove the edge from the vertex' connected edges list
-        if isinstance(edge.origin, Vertex):
-            edge.origin.connected_edges.remove(edge)
-
-        # Link previous edge to next edge
-        if edge.prev is not None:
-            edge.prev.set_next(edge.next)
-
-        # If the incident point had a pointer to this edge, we need to point it to a new one
-        if edge.incident_point.first_edge == edge:
-
-            # Incident points should remain the same
-            assert (
-                edge.next is None or edge.next.incident_point == edge.incident_point
-            ), f"Incident points {edge.next.incident_point} and {edge.incident_point} do not match"
-
-            # Set the new "first edge" pointer
-            edge.incident_point.first_edge = edge.next
 
     def finish_edge(self, edge):
         # Start should be a breakpoint
