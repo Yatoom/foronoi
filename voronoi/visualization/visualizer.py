@@ -32,6 +32,11 @@ class Visualizer:
         self.bounding_polygon = bounding_polygon
         self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(bounding_polygon, canvas_offset)
 
+    def set_limits(self, ax):
+        ax.set_ylim(self.min_y, self.max_y)
+        ax.set_xlim(self.min_x, self.max_x)
+        return ax
+
     def plot_polygon(self, ax):
         if hasattr(self.bounding_polygon, 'radius'):
             # Draw bounding box
@@ -45,17 +50,17 @@ class Visualizer:
             ax.add_patch(
                 patches.Polygon(self.bounding_polygon.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
             )
-        return ax
 
-    @staticmethod
-    def plot_vertices(ax, vertices, **kwargs):
+        return self.set_limits(ax)
+
+    def plot_vertices(self, ax, vertices, **kwargs):
         xs = [vertex.position.x for vertex in vertices]
         ys = [vertex.position.y for vertex in vertices]
 
         # Scatter points
         ax.scatter(xs, ys, s=50, color=Colors.VERTICES, **kwargs)
 
-        return ax
+        return self.set_limits(ax)
 
     def plot_outgoing_edges(self, ax, vertices, scale=1, **kwargs):
         for vertex in vertices:
@@ -79,8 +84,9 @@ class Visualizer:
                 props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=2, **kwargs)
                 ax.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
 
-    @staticmethod
-    def plot_sites(ax, points):
+        return self.set_limits(ax)
+
+    def plot_sites(self, ax, points):
         xs = [point.x for point in points]
         ys = [point.y for point in points]
 
@@ -99,11 +105,10 @@ class Visualizer:
             ax = self._plot_edge(ax, edge, sweep_line, print_name, color)
             if indicate_incident:
                 ax = self._draw_line_from_edge_midpoint_to_incident_point(ax, edge, sweep_line)
-        return ax
+
+        return self.set_limits(ax)
 
     def plot_arcs(self, ax, arcs, sweep_line=None, plot_arcs=True):
-
-        # FIXME: These shouldn't make the axes go larger
 
         # Get axis limits
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
@@ -130,7 +135,7 @@ class Visualizer:
         if len(plot_lines) > 0:
             ax.plot(x, np.min(plot_lines, axis=0), color=Colors.BEACH_LINE)
 
-        return ax
+        return self.set_limits(ax)
 
     def plot_sweep_line(self, ax, sweep_line):
 
@@ -139,28 +144,27 @@ class Visualizer:
 
         ax.plot([min_x, max_x], [sweep_line, sweep_line], color=Colors.SWEEP_LINE)
 
-        return ax
+        return self.set_limits(ax)
 
-    @staticmethod
-    def plot_events(ax, event_queue):
+    def plot_events(self, ax, event_queue):
         for event in event_queue.queue:
             if isinstance(event, CircleEvent):
-                Visualizer._plot_circle(ax, event)
+                self._plot_circle(ax, event)
 
-    @staticmethod
-    def _plot_circle(ax, evt):
+        return self.set_limits(ax)
+
+    def _plot_circle(self, ax, evt):
         x, y = evt.center.x, evt.center.y
         radius = evt.radius
         color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
 
         circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
         triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
-        # circle = ax.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
-        # triangle = ax.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
+
         ax.add_artist(circle)
         ax.add_artist(triangle)
 
-        return ax
+        return self.set_limits(ax)
 
     def _plot_edge(self, ax, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
 
@@ -185,7 +189,7 @@ class Visualizer:
         # ax.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y),
         #             arrowprops=dict(arrowstyle='->', **kwargs))
 
-        return ax
+        return self.set_limits(ax)
 
     def _draw_line_from_edge_midpoint_to_incident_point(self, ax, edge, sweep_line=None):
         start, end = self._origins(edge, sweep_line)
