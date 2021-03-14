@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from voronoi.beta.message import Message
+from voronoi.observers.message import Message
 
 
 class Observer(ABC):

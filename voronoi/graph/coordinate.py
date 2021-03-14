@@ -20,7 +20,7 @@ class DecimalCoordinate(Coordinate):
         return DecimalCoordinate(x=self.x - other.x, y=self.y - other.y)
 
     def __repr__(self):
-        return f"DecimalCoordinate('{self.x}', '{self.y}')"
+        return f"Coord('{self.x:.2f}', '{self.y:.2f}')"
 
     @property
     def x(self):

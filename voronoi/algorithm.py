@@ -1,8 +1,7 @@
-import warnings
 from queue import PriorityQueue
 
-from voronoi.beta.message import Message
-from voronoi.beta.subject import Subject
+from voronoi.observers.message import Message
+from voronoi.observers.subject import Subject
 from voronoi.graph.point import Point
 from voronoi.graph.half_edge import HalfEdge
 from voronoi.graph.vertex import Vertex
@@ -16,7 +15,6 @@ from voronoi.events.circle_event import CircleEvent
 from voronoi.events.site_event import SiteEvent
 from voronoi.tree.smart_node import SmartNode
 from voronoi.tree.smart_tree import SmartTree
-from voronoi.visualization.tell import Tell
 
 
 class Algorithm(Subject):
@@ -95,7 +93,7 @@ class Algorithm(Subject):
                 # Debugging
                 self.notify(
                     Message.DEBUG,
-                    payload=f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.point_triple}"
+                    payload=f"# Handle circle event at {event.y:.3f} with center= {event.center} and arcs= {event.point_triple}"
                 )
 
                 # Handle the event
@@ -114,7 +112,7 @@ class Algorithm(Subject):
                 # Debugging
                 self.notify(
                     Message.DEBUG,
-                    payload=f"-> Handle site event at {event.y} with point {event.point}"
+                    payload=f"# Handle site event at y={event.y:.3f} with point {event.point}"
                 )
 
                 # Handle the event
@@ -122,6 +120,7 @@ class Algorithm(Subject):
 
             self.notify(Message.STEP_FINISHED, event=event)
 
+        self.notify(Message.DEBUG, payload="# Sweep finished")
         self.notify(Message.SWEEP_FINISHED)
 
         # Finish with the bounding box
@@ -131,6 +130,7 @@ class Algorithm(Subject):
         self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
 
         # Final visualization
+        self.notify(Message.DEBUG, payload="# Voronoi finished")
         self.notify(Message.VORONOI_FINISHED)
 
     def handle_site_event(self, event: SiteEvent, verbose=False):

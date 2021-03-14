@@ -1,4 +1,4 @@
-from voronoi.beta.observer import Observer
+from voronoi.observers.observer import Observer
 
 
 class Subject:

@@ -199,6 +199,7 @@ class Visualization(object):
         # Get start and end of edges
         start = edge.get_origin(y, bounding_poly.max_y)
         end = edge.twin.get_origin(y, bounding_poly.max_y)
+        start, end = Visualization.cut(start, end, bounding_poly)
 
         # Draw line
         if start and end:
@@ -218,6 +219,16 @@ class Visualization(object):
         # Point to incident point
         Visualization.draw_pointer_to_incident_point(ax, edge, start, end, Colors.INCIDENT_POINT_POINTER_TWIN)
         # self.draw_pointer_to_incident_point(edge.twin, end, start, Colors.INCIDENT_POINT_POINTER_TWIN)
+
+    @staticmethod
+    def cut(start, end, bounds):
+        min_x, max_x = plt.xlim()
+        min_y, max_y = plt.ylim()
+        start.x = max(min_x, min(max_x, start.x))
+        start.y = max(min_y, min(max_y, start.y))
+        end.x   = max(min_x, min(max_x, end.x))
+        end.y   = max(min_y, min(max_y, end.y))
+        return start, end
 
     @staticmethod
     def draw_pointer_to_incident_point(ax, edge, start, end, color):

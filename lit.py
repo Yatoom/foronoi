@@ -1,12 +1,9 @@
 import streamlit as st
-import numpy as np
-import pandas as pd
-from graphviz import Digraph
 
 from voronoi import Voronoi, Polygon
-from voronoi.beta.debug_observer import DebugObserver
-from voronoi.beta.tree_observer import TreeObserver
-from voronoi.beta.voronoi_observer import VoronoiObserver
+from voronoi.observers.debug_observer import DebugObserver
+from voronoi.observers.tree_observer import TreeObserver
+from voronoi.observers.voronoi_observer import VoronoiObserver
 
 points = [
     (2.5, 2.5),
@@ -30,16 +27,19 @@ polygon = Polygon([
     (0, 5),
 ])
 
-st.write("hello world")
-
-def callback(visualization):
-    st.pyplot(visualization)
-
 # Initialize the algorithm
 v = Voronoi(polygon)
-v.attach(VoronoiObserver(visualize_result=True, visualize_before_clipping=True, visualize_steps=True, callback=callback))
-v.attach(DebugObserver())
-v.attach(TreeObserver())
+
+v.attach(
+    VoronoiObserver(visualize_steps=True, visualize_before_clipping=True, callback=st.pyplot)
+)
+v.attach(
+    DebugObserver(callback=st.markdown)
+)
+v.attach(
+    TreeObserver(visualize_steps=True, visualize_before_clipping=True, callback=st.graphviz_chart)
+)
+
 v.create_diagram(
     points=points,
 )

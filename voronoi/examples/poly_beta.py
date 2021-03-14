@@ -1,9 +1,9 @@
 from voronoi import Voronoi, Polygon
 
 # Define a set of points
-from voronoi.beta.debug_observer import DebugObserver
-from voronoi.beta.tree_observer import TreeObserver
-from voronoi.beta.voronoi_observer import VoronoiObserver
+from voronoi.observers.debug_observer import DebugObserver
+from voronoi.observers.tree_observer import TreeObserver
+from voronoi.observers.voronoi_observer import VoronoiObserver
 
 points = [
     (2.5, 2.5),
