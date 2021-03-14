@@ -27,7 +27,7 @@ class CircleEvent(Event):
 
     def __repr__(self):
         # return f"CircleEvent({self.point_triple}, {round(self.center.y - self.radius, 3)})"
-        return f"CircleEvent({self.point_triple}, y-radius={self.center.y - self.radius}, y={self.center.y}, radius={self.radius})"
+        return f"CircleEvent({self.point_triple}, y-radius={self.center.y - self.radius:.2f}, y={self.center.y:.2f}, radius={self.radius:.2f})"
 
     @property
     def x(self):

@@ -4,26 +4,28 @@ import numpy as np
 from matplotlib import patches
 
 from voronoi import DecimalCoordinate
+from voronoi.algorithm import Algorithm
 from voronoi.events import CircleEvent
 import matplotlib.pyplot as plt
 
 
 class Colors:
-    SWEEP_LINE = "#636e72"
-    CELL_POINTS = "black"
+    SWEEP_LINE = "#16a085"
+    VERTICES = "#e67e22"
     BEACH_LINE = "#636e72"
     EDGE = "#636e72"
     ARC = "#b2bec3"
     INCIDENT_POINT_POINTER = "#dfe6e9"
-    INVALID_CIRCLE = "#d63031"  # red
-    VALID_CIRCLE = "#0984e3"  # blue
-    VERTICES = "#0984e3"  # blue
+    INVALID_CIRCLE = "#e74c3c"  # red
+    VALID_CIRCLE = "#3498db"  # blue
+    CELL_POINTS = "#34495e"  # blue
     TRIANGLE = "#00cec9"  # orange
     BOUNDING_BOX = "black"  # blue
     TEXT = "#00cec9"  # green
     HELPER = "#ff0000"
     HIGH_LIGHT = "#00ff00"
     EDGE_DIRECTION = "#fdcb6e"
+    FIRST_EDGE = "#2ecc71"
 
 
 class Visualizer:
@@ -35,6 +37,19 @@ class Visualizer:
     def set_limits(self, ax):
         ax.set_ylim(self.min_y, self.max_y)
         ax.set_xlim(self.min_x, self.max_x)
+        return ax
+
+    def plot_all(self, ax, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
+                 outgoing_edges=False, events=True, beachline=True, arcs=True, scale=1):
+
+        ax = self.plot_sweep_line(ax, sweep_line=voronoi.sweep_line)
+        ax = self.plot_polygon(ax) if polygon else ax
+        ax = self.plot_edges(ax, voronoi.edges, sweep_line=voronoi.sweep_line) if edges else ax
+        ax = self.plot_vertices(ax, voronoi.vertices) if vertices else ax
+        ax = self.plot_sites(ax, voronoi.points) if sites else ax
+        ax = self.plot_outgoing_edges(ax, voronoi.vertices, scale=scale) if outgoing_edges else ax
+        ax = self.plot_events(ax, voronoi.event_queue) if events else ax
+        ax = self.plot_arcs(ax, voronoi.arcs, sweep_line=voronoi.sweep_line, plot_arcs=arcs) if beachline else ax
         return ax
 
     def plot_polygon(self, ax):
@@ -124,7 +139,7 @@ class Visualizer:
 
             if plot_line is None:
                 if plot_arcs:
-                    ax.axvline(x=arc.origin.x)
+                    ax.axvline(x=arc.origin.x, color=Colors.SWEEP_LINE)
             else:
                 if plot_arcs:
                     ax.plot(x, plot_line, linestyle="--", color=Colors.ARC)
@@ -198,7 +213,7 @@ class Visualizer:
         if start and end and incident_point:
             ax.plot(
                 [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
-                color="green" if is_first_edge else Colors.INCIDENT_POINT_POINTER,
+                color=Colors.FIRST_EDGE if is_first_edge else Colors.INCIDENT_POINT_POINTER,
                 linestyle="--"
             )
         return ax

@@ -30,6 +30,14 @@ class HalfEdge:
         self.next = next
 
     def get_origin(self, y=None, max_y=None):
+        """
+        Get the point of origin.
+
+        :param y: Sweep line (only used when the Voronoi diagram is under construction and we need to calculate
+                  where it currently is)
+        :param max_y: Bounding box top for clipping infinite breakpoints
+        :return: The point of origin, or None
+        """
         if isinstance(self.origin, Vertex):
             return self.origin.point
 
