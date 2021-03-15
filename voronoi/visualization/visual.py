@@ -5,7 +5,7 @@ from decimal import Decimal
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
-from voronoi.events import CircleEvent
+from voronoi.events.circle_event import CircleEvent
 from voronoi.graph.coordinate import Coordinate, DecimalCoordinate
 
 

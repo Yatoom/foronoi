@@ -5,7 +5,6 @@ from voronoi.events.event import Event
 from voronoi.graph.coordinate import DecimalCoordinate
 from voronoi.nodes.leaf_node import LeafNode
 from voronoi.nodes.arc import Arc
-from voronoi.visualization import Tell
 
 
 class CircleEvent(Event):
@@ -26,7 +25,6 @@ class CircleEvent(Event):
         self.arc_triple = arc_triple
 
     def __repr__(self):
-        # return f"CircleEvent({self.point_triple}, {round(self.center.y - self.radius, 3)})"
         return f"CircleEvent({self.point_triple}, y-radius={self.center.y - self.radius:.2f}, y={self.center.y:.2f}, radius={self.radius:.2f})"
 
     @property
@@ -44,22 +42,18 @@ class CircleEvent(Event):
             (self.point_triple[2].x, self.point_triple[2].y),
         )
 
-    def remove(self, verbose=False):
-        if verbose:
-            Tell.print(verbose, f"Circle event for {self.y} removed.")
+    def remove(self):
         self.is_valid = False
         return self
 
     @staticmethod
-    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line,
-                            verbose=False) -> "CircleEvent":
+    def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line) -> "CircleEvent":
         """
         Checks if the breakpoints converge, and inserts circle event if required.
         :param sweep_line: Y-coordinate of the sweep line
         :param left_node: The node that represents the arc on the left
         :param middle_node: The node that represents the arc on the middle
         :param right_node: The node that represents the arc on the right
-        :param verbose: Flag for printing debugging information
         :return: The circle event or None if no circle event needs to be inserted
         """
 

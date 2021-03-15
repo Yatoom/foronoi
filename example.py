@@ -13,4 +13,4 @@ points = [
 ]
 
 v = Algorithm(polygon)
-v.create_diagram(points=points, vis_steps=True, verbose=True, vis_result=True, vis_tree=True, vis_before_clipping=True)
+v.create_diagram(points=points)

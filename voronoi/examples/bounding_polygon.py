@@ -1,9 +1,9 @@
 from voronoi import Voronoi, Polygon
-
-# Define a set of points
 from voronoi.observers.debug_observer import DebugObserver
 from voronoi.observers.tree_observer import TreeObserver
 from voronoi.observers.voronoi_observer import VoronoiObserver
+from voronoi.visualization.visualizer import Visualizer
+import matplotlib.pyplot as plt
 
 points = [
     (2.5, 2.5),
@@ -31,7 +31,7 @@ polygon = Polygon([
 v = Voronoi(polygon)
 
 v.attach(
-    VoronoiObserver()
+    VoronoiObserver(visualize_steps=True, visualize_before_clipping=True)
 )
 v.attach(
     DebugObserver()
@@ -45,17 +45,10 @@ v.create_diagram(
     points=points,
 )
 
-# Get properties
-edges = v.edges
-vertices = v.vertices
-arcs = v.arcs
-points = v.points
-
-# Calculate the sell size for each  point
-for point in v.points:
-    print(f"{(point.x, point.y)} \t {point.cell_size()}")
-
-# for point in v.points:
-#     print([(round(p.x, 2), round(p.y, 2)) for p in point.get_coordinates()])
-
-print(v.points[0].get_coordinates())
+fig, ax = plt.subplots()
+vis = Visualizer(polygon, 10)
+vis.plot_edges(ax, v.edges)
+vis.plot_vertices(ax, v.vertices)
+vis.plot_sites(ax, v.points)
+vis.plot_outgoing_edges(ax, v.vertices)
+plt.show()

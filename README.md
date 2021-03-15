@@ -49,7 +49,7 @@ polygon = Polygon([
 v = Voronoi(polygon)
 
 # Create the diagram
-v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=True, vis_tree=True)
+v.create_diagram(points=points)
 
 # Get properties
 edges = v.edges

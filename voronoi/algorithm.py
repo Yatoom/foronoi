@@ -23,6 +23,7 @@ class Algorithm(Subject):
 
         # The bounding box around the edge
         self.bounding_poly: Polygon = bounding_poly
+        self.bounding_poly.inherit_observers_from(self)
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
@@ -139,7 +140,7 @@ class Algorithm(Subject):
         self.notify(Message.DEBUG, payload="# Voronoi finished")
         self.notify(Message.VORONOI_FINISHED)
 
-    def handle_site_event(self, event: SiteEvent, verbose=False):
+    def handle_site_event(self, event: SiteEvent):
 
         # Create a new arc
         new_point = event.point
@@ -157,7 +158,7 @@ class Algorithm(Subject):
 
         # 3. Remove potential false alarm
         if arc_above_point.circle_event is not None:
-            arc_above_point.circle_event.remove(verbose=verbose)
+            arc_above_point.circle_event.remove()
 
         # 4. Replace leaf with new sub tree that represents the two new intersections on the arc above the point
         #
@@ -222,12 +223,12 @@ class Algorithm(Subject):
         node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
         node_c, node_d, node_e = node_c, root.right.right, root.right.right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e), verbose)
+        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e))
 
         # 7. Rebalance the tree
         self.beach_line = SmartTree.balance_and_propagate(root)
 
-    def handle_circle_event(self, event: CircleEvent, verbose=False):
+    def handle_circle_event(self, event: CircleEvent):
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
         arc_node: LeafNode = event.arc_pointer
@@ -246,6 +247,7 @@ class Algorithm(Subject):
         def remove(neighbor_event):
             if neighbor_event is None:
                 return None
+            self.notify(Message.DEBUG, payload=f"Circle event for {neighbor_event.y} removed.")
             return neighbor_event.remove()
 
         remove(predecessor.get_value().circle_event)
@@ -298,16 +300,14 @@ class Algorithm(Subject):
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
         node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), verbose)
+        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f))
 
-    def check_circles(self, triple_left, triple_right, verbose=False):
+    def check_circles(self, triple_left, triple_right):
         node_a, node_b, node_c = triple_left
         node_d, node_e, node_f = triple_right
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line,
-                                                     verbose=verbose)
-        right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line,
-                                                      verbose=verbose)
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
+        right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line)
 
         # Check if the circles converge
         if left_event:

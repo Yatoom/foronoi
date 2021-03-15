@@ -2,11 +2,13 @@ from voronoi.graph import DecimalCoordinate, Vertex, HalfEdge
 from voronoi.graph.algebra import Algebra
 import numpy as np
 
-from voronoi.visualization import Tell
+from voronoi.observers.message import Message
+from voronoi.observers.subject import Subject
 
 
-class Polygon:
+class Polygon(Subject):
     def __init__(self, tuples):
+        super().__init__()
         points = [DecimalCoordinate(x, y) for x, y in tuples]
         self.points = points
         min_y = min([p.y for p in self.points])
@@ -84,7 +86,7 @@ class Polygon:
     def get_coordinates(self):
         return [(i.x, i.y) for i in self.points]
 
-    def finish_edges(self, edges, verbose=False, **kwargs):
+    def finish_edges(self, edges, **kwargs):
         resulting_edges = []
         for edge in edges:
 
@@ -99,7 +101,7 @@ class Polygon:
             else:
                 edge.delete()
                 edge.twin.delete()
-                Tell.print(verbose, f"Edges {edge} and {edge.twin} deleted!")
+                self.notify(Message.DEBUG, payload=f"Edges {edge} and {edge.twin} deleted!")
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)

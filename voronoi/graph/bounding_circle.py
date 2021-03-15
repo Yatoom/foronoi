@@ -2,7 +2,7 @@ import warnings
 from math import sqrt
 
 from voronoi.graph import Polygon, Point, DecimalCoordinate, Vertex
-from voronoi.visualization import vis
+from voronoi.visualization.visual import Visualization as vis
 
 DEBUG = False
 
@@ -33,7 +33,7 @@ class BoundingCircle(Polygon):
     def inside(self, point):
         return (self.x - point.x) ** 2 + (self.y - point.y) ** 2 < self.radius ** 2
 
-    def finish_edges(self, edges, verbose=False, vertices=None, points=None, event_queue=None):
+    def finish_edges(self, edges, vertices=None, points=None, event_queue=None):
         resulting_edges = []
         for edge in edges:
             result = True
