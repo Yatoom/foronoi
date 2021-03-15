@@ -30,54 +30,66 @@ class Colors:
 
 class Visualizer:
 
-    def __init__(self, bounding_polygon, canvas_offset):
+    def __init__(self, bounding_polygon, canvas_offset, figsize=(8, 8)):
         self.bounding_polygon = bounding_polygon
         self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(bounding_polygon, canvas_offset)
+        fig, ax = plt.subplots(figsize=figsize)
+        self.canvas = ax
 
-    def set_limits(self, ax):
-        ax.set_ylim(self.min_y, self.max_y)
-        ax.set_xlim(self.min_x, self.max_x)
-        return ax
+    def set_limits(self):
+        self.canvas.set_ylim(self.min_y, self.max_y)
+        self.canvas.set_xlim(self.min_x, self.max_x)
+        return self
+    
+    def get_canvas(self):
+        self.set_limits()
+        return self.canvas
 
-    def plot_all(self, ax, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
+    def show(self, block=True, **kwargs):
+        self.set_limits()
+        plt.show(block=block, **kwargs)
+        return self
+
+    def plot_all(self, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
                  outgoing_edges=False, events=True, beachline=True, arcs=True, scale=1):
 
-        ax = self.plot_sweep_line(ax, sweep_line=voronoi.sweep_line)
-        ax = self.plot_polygon(ax) if polygon else ax
-        ax = self.plot_edges(ax, voronoi.edges, sweep_line=voronoi.sweep_line) if edges else ax
-        ax = self.plot_vertices(ax, voronoi.vertices) if vertices else ax
-        ax = self.plot_sites(ax, voronoi.points) if sites else ax
-        ax = self.plot_outgoing_edges(ax, voronoi.vertices, scale=scale) if outgoing_edges else ax
-        ax = self.plot_events(ax, voronoi.event_queue) if events else ax
-        ax = self.plot_arcs(ax, voronoi.arcs, sweep_line=voronoi.sweep_line, plot_arcs=arcs) if beachline else ax
-        return ax
+        self.plot_sweep_line(sweep_line=voronoi.sweep_line)
+        self.plot_polygon() if polygon else False
+        self.plot_edges(voronoi.edges, sweep_line=voronoi.sweep_line) if edges else False
+        self.plot_vertices(voronoi.vertices) if vertices else False
+        self.plot_sites(voronoi.points) if sites else False
+        self.plot_outgoing_edges(voronoi.vertices, scale=scale) if outgoing_edges else False
+        self.plot_events(voronoi.event_queue) if events else False
+        self.plot_arcs(voronoi.arcs, sweep_line=voronoi.sweep_line, plot_arcs=arcs) if beachline else False
+        self.set_limits()
+        return self
 
-    def plot_polygon(self, ax):
+    def plot_polygon(self):
         if hasattr(self.bounding_polygon, 'radius'):
             # Draw bounding box
-            ax.add_patch(
+            self.canvas.add_patch(
                 patches.Circle((self.bounding_polygon.x, self.bounding_polygon.x), self.bounding_polygon.radius,
                                fill=False,
                                edgecolor=Colors.BOUNDING_BOX)
             )
         else:
             # Draw bounding box
-            ax.add_patch(
+            self.canvas.add_patch(
                 patches.Polygon(self.bounding_polygon.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
             )
 
-        return self.set_limits(ax)
+        return self
 
-    def plot_vertices(self, ax, vertices, **kwargs):
+    def plot_vertices(self, vertices, **kwargs):
         xs = [vertex.position.x for vertex in vertices]
         ys = [vertex.position.y for vertex in vertices]
 
         # Scatter points
-        ax.scatter(xs, ys, s=50, color=Colors.VERTICES, **kwargs)
+        self.canvas.scatter(xs, ys, s=50, color=Colors.VERTICES, **kwargs)
 
-        return self.set_limits(ax)
+        return self
 
-    def plot_outgoing_edges(self, ax, vertices, scale=1, **kwargs):
+    def plot_outgoing_edges(self, vertices, scale=1, **kwargs):
         for vertex in vertices:
             for edge in vertex.connected_edges:
                 start, end = self._origins(edge, None)
@@ -97,33 +109,34 @@ class Visualizer:
                 new_end = DecimalCoordinate(start.x + direction[0] * scale, start.y + direction[1] * scale)
 
                 props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=2, **kwargs)
-                ax.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
+                self.canvas.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
 
-        return self.set_limits(ax)
+        return self
 
-    def plot_sites(self, ax, points):
+    def plot_sites(self, points, show_labels=True):
         xs = [point.x for point in points]
         ys = [point.y for point in points]
 
         # Scatter points
-        ax.scatter(xs, ys, s=50, color=Colors.CELL_POINTS)
+        self.canvas.scatter(xs, ys, s=50, color=Colors.CELL_POINTS)
 
         # Add descriptions
-        for point in points:
-            ax.text(point.x, point.y, s=f"{point} ({point.cell_size(digits=2)})")
+        if show_labels:
+            for point in points:
+                self.canvas.text(point.x, point.y, s=f"{point} (A={point.cell_size(digits=2)})")
 
-        return ax
+        return self
 
-    def plot_edges(self, ax, edges, sweep_line=None, print_name=True, color=Colors.EDGE, indicate_incident=True,
+    def plot_edges(self, edges, sweep_line=None, show_labels=True, color=Colors.EDGE, indicate_incident=True,
                    **kwargs):
         for edge in edges:
-            ax = self._plot_edge(ax, edge, sweep_line, print_name, color)
+            self._plot_edge(edge, sweep_line, show_labels, color)
             if indicate_incident:
-                ax = self._draw_line_from_edge_midpoint_to_incident_point(ax, edge, sweep_line)
+                self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
 
-        return self.set_limits(ax)
+        return self
 
-    def plot_arcs(self, ax, arcs, sweep_line=None, plot_arcs=True):
+    def plot_arcs(self, arcs, sweep_line=None, plot_arcs=True):
 
         # Get axis limits
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
@@ -139,36 +152,36 @@ class Visualizer:
 
             if plot_line is None:
                 if plot_arcs:
-                    ax.axvline(x=arc.origin.x, color=Colors.SWEEP_LINE)
+                    self.canvas.axvline(x=arc.origin.x, color=Colors.SWEEP_LINE)
             else:
                 if plot_arcs:
-                    ax.plot(x, plot_line, linestyle="--", color=Colors.ARC)
+                    self.canvas.plot(x, plot_line, linestyle="--", color=Colors.ARC)
 
                 plot_lines.append(plot_line)
 
         # Plot the bottom of all the arcs
         if len(plot_lines) > 0:
-            ax.plot(x, np.min(plot_lines, axis=0), color=Colors.BEACH_LINE)
+            self.canvas.plot(x, np.min(plot_lines, axis=0), color=Colors.BEACH_LINE)
 
-        return self.set_limits(ax)
+        return self
 
-    def plot_sweep_line(self, ax, sweep_line):
+    def plot_sweep_line(self, sweep_line):
 
         # Get axis limits
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
 
-        ax.plot([min_x, max_x], [sweep_line, sweep_line], color=Colors.SWEEP_LINE)
+        self.canvas.plot([min_x, max_x], [sweep_line, sweep_line], color=Colors.SWEEP_LINE)
 
-        return self.set_limits(ax)
+        return self
 
-    def plot_events(self, ax, event_queue):
+    def plot_events(self, event_queue):
         for event in event_queue.queue:
             if isinstance(event, CircleEvent):
-                self._plot_circle(ax, event)
+                self._plot_circle(event)
 
-        return self.set_limits(ax)
+        return self
 
-    def _plot_circle(self, ax, evt):
+    def _plot_circle(self, evt):
         x, y = evt.center.x, evt.center.y
         radius = evt.radius
         color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
@@ -176,25 +189,25 @@ class Visualizer:
         circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
         triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
 
-        ax.add_artist(circle)
-        ax.add_artist(triangle)
+        self.canvas.add_artist(circle)
+        self.canvas.add_artist(triangle)
 
-        return self.set_limits(ax)
+        return self
 
-    def _plot_edge(self, ax, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
+    def _plot_edge(self, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
 
         start, end = self._origins(edge, sweep_line)
 
         # Return if conditions not met
         if not (start and end):
-            return ax
+            return self
 
         # Draw the line
-        ax.plot([start.x, end.x], [start.y, end.y], color)
+        self.canvas.plot([start.x, end.x], [start.y, end.y], color)
 
         # Add Name
         if print_name:
-            ax.annotate(
+            self.canvas.annotate(
                 text=str(edge),
                 xy=((end.x + start.x) / 2, (end.y + start.y) / 2),
                 **kwargs
@@ -204,19 +217,19 @@ class Visualizer:
         # ax.annotate(text='', xy=(end.x, end.y), xytext=(start.x, start.y),
         #             arrowprops=dict(arrowstyle='->', **kwargs))
 
-        return self.set_limits(ax)
+        return self
 
-    def _draw_line_from_edge_midpoint_to_incident_point(self, ax, edge, sweep_line=None):
+    def _draw_line_from_edge_midpoint_to_incident_point(self, edge, sweep_line=None):
         start, end = self._origins(edge, sweep_line)
         is_first_edge = edge.incident_point is not None and edge.incident_point.first_edge == edge
         incident_point = edge.incident_point
         if start and end and incident_point:
-            ax.plot(
+            self.canvas.plot(
                 [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
                 color=Colors.FIRST_EDGE if is_first_edge else Colors.INCIDENT_POINT_POINTER,
                 linestyle="--"
             )
-        return ax
+        return self.canvas
 
     def _origins(self, edge, sweep_line=None):
 

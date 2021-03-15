@@ -1,9 +1,8 @@
-from voronoi import Voronoi, Polygon
-from voronoi.observers.debug_observer import DebugObserver
-from voronoi.observers.tree_observer import TreeObserver
-from voronoi.observers.voronoi_observer import VoronoiObserver
-from voronoi.visualization.visualizer import Visualizer
+from voronoi import Voronoi, Polygon, Visualizer
 import matplotlib.pyplot as plt
+
+# Define a set of points
+from voronoi.observers.voronoi_observer import VoronoiObserver
 
 points = [
     (2.5, 2.5),
@@ -30,25 +29,20 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
-# v.attach_observer(
-#     VoronoiObserver(visualize_steps=True, visualize_before_clipping=True)
-# )
-v.attach_observer(
-    DebugObserver()
-)
-# v.attach_observer(
-#     TreeObserver()
-# )
+v.attach_observer(VoronoiObserver(visualize_steps=True))
 
 # Create the diagram
-v.create_diagram(
-    points=points,
-)
+v.create_diagram(points=points)
 
-fig, ax = plt.subplots()
-vis = Visualizer(polygon, 10)
-vis.plot_edges(ax, v.edges)
-vis.plot_vertices(ax, v.vertices)
-vis.plot_sites(ax, v.points)
-vis.plot_outgoing_edges(ax, v.vertices)
-plt.show()
+# Get properties
+edges = v.edges
+vertices = v.vertices
+arcs = v.arcs
+points = v.points
+
+# Plotting
+Visualizer(polygon, canvas_offset=1)\
+    .plot_sites(points, show_labels=True)\
+    .plot_edges(edges, show_labels=False)\
+    .plot_vertices(vertices)\
+    .show()

@@ -24,22 +24,19 @@ class VoronoiObserver(Observer, ABC):
             return False
 
         if message == Message.STEP_FINISHED and self.visualize_steps:
-            fig, ax = plt.subplots(figsize=self.figsize)
             vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            vis.plot_all(ax, subject, outgoing_edges=False)
+            result = vis.plot_all(subject, outgoing_edges=False)
             plt.title(str(kwargs['event']))
         elif message == Message.SWEEP_FINISHED and self.visualize_before_clipping:
-            fig, ax = plt.subplots(figsize=self.figsize)
             vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            vis.plot_all(ax, subject, events=False, beachline=False, outgoing_edges=False)
+            result = vis.plot_all(subject, events=False, beachline=False, outgoing_edges=False)
             plt.title("Sweep finished")
         elif message == Message.VORONOI_FINISHED and self.visualize_result:
-            fig, ax = plt.subplots(figsize=self.figsize)
             vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            vis.plot_all(ax, subject, events=False, beachline=False, outgoing_edges=False)
+            result = vis.plot_all(subject, events=False, beachline=False, outgoing_edges=False)
             plt.title("Voronoi completed")
 
         else:
             return
 
-        self.callback(ax)
+        self.callback(result)
