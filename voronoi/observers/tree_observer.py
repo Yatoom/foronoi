@@ -20,7 +20,11 @@ class TreeObserver(Observer, ABC):
            (message == Message.VORONOI_FINISHED and self.visualize_result) or \
            (message == Message.SWEEP_FINISHED and self.visualize_before_clipping):
             if self.text_based:
-                subject.beach_line.visualize()
+                visualized_in_text = subject.beach_line.visualize()
+                if self.callback is not None:
+                    self.callback(visualized_in_text)
+                else:
+                    print(visualized_in_text)
             else:
                 self.visualize(subject.beach_line)
 

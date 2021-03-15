@@ -227,7 +227,7 @@ class SmartNode:
         return root
 
     def visualize(self):
-        print(self._visualize())
+        return self._visualize()
 
     def _visualize(self, depth=0):
         """
