@@ -5,27 +5,29 @@ class Subject:
     def __init__(self):
         self._observers = []
         self._children = []
+        self._root_sender = self
+        self._child_sender = self
 
-    def attach(self, observer: Observer) -> None:
+    def attach_observer(self, observer: Observer) -> None:
         """
         Attach an observer to the subject.
         """
         self._observers.append(observer)
-        self.update_children()
+        self._update_children()
 
-    def detach(self, observer: Observer) -> None:
+    def detach_observer(self, observer: Observer) -> None:
         """
         Detach an observer from the subject.
         """
         self._observers.remove(observer)
-        self.update_children()
+        self._update_children()
 
-    def notify(self, message, **kwargs) -> None:
+    def notify_observers(self, message, **kwargs) -> None:
         """
         Notify all observers about an event.
         """
         for observer in self._observers:
-            observer.update(self, message, **kwargs)
+            observer.update(self._root_sender, message, **kwargs)
 
     def get_observers(self):
         """
@@ -33,12 +35,14 @@ class Subject:
         """
         return self._observers
 
-    def update_children(self):
+    def inherit_observers_from(self, parent):
         """
-        Send the observers to the children
+        Make this subject inherit observers from a parent.
+        Set the sender to self.
         """
-        for child in self._children:
-            child._observers = self.get_observers()
+        parent.add_child(self)
+        self._root_sender = parent
+        self._child_sender = self
 
     def add_child(self, child):
         """
@@ -46,8 +50,9 @@ class Subject:
         """
         self._children.append(child)
 
-    def inherit_observers_from(self, subject):
+    def _update_children(self):
         """
-        Make this subject inherit observers from a parent
+        Send the observers to the children
         """
-        subject.add_child(self)
+        for child in self._children:
+            child._observers = self.get_observers()

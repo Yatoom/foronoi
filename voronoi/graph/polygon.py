@@ -101,7 +101,7 @@ class Polygon(Subject):
             else:
                 edge.delete()
                 edge.twin.delete()
-                self.notify(Message.DEBUG, payload=f"Edges {edge} and {edge.twin} deleted!")
+                self.notify_observers(Message.DEBUG, payload=f"Edges {edge} and {edge.twin} deleted!")
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)

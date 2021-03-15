@@ -30,15 +30,15 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
-v.attach(
-    VoronoiObserver(visualize_steps=True, visualize_before_clipping=True)
-)
-v.attach(
+# v.attach_observer(
+#     VoronoiObserver(visualize_steps=True, visualize_before_clipping=True)
+# )
+v.attach_observer(
     DebugObserver()
 )
-v.attach(
-    TreeObserver()
-)
+# v.attach_observer(
+#     TreeObserver()
+# )
 
 # Create the diagram
 v.create_diagram(

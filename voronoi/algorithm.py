@@ -95,7 +95,7 @@ class Algorithm(Subject):
                 self.sweep_line = event.y
 
                 # Debugging
-                self.notify(
+                self.notify_observers(
                     Message.DEBUG,
                     payload=f"# Handle circle event at {event.y:.3f} with center= {event.center} and arcs= {event.point_triple}"
                 )
@@ -114,7 +114,7 @@ class Algorithm(Subject):
                 self.sweep_line = event.y
 
                 # Debugging
-                self.notify(
+                self.notify_observers(
                     Message.DEBUG,
                     payload=f"# Handle site event at y={event.y:.3f} with point {event.point}"
                 )
@@ -122,10 +122,10 @@ class Algorithm(Subject):
                 # Handle the event
                 self.handle_site_event(event)
 
-            self.notify(Message.STEP_FINISHED, event=event)
+            self.notify_observers(Message.STEP_FINISHED, event=event)
 
-        self.notify(Message.DEBUG, payload="# Sweep finished")
-        self.notify(Message.SWEEP_FINISHED)
+        self.notify_observers(Message.DEBUG, payload="# Sweep finished")
+        self.notify_observers(Message.SWEEP_FINISHED)
 
         # Finish with the bounding box
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(
@@ -137,8 +137,8 @@ class Algorithm(Subject):
             self.clean_up_zero_length_edges()
 
         # Final visualization
-        self.notify(Message.DEBUG, payload="# Voronoi finished")
-        self.notify(Message.VORONOI_FINISHED)
+        self.notify_observers(Message.DEBUG, payload="# Voronoi finished")
+        self.notify_observers(Message.VORONOI_FINISHED)
 
     def handle_site_event(self, event: SiteEvent):
 
@@ -247,7 +247,7 @@ class Algorithm(Subject):
         def remove(neighbor_event):
             if neighbor_event is None:
                 return None
-            self.notify(Message.DEBUG, payload=f"Circle event for {neighbor_event.y} removed.")
+            self.notify_observers(Message.DEBUG, payload=f"Circle event for {neighbor_event.y} removed.")
             return neighbor_event.remove()
 
         remove(predecessor.get_value().circle_event)
@@ -313,13 +313,13 @@ class Algorithm(Subject):
         if left_event:
             if not Algebra.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin,
                                            left_event.center):
-                self.notify(Message.DEBUG, payload=f"Circle {left_event.point_triple} not clockwise.")
+                self.notify_observers(Message.DEBUG, payload=f"Circle {left_event.point_triple} not clockwise.")
                 left_event = None
 
         if right_event:
             if not Algebra.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin,
                                            right_event.center):
-                self.notify(Message.DEBUG, payload=f"Circle {right_event.point_triple} not clockwise.")
+                self.notify_observers(Message.DEBUG, payload=f"Circle {right_event.point_triple} not clockwise.")
                 right_event = None
 
         if left_event is not None:
@@ -331,11 +331,11 @@ class Algorithm(Subject):
             node_e.data.circle_event = right_event
 
         if left_event is not None:
-            self.notify(Message.DEBUG,
-                        payload=f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
+            self.notify_observers(Message.DEBUG,
+                                  payload=f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
         if right_event is not None:
-            self.notify(Message.DEBUG,
-                        payload=f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
+            self.notify_observers(Message.DEBUG,
+                                  payload=f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
 
         return left_event, right_event
 

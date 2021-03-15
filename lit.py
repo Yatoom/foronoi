@@ -30,13 +30,13 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
-v.attach(
+v.attach_observer(
     VoronoiObserver(visualize_steps=True, visualize_before_clipping=True, callback=st.pyplot)
 )
-v.attach(
+v.attach_observer(
     DebugObserver(callback=st.markdown)
 )
-v.attach(
+v.attach_observer(
     TreeObserver(visualize_steps=True, visualize_before_clipping=True, callback=st.graphviz_chart)
 )
 

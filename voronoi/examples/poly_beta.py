@@ -29,9 +29,9 @@ polygon = Polygon([
 
 # Initialize the algorithm
 v = Voronoi(polygon)
-v.attach(VoronoiObserver(visualize_result=True, visualize_before_clipping=True, visualize_steps=True))
-v.attach(DebugObserver())
-v.attach(TreeObserver())
+v.attach_observer(VoronoiObserver(visualize_result=True, visualize_before_clipping=True, visualize_steps=True))
+v.attach_observer(DebugObserver())
+v.attach_observer(TreeObserver())
 
 # Create the diagram
 v.create_diagram(
