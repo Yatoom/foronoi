@@ -19,10 +19,10 @@ Note: you need to use `sudo python3 setup.py install` on most Linux distribution
 
 Example that uses a polygon as a bounding box.
 
-```python
-from voronoi import Voronoi, Polygon
+```python3
+from voronoi import Voronoi, Polygon, Visualizer, VoronoiObserver
 
-# Define a set of points
+# Define some points (a.k.a sites or cell points)
 points = [
     (2.5, 2.5),
     (4, 7.5),
@@ -33,7 +33,7 @@ points = [
     (6, 3),
 ]
 
-# Define a bounding box
+# Define a bounding box / polygon
 polygon = Polygon([
     (2.5, 10),
     (5, 10),
@@ -48,6 +48,10 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
+# Attach a Voronoi Observer that monitors and visualizes the construction of 
+# the Voronoi Diagram step-by-step
+v.attach_observer(VoronoiObserver(visualize_steps=True))
+
 # Create the diagram
 v.create_diagram(points=points)
 
@@ -56,6 +60,14 @@ edges = v.edges
 vertices = v.vertices
 arcs = v.arcs
 points = v.points
+
+# Plotting
+Visualizer(polygon, canvas_offset=1)\
+    .plot_sites(points, show_labels=True)\
+    .plot_edges(edges, show_labels=False)\
+    .plot_vertices(vertices)\
+    .show()
+
 ```
 ![](https://raw.githubusercontent.com/Yatoom/voronoi/master/example.png)
 

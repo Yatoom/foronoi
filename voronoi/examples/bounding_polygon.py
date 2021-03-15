@@ -1,9 +1,6 @@
-from voronoi import Voronoi, Polygon, Visualizer
-import matplotlib.pyplot as plt
+from voronoi import Voronoi, Polygon, Visualizer, VoronoiObserver
 
-# Define a set of points
-from voronoi.observers.voronoi_observer import VoronoiObserver
-
+# Define some points (a.k.a sites or cell points)
 points = [
     (2.5, 2.5),
     (4, 7.5),
@@ -14,7 +11,7 @@ points = [
     (6, 3),
 ]
 
-# Define a bounding box
+# Define a bounding box / polygon
 polygon = Polygon([
     (2.5, 10),
     (5, 10),
@@ -29,6 +26,8 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
+# Attach a Voronoi Observer that monitors and visualizes the construction of
+# the Voronoi Diagram step-by-step
 v.attach_observer(VoronoiObserver(visualize_steps=True))
 
 # Create the diagram
