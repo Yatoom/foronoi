@@ -1,4 +1,4 @@
-from voronoi import Voronoi, Polygon, Visualizer, VoronoiObserver
+from voronoi import Voronoi, Polygon, Visualizer, TreeVisualizer, VoronoiObserver, TreeObserver
 
 # Define some points (a.k.a sites or cell points)
 points = [
@@ -26,11 +26,14 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
-# Attach a Voronoi Observer that monitors and visualizes the construction of
-# the Voronoi Diagram step-by-step
-v.attach_observer(VoronoiObserver(visualize_steps=True))
+# # Attach a Voronoi Observer that monitors and visualizes the construction of
+# # the Voronoi Diagram step-by-step
+# v.attach_observer(VoronoiObserver(visualize_steps=True))
+#
+# # If you want to see what happens in the binary tree, you could use the TreeObserver
+# v.attach_observer(TreeObserver(visualize_steps=True))
 
-# Create the diagram
+# Create the Voronoi diagram
 v.create_diagram(points=points)
 
 # Get properties
@@ -45,3 +48,8 @@ Visualizer(polygon, canvas_offset=1)\
     .plot_edges(edges, show_labels=False)\
     .plot_vertices(vertices)\
     .show()
+
+# Visualize the tree
+TreeVisualizer() \
+    .plot(v.beach_line) \
+    .render("output/tree.dot", view=True)

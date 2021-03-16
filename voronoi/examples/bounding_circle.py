@@ -1,3 +1,5 @@
+# TODO: Outdated, needs to be updated.
+
 from voronoi import Voronoi
 from voronoi.graph.bounding_circle import BoundingCircle
 

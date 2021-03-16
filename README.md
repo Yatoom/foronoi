@@ -89,7 +89,7 @@ Output:
 
 More examples can be found in the `voronoi/examples` folder.
 
-### Get coordinates for a point
+### Get coordinates of the cell borders for a point
 ```python
 v.points[0].get_coordinates()
 ```

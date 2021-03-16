@@ -1,3 +1,5 @@
+# TODO: Outdated, needs to be updated.
+
 import random
 
 from voronoi.algorithm import Algorithm

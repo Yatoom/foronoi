@@ -11,14 +11,14 @@ import matplotlib.pyplot as plt
 
 class Colors:
     SWEEP_LINE = "#16a085"
-    VERTICES = "#e67e22"
+    VERTICES = "#34495e"
     BEACH_LINE = "#636e72"
     EDGE = "#636e72"
     ARC = "#b2bec3"
     INCIDENT_POINT_POINTER = "#dfe6e9"
     INVALID_CIRCLE = "#e74c3c"  # red
     VALID_CIRCLE = "#3498db"  # blue
-    CELL_POINTS = "#34495e"  # blue
+    CELL_POINTS = "#bdc3c7"  # blue
     TRIANGLE = "#00cec9"  # orange
     BOUNDING_BOX = "black"  # blue
     TEXT = "#00cec9"  # green
@@ -85,7 +85,7 @@ class Visualizer:
         ys = [vertex.position.y for vertex in vertices]
 
         # Scatter points
-        self.canvas.scatter(xs, ys, s=50, color=Colors.VERTICES, **kwargs)
+        self.canvas.scatter(xs, ys, s=50, color=Colors.VERTICES, zorder=10, **kwargs)
 
         return self
 
@@ -118,12 +118,12 @@ class Visualizer:
         ys = [point.y for point in points]
 
         # Scatter points
-        self.canvas.scatter(xs, ys, s=50, color=Colors.CELL_POINTS)
+        self.canvas.scatter(xs, ys, s=50, color=Colors.CELL_POINTS, zorder=10)
 
         # Add descriptions
         if show_labels:
             for point in points:
-                self.canvas.text(point.x, point.y, s=f"{point} (A={point.cell_size(digits=2)})")
+                self.canvas.text(point.x, point.y, s=f"{point} (A={point.cell_size(digits=2)})", zorder=15)
 
         return self
 
@@ -131,8 +131,10 @@ class Visualizer:
                    **kwargs):
         for edge in edges:
             self._plot_edge(edge, sweep_line, show_labels, color)
+            self._plot_edge(edge.twin, sweep_line, show_labels, color)
             if indicate_incident:
                 self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
+                self._draw_line_from_edge_midpoint_to_incident_point(edge.twin, sweep_line)
 
         return self
 
