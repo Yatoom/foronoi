@@ -69,7 +69,8 @@ Visualizer(polygon, canvas_offset=1)\
     .show()
 
 ```
-![](https://raw.githubusercontent.com/Yatoom/voronoi/master/example.png)
+![image](https://user-images.githubusercontent.com/4205641/111237517-8a609800-85f5-11eb-8095-09001dd7b00e.png)
+
 
 ### Calculate the shell size for each point
 ```python
