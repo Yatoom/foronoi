@@ -43,7 +43,7 @@ class Visualizer:
     
     def get_canvas(self):
         self.set_limits()
-        return self.canvas
+        return self.canvas.figure
 
     def show(self, block=True, **kwargs):
         self.set_limits()
@@ -131,7 +131,7 @@ class Visualizer:
                    **kwargs):
         for edge in edges:
             self._plot_edge(edge, sweep_line, show_labels, color)
-            self._plot_edge(edge.twin, sweep_line, show_labels, color)
+            self._plot_edge(edge.twin, sweep_line, print_name=False, color=color)
             if indicate_incident:
                 self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
                 self._draw_line_from_edge_midpoint_to_incident_point(edge.twin, sweep_line)

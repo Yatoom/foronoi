@@ -17,6 +17,8 @@ class VoronoiObserver(Observer, ABC):
         self.visualize_before_clipping = visualize_before_clipping
         self.visualize_result = visualize_result
         self.callback = callback or (lambda _: plt.show(block=True))
+        self.n_messages = 0
+        self.messages = []
 
     def update(self, subject: Algorithm, message: Message, **kwargs):
 
@@ -39,4 +41,6 @@ class VoronoiObserver(Observer, ABC):
         else:
             return
 
-        self.callback(result)
+        self.callback(self, result.get_canvas())
+        self.n_messages += 1
+        self.messages.append(message)

@@ -1,36 +1,52 @@
-# TODO: Outdated, needs to be updated.
-
 import random
+from voronoi import Voronoi, Polygon, Point, VoronoiObserver
 
-from voronoi.algorithm import Algorithm
-from voronoi.graph import Polygon, Point
+# Width and height of the triangle
+width = 100
+height = 100
 
-x = 100
-y = 100
-n = 10
+# Number of points to generate
+n_points = 10
+
+# Print the randomly generated input points
 print_input = True
 
-polygon_points = [
-    (0, y),
-    (x, y),
-    (x / 2, 0)
-]
+# Create the triangle
+triangle = Polygon([
+    (0, height),
+    (width, height),
+    (width / 2, 0)
+])
 
-polygon = Polygon(polygon_points)
-
+# Generate the points
 points = []
-while len(points) < n:
-    p = Point(random.randint(0, x), random.randint(0, y))
-    if polygon.inside(p):
+while len(points) < n_points:
+    p = Point(random.randint(0, width), random.randint(0, height))
+
+    # Check if the point is inside the triangle
+    if triangle.inside(p):
         points.append(p)
 
+# Print the input points
 if print_input:
     print("points = [")
     for point in points:
         print(f"    Point({point.x}, {point.y}),")
     print("]")
 
-v = Algorithm(polygon)
+# Initialize the algorithm
+v = Voronoi(triangle)
+
+# Attach observer that visualizes Voronoi diagram every step
+v.attach_observer(
+    VoronoiObserver(
+        visualize_steps=True,
+
+        # Callback that saves the figure every step
+        callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages}.png"))
+)
+
+# Start the procedure
 v.create_diagram(
     points=[(p.x, p.y) for p in points],
 )
