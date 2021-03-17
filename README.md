@@ -1,7 +1,7 @@
 # Voronoi
 [![Build Status](https://travis-ci.org/Yatoom/voronoi.svg?branch=master)](https://travis-ci.org/Yatoom/voronoi)
 
-![](https://raw.githubusercontent.com/Yatoom/voronoi/master/triangle.gif)
+![](https://raw.githubusercontent.com/Yatoom/voronoi/feature/observers/triangle.gif)
 
 A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
 
@@ -66,10 +66,12 @@ Visualizer(polygon, canvas_offset=1)\
     .plot_sites(points, show_labels=True)\
     .plot_edges(edges, show_labels=False)\
     .plot_vertices(vertices)\
+    .plot_border_to_site(edges)\ # Indicates with dashed line to which site a border belongs
     .show()
 
 ```
 ![image](https://user-images.githubusercontent.com/4205641/111237517-8a609800-85f5-11eb-8095-09001dd7b00e.png)
+
 
 
 ### Calculate the shell size for each point
