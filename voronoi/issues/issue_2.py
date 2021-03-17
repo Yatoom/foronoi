@@ -18,21 +18,19 @@ triangle = Polygon([
     (width / 2, 0)
 ])
 
-# Generate the points
-points = []
-while len(points) < n_points:
-    p = Point(random.randint(0, width), random.randint(0, height))
-
-    # Check if the point is inside the triangle
-    if triangle.inside(p):
-        points.append(p)
-
 # Print the input points
-if print_input:
-    print("points = [")
-    for point in points:
-        print(f"    Point({point.x}, {point.y}),")
-    print("]")
+points = [
+    Point(76, 98),
+    Point(13, 75),
+    Point(43, 36),
+    Point(38, 34),
+    Point(61, 35),
+    Point(46, 14),
+    Point(66, 91),
+    Point(68, 40),
+    Point(86, 81),
+    Point(53, 42),
+]
 
 # Initialize the algorithm
 v = Voronoi(triangle)
@@ -44,7 +42,7 @@ v.attach_observer(
 
         # Settings to put into the visualizer
         settings=dict(polygon=True, edges=True, vertices=True, sites=True,
-                      outgoing_edges=False, incident_pointers=False, scale=1,
+                      outgoing_edges=False, events=True, beachline=True, arcs=True, incident_pointers=False, scale=1,
                       show_edge_labels=False, show_point_labels=False, show_triangles=False),
 
         # Callback that saves the figure every step
@@ -57,20 +55,3 @@ v.attach_observer(
 v.create_diagram(
     points=[(p.x, p.y) for p in points],
 )
-
-
-"""
-Used for the example in the README:
-points = [
-    Point(80, 74),
-    Point(35, 55),
-    Point(44, 71),
-    Point(20, 87),
-    Point(27, 97),
-    Point(28, 94),
-    Point(41, 83),
-    Point(56, 56),
-    Point(32, 38),
-    Point(66, 73),
-]
-"""

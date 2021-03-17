@@ -10,16 +10,16 @@ import matplotlib.pyplot as plt
 
 
 class Colors:
-    SWEEP_LINE = "#16a085"
+    SWEEP_LINE = "#2c3e50"
     VERTICES = "#34495e"
-    BEACH_LINE = "#636e72"
+    BEACH_LINE = "#f1c40f"
     EDGE = "#636e72"
-    ARC = "#b2bec3"
-    INCIDENT_POINT_POINTER = "#dfe6e9"
-    INVALID_CIRCLE = "#e74c3c"  # red
-    VALID_CIRCLE = "#3498db"  # blue
+    ARC = "#95a5a6"
+    INCIDENT_POINT_POINTER = "#ecf0f1"
+    INVALID_CIRCLE = "#ecf0f1"  # red
+    VALID_CIRCLE = "#2980b9"  # blue
     CELL_POINTS = "#bdc3c7"  # blue
-    TRIANGLE = "#00cec9"  # orange
+    TRIANGLE = "#e67e22"  # orange
     BOUNDING_BOX = "black"  # blue
     TEXT = "#00cec9"  # green
     HELPER = "#ff0000"
@@ -40,7 +40,7 @@ class Visualizer:
         self.canvas.set_ylim(self.min_y, self.max_y)
         self.canvas.set_xlim(self.min_x, self.max_x)
         return self
-    
+
     def get_canvas(self):
         self.set_limits()
         return self.canvas.figure
@@ -51,15 +51,17 @@ class Visualizer:
         return self
 
     def plot_all(self, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
-                 outgoing_edges=False, events=True, beachline=True, arcs=True, scale=1):
+                 outgoing_edges=False, events=True, beachline=True, arcs=True, incident_pointers=False, scale=1,
+                 show_edge_labels=True, show_point_labels=True, show_triangles=False):
 
         self.plot_sweep_line(sweep_line=voronoi.sweep_line)
         self.plot_polygon() if polygon else False
-        self.plot_edges(voronoi.edges, sweep_line=voronoi.sweep_line) if edges else False
+        self.plot_edges(voronoi.edges, sweep_line=voronoi.sweep_line, show_labels=show_edge_labels) if edges else False
+        self.plot_incident_pointers(voronoi.edges, sweep_line=voronoi.sweep_line) if incident_pointers else False
         self.plot_vertices(voronoi.vertices) if vertices else False
-        self.plot_sites(voronoi.points) if sites else False
+        self.plot_sites(voronoi.points, show_labels=show_point_labels) if sites else False
         self.plot_outgoing_edges(voronoi.vertices, scale=scale) if outgoing_edges else False
-        self.plot_events(voronoi.event_queue) if events else False
+        self.plot_events(voronoi.event_queue, show_triangles) if events else False
         self.plot_arcs(voronoi.arcs, sweep_line=voronoi.sweep_line, plot_arcs=arcs) if beachline else False
         self.set_limits()
         return self
@@ -108,7 +110,7 @@ class Visualizer:
                 direction = (x_diff / length, y_diff / length)
                 new_end = DecimalCoordinate(start.x + direction[0] * scale, start.y + direction[1] * scale)
 
-                props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=2, **kwargs)
+                props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=1, **kwargs)
                 self.canvas.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
 
         return self
@@ -127,14 +129,17 @@ class Visualizer:
 
         return self
 
-    def plot_edges(self, edges, sweep_line=None, show_labels=True, color=Colors.EDGE, indicate_incident=True,
-                   **kwargs):
+    def plot_edges(self, edges, sweep_line=None, show_labels=True, color=Colors.EDGE, **kwargs):
         for edge in edges:
             self._plot_edge(edge, sweep_line, show_labels, color)
             self._plot_edge(edge.twin, sweep_line, print_name=False, color=color)
-            if indicate_incident:
-                self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
-                self._draw_line_from_edge_midpoint_to_incident_point(edge.twin, sweep_line)
+
+        return self
+
+    def plot_incident_pointers(self, edges, sweep_line=None):
+        for edge in edges:
+            self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
+            self._draw_line_from_edge_midpoint_to_incident_point(edge.twin, sweep_line)
 
         return self
 
@@ -176,25 +181,27 @@ class Visualizer:
 
         return self
 
-    def plot_events(self, event_queue):
+    def plot_events(self, event_queue, show_triangles=False):
         for event in event_queue.queue:
             if isinstance(event, CircleEvent):
-                self._plot_circle(event)
+                self._plot_circle(event, show_triangle=show_triangles)
 
         return self
 
-    def _plot_circle(self, evt):
+    def _plot_circle(self, evt, show_triangle=False):
         x, y = evt.center.x, evt.center.y
         radius = evt.radius
         color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
 
-        circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=1.2)
-        triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1.2)
-
+        circle = plt.Circle((x, y), radius, fill=False, color=color, linewidth=2)
         self.canvas.add_artist(circle)
-        self.canvas.add_artist(triangle)
+
+        if show_triangle:
+            triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1)
+            self.canvas.add_artist(triangle)
 
         return self
+
 
     def _plot_edge(self, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
 

@@ -10,7 +10,7 @@ from voronoi.visualization.visualizer import Visualizer
 
 class VoronoiObserver(Observer, ABC):
     def __init__(self, visualize_steps=False, visualize_before_clipping=False, visualize_result=True, callback=None,
-                 figsize=(8, 8), canvas_offset=5):
+                 figsize=(8, 8), canvas_offset=5, settings=None):
         self.canvas_offset = canvas_offset
         self.figsize = figsize
         self.visualize_steps = visualize_steps
@@ -19,6 +19,7 @@ class VoronoiObserver(Observer, ABC):
         self.callback = callback or (lambda _: plt.show(block=True))
         self.n_messages = 0
         self.messages = []
+        self.settings = settings or {}
 
     def update(self, subject: Algorithm, message: Message, **kwargs):
 
@@ -27,16 +28,22 @@ class VoronoiObserver(Observer, ABC):
 
         if message == Message.STEP_FINISHED and self.visualize_steps:
             vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            result = vis.plot_all(subject, outgoing_edges=False)
-            plt.title(str(kwargs['event']))
+            settings = dict(outgoing_edges=False)
+            settings.update(self.settings)
+            result = vis.plot_all(subject, **settings)
+            plt.title(str(kwargs['event']) + "\n")
         elif message == Message.SWEEP_FINISHED and self.visualize_before_clipping:
             vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            result = vis.plot_all(subject, events=False, beachline=False, outgoing_edges=False)
-            plt.title("Sweep finished")
+            settings = dict(events=False, beachline=False, outgoing_edges=False)
+            settings.update(self.settings)
+            result = vis.plot_all(subject, **settings)
+            plt.title("Sweep finished\n")
         elif message == Message.VORONOI_FINISHED and self.visualize_result:
             vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            result = vis.plot_all(subject, events=False, beachline=False, outgoing_edges=False)
-            plt.title("Voronoi completed")
+            settings = dict(events=False, outgoing_edges=False, arcs=False, beachline=False, sweep_line=False)
+            settings.update(self.settings)
+            result = vis.plot_all(subject, **settings)
+            plt.title("Voronoi completed\n")
 
         else:
             return
