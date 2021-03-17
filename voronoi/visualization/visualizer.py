@@ -51,13 +51,13 @@ class Visualizer:
         return self
 
     def plot_all(self, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
-                 outgoing_edges=False, events=True, beachline=True, arcs=True, incident_pointers=False, scale=1,
+                 outgoing_edges=False, events=True, beachline=True, arcs=True, border_to_site=False, scale=1,
                  show_edge_labels=True, show_point_labels=True, show_triangles=False, sweep_line=True):
 
         self.plot_sweep_line(sweep_line=voronoi.sweep_line) if sweep_line else False
         self.plot_polygon() if polygon else False
         self.plot_edges(voronoi.edges, sweep_line=voronoi.sweep_line, show_labels=show_edge_labels) if edges else False
-        self.plot_incident_pointers(voronoi.edges, sweep_line=voronoi.sweep_line) if incident_pointers else False
+        self.plot_border_to_site(voronoi.edges, sweep_line=voronoi.sweep_line) if border_to_site else False
         self.plot_vertices(voronoi.vertices) if vertices else False
         self.plot_sites(voronoi.points, show_labels=show_point_labels) if sites else False
         self.plot_outgoing_edges(voronoi.vertices, scale=scale) if outgoing_edges else False
@@ -136,7 +136,7 @@ class Visualizer:
 
         return self
 
-    def plot_incident_pointers(self, edges, sweep_line=None):
+    def plot_border_to_site(self, edges, sweep_line=None):
         for edge in edges:
             self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
             self._draw_line_from_edge_midpoint_to_incident_point(edge.twin, sweep_line)

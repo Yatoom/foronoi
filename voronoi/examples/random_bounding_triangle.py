@@ -44,7 +44,7 @@ v.attach_observer(
 
         # Settings to put into the visualizer
         settings=dict(polygon=True, edges=True, vertices=True, sites=True,
-                      outgoing_edges=False, incident_pointers=False, scale=1,
+                      outgoing_edges=False, border_to_site=False, scale=1,
                       show_edge_labels=False, show_point_labels=False, show_triangles=False),
 
         # Callback that saves the figure every step

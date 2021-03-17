@@ -46,7 +46,8 @@ points = v.points
 Visualizer(polygon, canvas_offset=1)\
     .plot_sites(points, show_labels=True)\
     .plot_edges(edges, show_labels=False)\
-    .plot_vertices(vertices)\
+    .plot_vertices(vertices) \
+    .plot_border_to_site()\
     .show()
 
 # Visualize the tree
