@@ -48,7 +48,7 @@ v.attach_observer(
                       show_edge_labels=False, show_point_labels=False, show_triangles=False),
 
         # Callback that saves the figure every step
-        callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages}.png")
+        callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages:02d}.png")
     )
 
 )
@@ -62,15 +62,15 @@ v.create_diagram(
 """
 Used for the example in the README:
 points = [
-    Point(80, 74),
-    Point(35, 55),
-    Point(44, 71),
-    Point(20, 87),
-    Point(27, 97),
-    Point(28, 94),
-    Point(41, 83),
-    Point(56, 56),
-    Point(32, 38),
-    Point(66, 73),
+    Point(57, 86),
+    Point(14, 77),
+    Point(44, 79),
+    Point(62, 27),
+    Point(49, 71),
+    Point(22, 91),
+    Point(49, 85),
+    Point(79, 65),
+    Point(64, 97),
+    Point(50, 13),
 ]
 """

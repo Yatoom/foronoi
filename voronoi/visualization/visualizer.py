@@ -52,9 +52,9 @@ class Visualizer:
 
     def plot_all(self, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
                  outgoing_edges=False, events=True, beachline=True, arcs=True, incident_pointers=False, scale=1,
-                 show_edge_labels=True, show_point_labels=True, show_triangles=False):
+                 show_edge_labels=True, show_point_labels=True, show_triangles=False, sweep_line=True):
 
-        self.plot_sweep_line(sweep_line=voronoi.sweep_line)
+        self.plot_sweep_line(sweep_line=voronoi.sweep_line) if sweep_line else False
         self.plot_polygon() if polygon else False
         self.plot_edges(voronoi.edges, sweep_line=voronoi.sweep_line, show_labels=show_edge_labels) if edges else False
         self.plot_incident_pointers(voronoi.edges, sweep_line=voronoi.sweep_line) if incident_pointers else False
