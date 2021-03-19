@@ -30,9 +30,9 @@ class Colors:
 
 class Visualizer:
 
-    def __init__(self, bounding_polygon, canvas_offset, figsize=(8, 8)):
-        self.bounding_polygon = bounding_polygon
-        self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(bounding_polygon, canvas_offset)
+    def __init__(self, voronoi, canvas_offset, figsize=(8, 8)):
+        self.voronoi = voronoi
+        self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(voronoi.bounding_poly, canvas_offset)
         fig, ax = plt.subplots(figsize=figsize)
         self.canvas = ax
 
@@ -50,39 +50,41 @@ class Visualizer:
         plt.show(block=block, **kwargs)
         return self
 
-    def plot_all(self, voronoi: Algorithm, polygon=True, edges=True, vertices=True, sites=True,
-                 outgoing_edges=False, events=True, beachline=True, arcs=True, border_to_site=False, scale=1,
-                 show_edge_labels=True, show_point_labels=True, show_triangles=False, sweep_line=True):
+    def plot_all(self, polygon=True, edges=True, vertices=True, sites=True,
+                 outgoing_edges=False, events=True, beach_line=True, arcs=True, border_to_site=False, scale=1,
+                 edge_labels=True, site_labels=True, triangles=False, sweep_line=True):
 
-        self.plot_sweep_line(sweep_line=voronoi.sweep_line) if sweep_line else False
+        self.plot_sweep_line() if sweep_line else False
         self.plot_polygon() if polygon else False
-        self.plot_edges(voronoi.edges, sweep_line=voronoi.sweep_line, show_labels=show_edge_labels) if edges else False
-        self.plot_border_to_site(voronoi.edges, sweep_line=voronoi.sweep_line) if border_to_site else False
-        self.plot_vertices(voronoi.vertices) if vertices else False
-        self.plot_sites(voronoi.points, show_labels=show_point_labels) if sites else False
-        self.plot_outgoing_edges(voronoi.vertices, scale=scale) if outgoing_edges else False
-        self.plot_events(voronoi.event_queue, show_triangles) if events else False
-        self.plot_arcs(voronoi.arcs, sweep_line=voronoi.sweep_line, plot_arcs=arcs) if beachline else False
+        self.plot_edges(show_labels=edge_labels) if edges else False
+        self.plot_border_to_site() if border_to_site else False
+        self.plot_vertices() if vertices else False
+        self.plot_sites(show_labels=site_labels) if sites else False
+        self.plot_outgoing_edges(scale=scale) if outgoing_edges else False
+        self.plot_events(triangles) if events else False
+        self.plot_arcs(plot_arcs=arcs) if beach_line else False
         self.set_limits()
         return self
 
     def plot_polygon(self):
-        if hasattr(self.bounding_polygon, 'radius'):
+        if hasattr(self.voronoi, 'radius'):
             # Draw bounding box
             self.canvas.add_patch(
-                patches.Circle((self.bounding_polygon.x, self.bounding_polygon.x), self.bounding_polygon.radius,
+                patches.Circle((self.voronoi.x, self.voronoi.x), self.voronoi.radius,
                                fill=False,
                                edgecolor=Colors.BOUNDING_BOX)
             )
         else:
             # Draw bounding box
             self.canvas.add_patch(
-                patches.Polygon(self.bounding_polygon.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
+                patches.Polygon(self.voronoi.bounding_poly.get_coordinates(), fill=False, edgecolor=Colors.BOUNDING_BOX)
             )
 
         return self
 
-    def plot_vertices(self, vertices, **kwargs):
+    def plot_vertices(self, vertices=None, **kwargs):
+        vertices = vertices or self.voronoi.vertices
+
         xs = [vertex.position.x for vertex in vertices]
         ys = [vertex.position.y for vertex in vertices]
 
@@ -91,7 +93,9 @@ class Visualizer:
 
         return self
 
-    def plot_outgoing_edges(self, vertices, scale=1, **kwargs):
+    def plot_outgoing_edges(self, vertices=None, scale=1, **kwargs):
+        vertices = vertices or self.voronoi.vertices
+
         for vertex in vertices:
             for edge in vertex.connected_edges:
                 start, end = self._origins(edge, None)
@@ -115,12 +119,14 @@ class Visualizer:
 
         return self
 
-    def plot_sites(self, points, show_labels=True):
+    def plot_sites(self, points=None, show_labels=True, color=Colors.CELL_POINTS, zorder=10):
+        points = points or self.voronoi.points
+
         xs = [point.x for point in points]
         ys = [point.y for point in points]
 
         # Scatter points
-        self.canvas.scatter(xs, ys, s=50, color=Colors.CELL_POINTS, zorder=10)
+        self.canvas.scatter(xs, ys, s=50, color=color, zorder=zorder)
 
         # Add descriptions
         if show_labels:
@@ -129,21 +135,27 @@ class Visualizer:
 
         return self
 
-    def plot_edges(self, edges, sweep_line=None, show_labels=True, color=Colors.EDGE, **kwargs):
+    def plot_edges(self, edges=None, sweep_line=None, show_labels=True, color=Colors.EDGE, **kwargs):
+        edges = edges or self.voronoi.edges
+        sweep_line = sweep_line or self.voronoi.sweep_line
         for edge in edges:
             self._plot_edge(edge, sweep_line, show_labels, color)
             self._plot_edge(edge.twin, sweep_line, print_name=False, color=color)
 
         return self
 
-    def plot_border_to_site(self, edges, sweep_line=None):
+    def plot_border_to_site(self, edges=None, sweep_line=None):
+        edges = edges or self.voronoi.edges
+        sweep_line = sweep_line or self.voronoi.sweep_line
         for edge in edges:
             self._draw_line_from_edge_midpoint_to_incident_point(edge, sweep_line)
             self._draw_line_from_edge_midpoint_to_incident_point(edge.twin, sweep_line)
 
         return self
 
-    def plot_arcs(self, arcs, sweep_line=None, plot_arcs=True):
+    def plot_arcs(self, arcs=None, sweep_line=None, plot_arcs=True):
+        arcs = arcs or self.voronoi.arcs
+        sweep_line = sweep_line or self.voronoi.sweep_line
 
         # Get axis limits
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
@@ -172,7 +184,8 @@ class Visualizer:
 
         return self
 
-    def plot_sweep_line(self, sweep_line):
+    def plot_sweep_line(self, sweep_line=None):
+        sweep_line = sweep_line or self.voronoi.sweep_line
 
         # Get axis limits
         min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
@@ -181,10 +194,10 @@ class Visualizer:
 
         return self
 
-    def plot_events(self, event_queue, show_triangles=False):
-        for event in event_queue.queue:
+    def plot_events(self, triangles=False):
+        for event in [self.voronoi.event]: # event_queue.queue:
             if isinstance(event, CircleEvent):
-                self._plot_circle(event, show_triangle=show_triangles)
+                self._plot_circle(event, show_triangle=triangles)
 
         return self
 
@@ -199,6 +212,9 @@ class Visualizer:
         if show_triangle:
             triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1)
             self.canvas.add_artist(triangle)
+
+        points = evt.point_triple
+        self.plot_sites(points, color=Colors.VALID_CIRCLE, show_labels=False, zorder=15)
 
         return self
 

@@ -28,11 +28,24 @@ while len(points) < n_points:
         points.append(p)
 
 # Print the input points
-if print_input:
-    print("points = [")
-    for point in points:
-        print(f"    Point({point.x}, {point.y}),")
-    print("]")
+# if print_input:
+#     print("points = [")
+#     for point in points:
+#         print(f"    Point({point.x}, {point.y}),")
+#     print("]")
+
+points = [
+    Point(27, 89),
+    Point(15, 95),
+    Point(49, 8),
+    Point(79, 63),
+    Point(54, 12),
+    Point(77, 92),
+    Point(62, 82),
+    Point(83, 71),
+    Point(58, 33),
+    Point(53, 59),
+]
 
 # Initialize the algorithm
 v = Voronoi(triangle)
@@ -45,7 +58,7 @@ v.attach_observer(
         # Settings to put into the visualizer
         settings=dict(polygon=True, edges=True, vertices=True, sites=True,
                       outgoing_edges=False, border_to_site=False, scale=1,
-                      show_edge_labels=False, show_point_labels=False, show_triangles=False),
+                      edge_labels=False, site_labels=False, triangles=False, arcs=False),
 
         # Callback that saves the figure every step
         callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages:02d}.png")

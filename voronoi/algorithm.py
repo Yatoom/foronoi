@@ -27,6 +27,7 @@ class Algorithm(Subject):
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
+        self.event = None
 
         # Root of beach line
         self.beach_line: SmartNode = None
@@ -85,6 +86,7 @@ class Algorithm(Subject):
 
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
+            self.event = event
 
             # Set genesis point
             genesis_point = genesis_point or event.point
@@ -122,7 +124,7 @@ class Algorithm(Subject):
                 # Handle the event
                 self.handle_site_event(event)
 
-            self.notify_observers(Message.STEP_FINISHED, event=event)
+            self.notify_observers(Message.STEP_FINISHED)
 
         self.notify_observers(Message.DEBUG, payload="# Sweep finished")
         self.notify_observers(Message.SWEEP_FINISHED)

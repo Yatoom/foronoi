@@ -42,7 +42,7 @@ v.attach_observer(
         # Settings to put into the visualizer
         settings=dict(polygon=True, edges=True, vertices=True, sites=True,
                       outgoing_edges=False, events=True, beachline=True, arcs=True, border_to_sites=False, scale=1,
-                      show_edge_labels=False, show_point_labels=False, show_triangles=False),
+                      edge_labels=False, site_labels=False, triangles=False),
 
         # Callback that saves the figure every step
         callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages}.png")

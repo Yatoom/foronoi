@@ -27,22 +27,22 @@ class VoronoiObserver(Observer, ABC):
             return False
 
         if message == Message.STEP_FINISHED and self.visualize_steps:
-            vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
+            vis = Visualizer(subject, canvas_offset=self.canvas_offset)
             settings = dict(outgoing_edges=False)
             settings.update(self.settings)
-            result = vis.plot_all(subject, **settings)
-            plt.title(str(kwargs['event']) + "\n")
+            result = vis.plot_all(**settings)
+            plt.title(str(subject.event) + "\n")
         elif message == Message.SWEEP_FINISHED and self.visualize_before_clipping:
-            vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            settings = dict(events=False, beachline=False, outgoing_edges=False)
+            vis = Visualizer(subject, canvas_offset=self.canvas_offset)
+            settings = dict(events=False, beach_line=False, outgoing_edges=False)
             settings.update(self.settings)
-            result = vis.plot_all(subject, **settings)
+            result = vis.plot_all(**settings)
             plt.title("Sweep finished\n")
         elif message == Message.VORONOI_FINISHED and self.visualize_result:
-            vis = Visualizer(subject.bounding_poly, canvas_offset=self.canvas_offset)
-            settings = dict(events=False, outgoing_edges=False, arcs=False, beachline=False, sweep_line=False)
+            vis = Visualizer(subject, canvas_offset=self.canvas_offset)
+            settings = dict(events=False, outgoing_edges=False, arcs=False, beach_line=False, sweep_line=False)
             settings.update(self.settings)
-            result = vis.plot_all(subject, **settings)
+            result = vis.plot_all(**settings)
             plt.title("Voronoi completed\n")
 
         else:
