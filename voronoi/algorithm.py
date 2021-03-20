@@ -86,7 +86,6 @@ class Algorithm(Subject):
 
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
-            self.event = event
 
             # Set genesis point
             genesis_point = genesis_point or event.point
@@ -123,7 +122,11 @@ class Algorithm(Subject):
 
                 # Handle the event
                 self.handle_site_event(event)
+            else:
+                # Skip the step if circle event is no longer valid
+                continue
 
+            self.event = event
             self.notify_observers(Message.STEP_FINISHED)
 
         self.notify_observers(Message.DEBUG, payload="# Sweep finished")

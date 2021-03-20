@@ -1,3 +1,4 @@
+from copy import copy
 from decimal import Decimal
 
 import numpy as np
@@ -195,7 +196,7 @@ class Visualizer:
         return self
 
     def plot_events(self, triangles=False):
-        for event in [self.voronoi.event]: # event_queue.queue:
+        for event in [self.voronoi.event]:  # event_queue.queue:
             if isinstance(event, CircleEvent):
                 self._plot_circle(event, show_triangle=triangles)
 
@@ -217,7 +218,6 @@ class Visualizer:
         self.plot_sites(points, color=Colors.VALID_CIRCLE, show_labels=False, zorder=15)
 
         return self
-
 
     def _plot_edge(self, edge, sweep_line=None, print_name=True, color=Colors.EDGE, **kwargs):
 
@@ -264,6 +264,7 @@ class Visualizer:
         # Get start and end of edges
         start = edge.get_origin(sweep_line, max_y)
         end = edge.twin.get_origin(sweep_line, max_y)
+        start, end = copy(start), copy(end)
         start, end = self._cut_line(start, end)
 
         return start, end
