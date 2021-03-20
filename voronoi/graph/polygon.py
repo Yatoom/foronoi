@@ -109,12 +109,14 @@ class Polygon(Subject):
         return resulting_edges, self.polygon_vertices
 
     def finish_edge(self, edge):
+        # Sweep line position
+        sweep_line = self.min_y - abs(self.max_y)
+
         # Start should be a breakpoint
-        start = edge.get_origin(y=2 * (self.min_y - self.max_y), max_y=self.max_y)
-        # TODO: check if this is correct
+        start = edge.get_origin(y=sweep_line, max_y=self.max_y)
 
         # End should be a vertex
-        end = edge.twin.get_origin(y=self.min_y - self.max_y, max_y=self.max_y)
+        end = edge.twin.get_origin(y=sweep_line, max_y=self.max_y)
 
         # Get point of intersection
         point = self.get_intersection_point(end, start)

@@ -2,10 +2,13 @@ import warnings
 from decimal import Decimal
 
 from voronoi import Polygon
+from voronoi.algorithm import Algorithm
 from voronoi.graph import Point, DecimalCoordinate, Vertex
-from voronoi.visualization import Visualizer
 
-DEBUG = False
+DEBUG = True
+
+if DEBUG:
+    from voronoi.visualization import Visualizer
 
 
 class BoundingCircle(Polygon):
@@ -20,6 +23,8 @@ class BoundingCircle(Polygon):
         self.min_x = self.x - 2 * self.radius
         self.max_y = self.y + 2 * self.radius
         self.min_y = self.y - 2 * self.radius
+        self.voronoi = Algorithm(self)  # A dummy for visualization
+        self.voronoi.sweep_line = self.min_y - abs(self.max_y)
 
         # Important warning about visualization
         warnings.warn("""
@@ -42,12 +47,13 @@ class BoundingCircle(Polygon):
             B = edge.twin.get_origin(y=-1000)
 
             if DEBUG:
-                Visualizer(None, 1) \
+                Visualizer(self.voronoi, 1) \
                     .plot_sites(points) \
                     .plot_vertices(vertices + self.polygon_vertices) \
                     .plot_edges(edges) \
                     .plot_edges([edge], color="green") \
-                    .plot()
+                    .plot_polygon()\
+                    .show()
 
             if A is None:
                 if B is None:
@@ -59,11 +65,12 @@ class BoundingCircle(Polygon):
                 resulting_edges.append(edge)
 
             if DEBUG:
-                Visualizer(None, 1) \
+                Visualizer(self.voronoi, 1) \
                     .plot_sites(points) \
                     .plot_vertices(vertices + self.polygon_vertices) \
                     .plot_edges(edges) \
                     .plot_edges([edge], color="green") \
+                    .plot_polygon() \
                     .show()
 
             if B is None or not self.inside(B):
@@ -72,21 +79,23 @@ class BoundingCircle(Polygon):
                     resulting_edges.append(edge.twin)
 
             if DEBUG:
-                Visualizer(None, 1) \
+                Visualizer(self.voronoi, 1) \
                     .plot_sites(points) \
                     .plot_vertices(vertices + self.polygon_vertices) \
                     .plot_edges(edges) \
                     .plot_edges([edge], color="green") \
+                    .plot_polygon() \
                     .show()
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
         if DEBUG:
-            Visualizer(None, 1) \
+            Visualizer(self.voronoi, 1) \
                 .plot_sites(points) \
                 .plot_vertices(vertices + self.polygon_vertices) \
                 .plot_edges(edges) \
+                .plot_polygon() \
                 .show()
 
         return resulting_edges, self.polygon_vertices
@@ -133,8 +142,9 @@ class BoundingCircle(Polygon):
         a, b, c = self.get_line(ray_start, center)
 
         if DEBUG:
-            Visualizer(None, 1) \
+            Visualizer(self.voronoi, 1) \
                 .plot_sites([A, B, center, ray_start, a, b, c]) \
+                .plot_polygon() \
                 .show()
 
         return ray_start, center, a, b, c
@@ -159,8 +169,9 @@ class BoundingCircle(Polygon):
 
         point1, point2 = self.cut_circle(a, b, c)
         if DEBUG:
-            Visualizer(None, 1) \
+            Visualizer(self.voronoi, 1) \
                 .plot_sites([point1, point2]) \
+                .plot_polygon() \
                 .show()
         if point1 is None:
             return None
@@ -197,9 +208,3 @@ class BoundingCircle(Polygon):
         point2 = Point(x=x2, y=y2)
 
         return point1, point2
-
-    # def finish_shape(self, edges, vertices, points):
-    #     return Shape.finish_shape(
-    #         edges=edges, existing_vertices=vertices, points=points,
-    #         polygon_vertices=self.polygon_vertices, center=self.center
-    #     )
