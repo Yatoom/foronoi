@@ -264,22 +264,6 @@ class Visualizer:
         # Get start and end of edges
         start = edge.get_origin(sweep_line, max_y)
         end = edge.twin.get_origin(sweep_line, max_y)
-        start, end = copy(start), copy(end)
-        start, end = self._cut_line(start, end)
-
-        return start, end
-
-    def _cut_line(self, start, end):
-
-        min_x, max_x, min_y, max_y = self.min_x, self.max_x, self.min_y, self.max_y
-
-        if start is not None:
-            start.x = max(min_x, min(max_x, start.x))
-            start.y = max(min_y, min(max_y, start.y))
-
-        if end is not None:
-            end.x = max(min_x, min(max_x, end.x))
-            end.y = max(min_y, min(max_y, end.y))
 
         return start, end
 

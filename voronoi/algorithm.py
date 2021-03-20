@@ -236,6 +236,9 @@ class Algorithm(Subject):
     def handle_circle_event(self, event: CircleEvent):
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
+        arc = event.arc_pointer.data
+        if arc in self.arcs:
+            self.arcs.remove(arc)
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
