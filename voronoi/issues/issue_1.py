@@ -39,14 +39,16 @@ v = Voronoi(triangle)
 v.attach_observer(
     VoronoiObserver(
         visualize_steps=True,
+        visualize_before_clipping=True,
+        visualize_result=True,
 
         # Settings to put into the visualizer
         settings=dict(polygon=True, edges=True, vertices=True, sites=True,
-                      outgoing_edges=False, events=True, beachline=True, arcs=True, border_to_sites=False, scale=1,
+                      outgoing_edges=False, beach_line=True, arcs=True, border_to_site=False, scale=1,
                       edge_labels=False, site_labels=False, triangles=False),
 
         # Callback that saves the figure every step
-        callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages}.png")
+        callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages:2d}.png")
     )
 
 )
