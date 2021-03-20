@@ -9,7 +9,7 @@ from voronoi.visualization.visualizer import Visualizer
 
 
 class VoronoiObserver(Observer, ABC):
-    def __init__(self, visualize_steps=False, visualize_before_clipping=False, visualize_result=True, callback=None,
+    def __init__(self, visualize_steps=True, visualize_before_clipping=False, visualize_result=True, callback=None,
                  figsize=(8, 8), canvas_offset=5, settings=None):
         self.canvas_offset = canvas_offset
         self.figsize = figsize

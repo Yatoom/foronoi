@@ -4,9 +4,6 @@ from graphviz import Digraph
 
 class TreeVisualizer:
 
-    # def render(self):
-    #     dot.render('tree/tree.gv', view=True)
-
     def plot(self, node):
         dot = Digraph(comment='Binary Tree')
         self._plot(node, dot, None)

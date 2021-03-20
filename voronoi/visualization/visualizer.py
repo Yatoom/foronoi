@@ -34,6 +34,7 @@ class Visualizer:
     def __init__(self, voronoi, canvas_offset, figsize=(8, 8)):
         self.voronoi = voronoi
         self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(voronoi.bounding_poly, canvas_offset)
+        plt.close("all")  # Prevents previous created plots from showing up
         fig, ax = plt.subplots(figsize=figsize)
         self.canvas = ax
 

@@ -28,11 +28,11 @@ while len(points) < n_points:
         points.append(p)
 
 # Print the input points
-# if print_input:
-#     print("points = [")
-#     for point in points:
-#         print(f"    Point({point.x}, {point.y}),")
-#     print("]")
+if print_input:
+    print("points = [")
+    for point in points:
+        print(f"    Point({point.x}, {point.y}),")
+    print("]")
 
 points = [
     Point(27, 89),
@@ -50,10 +50,9 @@ points = [
 # Initialize the algorithm
 v = Voronoi(triangle)
 
-# Attach observer that visualizes Voronoi diagram every step
+# Optional: attach observer that visualizes Voronoi diagram every step
 v.attach_observer(
     VoronoiObserver(
-        visualize_steps=True,
 
         # Settings to put into the visualizer
         settings=dict(polygon=True, edges=True, vertices=True, sites=True,
@@ -63,7 +62,6 @@ v.attach_observer(
         # Callback that saves the figure every step
         callback=lambda observer, figure: figure.savefig(f"output/{observer.n_messages:02d}.png")
     )
-
 )
 
 # Start the procedure
