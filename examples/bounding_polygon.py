@@ -43,7 +43,7 @@ arcs = v.arcs
 points = v.points
 
 # Plotting
-Visualizer(polygon, canvas_offset=1)\
+Visualizer(v, canvas_offset=1)\
     .plot_sites(points, show_labels=True)\
     .plot_edges(edges, show_labels=False)\
     .plot_vertices(vertices) \

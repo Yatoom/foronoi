@@ -62,16 +62,16 @@ class Visualizer:
         self.plot_vertices() if vertices else False
         self.plot_sites(show_labels=site_labels) if sites else False
         self.plot_outgoing_edges(scale=scale) if outgoing_edges else False
-        self.plot_events(triangles) if events else False
+        self.plot_event(triangles) if events else False
         self.plot_arcs(plot_arcs=arcs) if beach_line else False
         self.set_limits()
         return self
 
     def plot_polygon(self):
-        if hasattr(self.voronoi, 'radius'):
+        if hasattr(self.voronoi.bounding_poly, 'radius'):
             # Draw bounding box
             self.canvas.add_patch(
-                patches.Circle((self.voronoi.x, self.voronoi.x), self.voronoi.radius,
+                patches.Circle((self.voronoi.bounding_poly.x, self.voronoi.bounding_poly.x), self.voronoi.bounding_poly.radius,
                                fill=False,
                                edgecolor=Colors.BOUNDING_BOX)
             )
@@ -195,10 +195,10 @@ class Visualizer:
 
         return self
 
-    def plot_events(self, triangles=False):
-        for event in [self.voronoi.event]:  # event_queue.queue:
-            if isinstance(event, CircleEvent):
-                self._plot_circle(event, show_triangle=triangles)
+    def plot_event(self, event=None, triangles=False):
+        event = event or self.voronoi.event
+        if isinstance(event, CircleEvent):
+            self._plot_circle(event, show_triangle=triangles)
 
         return self
 

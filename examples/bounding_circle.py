@@ -1,6 +1,6 @@
 # TODO: Outdated, needs to be updated.
 
-from voronoi import Voronoi
+from voronoi import Voronoi, Visualizer
 from voronoi.graph.bounding_circle import BoundingCircle
 
 # Define a set of points
@@ -24,3 +24,12 @@ edges = v.edges
 vertices = v.vertices
 arcs = v.arcs
 points = v.points
+
+# Plotting
+Visualizer(v, canvas_offset=1) \
+    .plot_polygon()\
+    .plot_sites(points, show_labels=True) \
+    .plot_edges(edges, show_labels=False) \
+    .plot_vertices(vertices) \
+    .plot_border_to_site() \
+    .show()

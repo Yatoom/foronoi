@@ -1,8 +1,9 @@
 import warnings
-from math import sqrt
+from decimal import Decimal
 
-from voronoi.graph import Polygon, Point, DecimalCoordinate, Vertex
-from voronoi.visualization.visual import Visualization as vis
+from voronoi import Polygon
+from voronoi.graph import Point, DecimalCoordinate, Vertex
+from voronoi.visualization import Visualizer
 
 DEBUG = False
 
@@ -10,9 +11,9 @@ DEBUG = False
 class BoundingCircle(Polygon):
 
     def __init__(self, x, y, radius):
-        self.x = x
-        self.y = y
-        self.radius = radius
+        self.x = Decimal(str(x))
+        self.y = Decimal(str(y))
+        self.radius = Decimal(str(radius))
         self.polygon_vertices = []
         self.center = DecimalCoordinate(self.x, self.y)
         self.max_x = self.x + 2 * self.radius
@@ -39,15 +40,14 @@ class BoundingCircle(Polygon):
             result = True
             A = edge.get_origin(y=-1000)
             B = edge.twin.get_origin(y=-1000)
+
             if DEBUG:
-                if vertices and points and event_queue:
-                    vis.visualize(y=-1000, current_event="nothing",
-                                  bounding_poly=self,
-                                  points=points,
-                                  vertices=vertices + self.polygon_vertices,
-                                  edges=edges, arc_list=[],
-                                  event_queue=event_queue)
-                vis.highlight_edge(-1000, self, edge)
+                Visualizer(None, 1) \
+                    .plot_sites(points) \
+                    .plot_vertices(vertices + self.polygon_vertices) \
+                    .plot_edges(edges) \
+                    .plot_edges([edge], color="green") \
+                    .plot()
 
             if A is None:
                 if B is None:
@@ -59,14 +59,12 @@ class BoundingCircle(Polygon):
                 resulting_edges.append(edge)
 
             if DEBUG:
-                if vertices and points and event_queue:
-                    vis.visualize(y=-1000, current_event="nothing",
-                                  bounding_poly=self,
-                                  points=points,
-                                  vertices=vertices + self.polygon_vertices,
-                                  edges=edges, arc_list=[],
-                                  event_queue=event_queue)
-                vis.highlight_edge(-1000, self, edge)
+                Visualizer(None, 1) \
+                    .plot_sites(points) \
+                    .plot_vertices(vertices + self.polygon_vertices) \
+                    .plot_edges(edges) \
+                    .plot_edges([edge], color="green") \
+                    .show()
 
             if B is None or not self.inside(B):
                 result = self.trim_edge(edge.twin)
@@ -74,19 +72,23 @@ class BoundingCircle(Polygon):
                     resulting_edges.append(edge.twin)
 
             if DEBUG:
-                if vertices and points and event_queue:
-                    vis.visualize(y=-1000, current_event="nothing", bounding_poly=self,
-                                  points=points, vertices=vertices + self.polygon_vertices, edges=edges, arc_list=[],
-                                  event_queue=event_queue)
+                Visualizer(None, 1) \
+                    .plot_sites(points) \
+                    .plot_vertices(vertices + self.polygon_vertices) \
+                    .plot_edges(edges) \
+                    .plot_edges([edge], color="green") \
+                    .show()
 
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
         if DEBUG:
-            if vertices and points and event_queue:
-                vis.visualize(y=-1000, current_event="nothing", bounding_poly=self,
-                              points=points, vertices=vertices + self.polygon_vertices,
-                              edges=edges, arc_list=[], event_queue=event_queue)
+            Visualizer(None, 1) \
+                .plot_sites(points) \
+                .plot_vertices(vertices + self.polygon_vertices) \
+                .plot_edges(edges) \
+                .show()
+
         return resulting_edges, self.polygon_vertices
 
     def trim_edge(self, edge, twisted=False):
@@ -105,16 +107,16 @@ class BoundingCircle(Polygon):
 
     def get_line(self, A, B):
         if (B.y - A.y) == 0:
-            a = 0
-            b = 1.
+            a = Decimal("0")
+            b = Decimal("1")
             c = A.y
         elif (B.x - A.x) == 0:
-            a = 1
-            b = 0
+            a = Decimal("1")
+            b = Decimal("0")
             c = A.x
         else:
             a = -(B.y - A.y) / (B.x - A.x)
-            b = 1.
+            b = Decimal("1")
             c = A.x * a + A.y
 
         return a, b, c
@@ -122,7 +124,7 @@ class BoundingCircle(Polygon):
     def get_ray(self, edge):
         A = edge.origin.breakpoint[0]
         B = edge.origin.breakpoint[1]
-        center = Point(x=(A.x + B.x) / 2., y=(A.y + B.y) / 2.)
+        center = Point(x=(A.x + B.x) / 2, y=(A.y + B.y) / 2)
 
         if edge.twin.get_origin() is None:
             ray_start = center
@@ -131,7 +133,9 @@ class BoundingCircle(Polygon):
         a, b, c = self.get_line(ray_start, center)
 
         if DEBUG:
-            vis.plot_helper_points(A, B, center, ray_start, a, b, c)
+            Visualizer(None, 1) \
+                .plot_sites([A, B, center, ray_start, a, b, c]) \
+                .show()
 
         return ray_start, center, a, b, c
 
@@ -155,7 +159,9 @@ class BoundingCircle(Polygon):
 
         point1, point2 = self.cut_circle(a, b, c)
         if DEBUG:
-            vis.plot_points(point1, point2)
+            Visualizer(None, 1) \
+                .plot_sites([point1, point2]) \
+                .show()
         if point1 is None:
             return None
         points = []
@@ -168,8 +174,8 @@ class BoundingCircle(Polygon):
         elif len(points) == 1:
             return points[0]
         else:
-            dist_0 = (A.x - points[0].x) ** 2. + (A.y - points[0].y) ** 2.
-            dist_1 = (A.x - points[1].x) ** 2. + (A.y - points[1].y) ** 2.
+            dist_0 = (A.x - points[0].x) ** 2 + (A.y - points[0].y) ** 2
+            dist_1 = (A.x - points[1].x) ** 2 + (A.y - points[1].y) ** 2
             if dist_0 < dist_1:
                 return points[0]
             else:
@@ -179,7 +185,7 @@ class BoundingCircle(Polygon):
         d = c - a * self.x - b * self.y
         a_sq_b_sq = a ** 2 + b ** 2
         try:
-            big_sqrt = sqrt(self.radius ** 2 * a_sq_b_sq - d ** 2).real
+            big_sqrt = Decimal.sqrt(self.radius ** 2 * a_sq_b_sq - d ** 2).real
         except ValueError:
             return None, None
 
@@ -191,3 +197,9 @@ class BoundingCircle(Polygon):
         point2 = Point(x=x2, y=y2)
 
         return point1, point2
+
+    # def finish_shape(self, edges, vertices, points):
+    #     return Shape.finish_shape(
+    #         edges=edges, existing_vertices=vertices, points=points,
+    #         polygon_vertices=self.polygon_vertices, center=self.center
+    #     )
