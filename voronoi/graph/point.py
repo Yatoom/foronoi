@@ -1,10 +1,10 @@
 import numpy as np
 
 from voronoi.graph.vertex import Vertex
-from voronoi.graph.coordinate import DecimalCoordinate
+from voronoi.graph.coordinate import Coordinate
 
 
-class Point(DecimalCoordinate):
+class Point(Coordinate):
 
     def __init__(self, x=None, y=None, metadata=None, name=None, first_edge=None):
         """
@@ -27,7 +27,7 @@ class Point(DecimalCoordinate):
     def __repr__(self):
         if self.name is not None:
             return f"P{self.name}"
-        return f"Point({self.x:.2f}, {self.x:.2f})"
+        return f"Point({self.xd:.2f}, {self.xd:.2f})"
 
     def cell_size(self, digits=None):
         """
@@ -60,23 +60,23 @@ class Point(DecimalCoordinate):
             return None
         return [border.origin for border in borders if isinstance(border.origin, Vertex)]
 
-    def get_coordinates(self):
-        borders = self.get_borders()
-        if borders is None:
-            return None
-        coordinates = []
-        for border in borders:
-
-            # During construction, not all origins are vertices yet.
-            origin = border.get_origin()
-            if origin is None:
-                return None
-
-            coordinates.append(origin.as_floats())
-        return coordinates
+    # def get_coordinates(self):
+    #     borders = self.get_borders()
+    #     if borders is None:
+    #         return None
+    #     coordinates = []
+    #     for border in borders:
+    #
+    #         # During construction, not all origins are vertices yet.
+    #         origin = border.get_origin()
+    #         if origin is None:
+    #             return None
+    #
+    #         coordinates.append(origin)
+    #     return coordinates
 
     def _get_xy(self):
-        coordinates = self.get_coordinates()
+        coordinates = self.get_vertices()
         if coordinates is None:
             return [], []
         x = [coordinate.x for coordinate in coordinates]
@@ -84,7 +84,7 @@ class Point(DecimalCoordinate):
         return x, y
 
     def __sub__(self, other):
-        return Point(x=self.x-other.x, y=self.y-other.y)
+        return Point(x=self.xd - other.xd, y=self.yd - other.yd)
 
     @staticmethod
     def _shoelace(x, y):

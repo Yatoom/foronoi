@@ -1,7 +1,7 @@
 import math
 from decimal import Decimal
 
-from voronoi.graph.coordinate import DecimalCoordinate
+from voronoi.graph.coordinate import Coordinate
 
 
 class Breakpoint:
@@ -33,7 +33,7 @@ class Breakpoint:
 
     def does_intersect(self):
         i, j = self.breakpoint
-        return not (i.y == j.y and j.x < i.x)
+        return not (i.yd == j.yd and j.xd < i.xd)
 
     def get_intersection(self, l, max_y=None):
         """
@@ -49,31 +49,31 @@ class Breakpoint:
         i, j = self.breakpoint
 
         # Initialize the resulting point
-        result = DecimalCoordinate()
-        p: DecimalCoordinate = i
+        result = Coordinate()
+        p: Coordinate = i
 
         # First we replace some stuff to make it easier
-        a = i.x
-        b = i.y
-        c = j.x
-        d = j.y
+        a = i.xd
+        b = i.yd
+        c = j.xd
+        d = j.yd
         u = 2 * (b - l)
         v = 2 * (d - l)
 
         # Handle the case where the two points have the same y-coordinate (breakpoint is in the middle)
-        if i.y == j.y:
-            result.x = (i.x + j.x) / 2
+        if i.yd == j.yd:
+            result.xd = (i.xd + j.xd) / 2
 
-            if j.x < i.x:
-                result.y = max_y or float('inf')
+            if j.xd < i.xd:
+                result.yd = max_y or float('inf')
                 return result
 
         # Handle cases where one point's y-coordinate is the same as the sweep line
-        elif i.y == l:
-            result.x = i.x
+        elif i.yd == l:
+            result.xd = i.xd
             p = j
-        elif j.y == l:
-            result.x = j.x
+        elif j.yd == l:
+            result.xd = j.xd
         else:
             # We now need to solve for x
             # 1/u * (x**2 - 2*a*x + a**2 + b**2 - l**2) = 1/v * (x**2 - 2*c*x + c**2 + d**2 - l**2)
@@ -81,19 +81,19 @@ class Breakpoint:
             x = -(Decimal.sqrt(
                 v * (a ** 2 * u - 2 * a * c * u + b ** 2 * (u - v) + c ** 2 * u) + d ** 2 * u * (v - u) + l ** 2 * (
                     u - v) ** 2) + a * v - c * u) / (u - v)
-            result.x = x
+            result.xd = x
 
         # We have to re-evaluate this, since the point might have been changed
-        a = p.x
-        b = p.y
-        x = result.x
+        a = p.xd
+        b = p.yd
+        x = result.xd
         u = 2 * (b - l)
 
         # Handle degenerate case where parabolas don't intersect
         if u == 0:
-            result.y = float("inf")
+            result.yd = float("inf")
             return result
 
         # And we put everything back in y
-        result.y = 1 / u * (x ** 2 - 2 * a * x + a ** 2 + b ** 2 - l ** 2)
+        result.yd = 1 / u * (x ** 2 - 2 * a * x + a ** 2 + b ** 2 - l ** 2)
         return result

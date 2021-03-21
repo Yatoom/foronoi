@@ -4,7 +4,7 @@ from decimal import Decimal
 import numpy as np
 from matplotlib import patches
 
-from voronoi import DecimalCoordinate
+from voronoi import Coordinate
 from voronoi.algorithm import Algorithm
 from voronoi.events import CircleEvent
 import matplotlib.pyplot as plt
@@ -72,7 +72,7 @@ class Visualizer:
         if hasattr(self.voronoi.bounding_poly, 'radius'):
             # Draw bounding box
             self.canvas.add_patch(
-                patches.Circle((self.voronoi.bounding_poly.x, self.voronoi.bounding_poly.x), self.voronoi.bounding_poly.radius,
+                patches.Circle((self.voronoi.bounding_poly.xd, self.voronoi.bounding_poly.xd), self.voronoi.bounding_poly.radius,
                                fill=False,
                                edgecolor=Colors.BOUNDING_BOX)
             )
@@ -87,8 +87,8 @@ class Visualizer:
     def plot_vertices(self, vertices=None, **kwargs):
         vertices = vertices or self.voronoi.vertices
 
-        xs = [vertex.x for vertex in vertices]
-        ys = [vertex.y for vertex in vertices]
+        xs = [vertex.xd for vertex in vertices]
+        ys = [vertex.yd for vertex in vertices]
 
         # Scatter points
         self.canvas.scatter(xs, ys, s=50, color=Colors.VERTICES, zorder=10, **kwargs)
@@ -106,26 +106,26 @@ class Visualizer:
                     continue
 
                 # Direction vector
-                x_diff = end.x - start.x
-                y_diff = end.y - start.y
+                x_diff = end.xd - start.xd
+                y_diff = end.yd - start.yd
                 length = Decimal.sqrt(x_diff ** 2 + y_diff ** 2)
 
                 if length == 0:
                     continue
 
                 direction = (x_diff / length, y_diff / length)
-                new_end = DecimalCoordinate(start.x + direction[0] * scale, start.y + direction[1] * scale)
+                new_end = Coordinate(start.xd + direction[0] * scale, start.yd + direction[1] * scale)
 
                 props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=1, **kwargs)
-                self.canvas.annotate(text='', xy=(new_end.x, new_end.y), xytext=(start.x, start.y), arrowprops=props)
+                self.canvas.annotate(text='', xy=(new_end.xd, new_end.yd), xytext=(start.xd, start.yd), arrowprops=props)
 
         return self
 
     def plot_sites(self, points=None, show_labels=True, color=Colors.CELL_POINTS, zorder=10):
         points = points or self.voronoi.sites
 
-        xs = [point.x for point in points]
-        ys = [point.y for point in points]
+        xs = [point.xd for point in points]
+        ys = [point.yd for point in points]
 
         # Scatter points
         self.canvas.scatter(xs, ys, s=50, color=color, zorder=zorder)
@@ -133,7 +133,7 @@ class Visualizer:
         # Add descriptions
         if show_labels:
             for point in points:
-                self.canvas.text(point.x, point.y, s=f"{point} (A={point.cell_size(digits=2)})", zorder=15)
+                self.canvas.text(point.xd, point.yd, s=f"{point} (A={point.cell_size(digits=2)})", zorder=15)
 
         return self
 
@@ -173,7 +173,7 @@ class Visualizer:
 
             if plot_line is None:
                 if plot_arcs:
-                    self.canvas.axvline(x=arc.origin.x, color=Colors.SWEEP_LINE)
+                    self.canvas.axvline(x=arc.origin.xd, color=Colors.SWEEP_LINE)
             else:
                 if plot_arcs:
                     self.canvas.plot(x, plot_line, linestyle="--", color=Colors.ARC)
@@ -219,7 +219,7 @@ class Visualizer:
         return self
 
     def _plot_circle(self, evt, show_triangle=False):
-        x, y = evt.center.x, evt.center.y
+        x, y = evt.center.xd, evt.center.yd
         radius = evt.radius
         color = Colors.VALID_CIRCLE if evt.is_valid else Colors.INVALID_CIRCLE
 
@@ -244,13 +244,13 @@ class Visualizer:
             return self
 
         # Draw the line
-        self.canvas.plot([start.x, end.x], [start.y, end.y], color)
+        self.canvas.plot([start.xd, end.xd], [start.yd, end.yd], color)
 
         # Add Name
         if print_name:
             self.canvas.annotate(
                 text=str(edge),
-                xy=((end.x + start.x) / 2, (end.y + start.y) / 2),
+                xy=((end.xd + start.xd) / 2, (end.yd + start.yd) / 2),
                 **kwargs
             )
 
@@ -266,7 +266,7 @@ class Visualizer:
         incident_point = edge.incident_point
         if start and end and incident_point:
             self.canvas.plot(
-                [(start.x + end.x) / 2, incident_point.x], [(start.y + end.y) / 2, incident_point.y],
+                [(start.xd + end.xd) / 2, incident_point.xd], [(start.yd + end.yd) / 2, incident_point.yd],
                 color=Colors.FIRST_EDGE if is_first_edge else Colors.INCIDENT_POINT_POINTER,
                 linestyle="--"
             )

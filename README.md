@@ -77,7 +77,7 @@ Visualizer(voronoi, canvas_offset=1)\
 ### Calculate the shell size for each point
 ```python
 for point in v.sites:
-    print(f"{(point.x, point.y)} \t {point.cell_size()}")
+    print(f"{(point.xd, point.yd)} \t {point.cell_size()}")
 ```
 Output:
 ```

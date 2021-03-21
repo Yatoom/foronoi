@@ -93,12 +93,12 @@ class Algorithm(Subject):
             # Handle circle events
             if isinstance(event, CircleEvent) and event.is_valid:
                 # Update sweep line position
-                self.sweep_line = event.y
+                self.sweep_line = event.yd
 
                 # Debugging
                 self.notify_observers(
                     Message.DEBUG,
-                    payload=f"# Handle circle event at {event.y:.3f} with center= {event.center} and arcs= {event.point_triple}"
+                    payload=f"# Handle circle event at {event.yd:.3f} with center= {event.center} and arcs= {event.point_triple}"
                 )
 
                 # Handle the event
@@ -112,12 +112,12 @@ class Algorithm(Subject):
                 index += 1
 
                 # Update sweep line position
-                self.sweep_line = event.y
+                self.sweep_line = event.yd
 
                 # Debugging
                 self.notify_observers(
                     Message.DEBUG,
-                    payload=f"# Handle site event at y={event.y:.3f} with point {event.point}"
+                    payload=f"# Handle site event at y={event.yd:.3f} with point {event.point}"
                 )
 
                 # Handle the event
@@ -158,7 +158,7 @@ class Algorithm(Subject):
             return
 
         # 2. Search the beach line tree for the arc above the point
-        arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.x, sweep_line=self.sweep_line)
+        arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.xd, sweep_line=self.sweep_line)
         arc_above_point = arc_node_above_point.get_value()
 
         # 3. Remove potential false alarm
@@ -255,7 +255,7 @@ class Algorithm(Subject):
         def remove(neighbor_event):
             if neighbor_event is None:
                 return None
-            self.notify_observers(Message.DEBUG, payload=f"Circle event for {neighbor_event.y} removed.")
+            self.notify_observers(Message.DEBUG, payload=f"Circle event for {neighbor_event.yd} removed.")
             return neighbor_event.remove()
 
         remove(predecessor.get_value().circle_event)
@@ -270,7 +270,7 @@ class Algorithm(Subject):
         # Note: we only create the new edge if the vertex is still inside the bounding box
         # if self.bounding_poly.inside(event.center):
         # Create a vertex
-        v = Vertex(convergence_point.x, convergence_point.y)
+        v = Vertex(convergence_point.xd, convergence_point.yd)
         self.vertices.append(v)
 
         # Connect the two old edges to the vertex
@@ -340,10 +340,10 @@ class Algorithm(Subject):
 
         if left_event is not None:
             self.notify_observers(Message.DEBUG,
-                                  payload=f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
+                                  payload=f"Left circle event created for {left_event.yd}. Arcs: {left_event.point_triple}")
         if right_event is not None:
             self.notify_observers(Message.DEBUG,
-                                  payload=f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
+                                  payload=f"Right circle event created for {right_event.yd}. Arcs: {right_event.point_triple}")
 
         return left_event, right_event
 
@@ -418,7 +418,7 @@ class Algorithm(Subject):
         for edge in self.edges:
             start = edge.get_origin()
             end = edge.twin.get_origin()
-            if start.x == end.x and start.y == end.y:
+            if start.xd == end.xd and start.yd == end.yd:
 
                 # Combine the vertices
                 v1: Vertex = edge.origin

@@ -15,12 +15,12 @@ class SiteEvent(Event, Subject):
         self.point = point
 
     @property
-    def x(self):
-        return self.point.x
+    def xd(self):
+        return self.point.xd
 
     @property
-    def y(self):
-        return self.point.y
+    def yd(self):
+        return self.point.yd
 
     def __repr__(self):
-        return f"SiteEvent(x={self.point.x}, y={self.point.y})"
+        return f"SiteEvent(x={self.point.xd}, y={self.point.yd})"

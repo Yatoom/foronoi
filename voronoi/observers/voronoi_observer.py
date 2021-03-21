@@ -30,7 +30,7 @@ class VoronoiObserver(Observer, ABC):
             vis = Visualizer(subject, canvas_offset=self.canvas_offset)
             settings = dict(outgoing_edges=False)
             settings.update(self.settings)
-            assert subject.sweep_line == subject.event.y
+            assert subject.sweep_line == subject.event.yd
             result = vis.plot_all(**settings)
             plt.title(str(subject.event) + "\n")
         elif message == Message.SWEEP_FINISHED and self.visualize_before_clipping:

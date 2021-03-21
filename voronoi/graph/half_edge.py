@@ -39,7 +39,7 @@ class HalfEdge:
         :return: The point of origin, or None
         """
         if isinstance(self.origin, Vertex):
-            if self.origin.x is None or self.origin.y is None:
+            if self.origin.xd is None or self.origin.yd is None:
                 return None
             return self.origin
 

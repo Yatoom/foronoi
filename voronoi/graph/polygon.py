@@ -1,4 +1,4 @@
-from voronoi.graph import DecimalCoordinate, Vertex, HalfEdge
+from voronoi.graph import Coordinate, Vertex, HalfEdge
 from voronoi.graph.algebra import Algebra
 import numpy as np
 
@@ -9,26 +9,26 @@ from voronoi.observers.subject import Subject
 class Polygon(Subject):
     def __init__(self, tuples):
         super().__init__()
-        points = [DecimalCoordinate(x, y) for x, y in tuples]
+        points = [Coordinate(x, y) for x, y in tuples]
         self.points = points
-        min_y = min([p.y for p in self.points])
-        min_x = min([p.x for p in self.points])
-        max_y = max([p.y for p in self.points])
-        max_x = max([p.x for p in self.points])
-        center = DecimalCoordinate((max_x + min_x) / 2, (max_y + min_y) / 2)
+        min_y = min([p.yd for p in self.points])
+        min_x = min([p.xd for p in self.points])
+        max_y = max([p.yd for p in self.points])
+        max_x = max([p.xd for p in self.points])
+        center = Coordinate((max_x + min_x) / 2, (max_y + min_y) / 2)
         self.min_y, self.min_x, self.max_y, self.max_x, self.center = min_y, min_x, max_y, max_x, center
 
         self.points = self.order_points(self.points)
         self.polygon_vertices = []
         for point in self.points:
-            self.polygon_vertices.append(Vertex(point.x, point.y))
+            self.polygon_vertices.append(Vertex(point.xd, point.yd))
 
     def order_points(self, points):
         clockwise = sorted(points, key=lambda point: (-180 - Algebra.calculate_angle(point, self.center)) % 360)
         return clockwise
 
     def get_ordered_vertices(self, vertices):
-        vertices = [vertex for vertex in vertices if vertex.x is not None]
+        vertices = [vertex for vertex in vertices if vertex.xd is not None]
         clockwise = sorted(vertices,
                            key=lambda vertex: (-180 - Algebra.calculate_angle(vertex, self.center)) % 360)
         return clockwise
@@ -84,7 +84,7 @@ class Polygon(Subject):
         return edges, vertices + existing_vertices
 
     def get_coordinates(self):
-        return [(i.x, i.y) for i in self.points]
+        return [(i.xd, i.yd) for i in self.points]
 
     def finish_edges(self, edges, **kwargs):
         resulting_edges = []
@@ -132,10 +132,10 @@ class Polygon(Subject):
     def on_edge(self, point):
         vertices = self.points + self.points[0:1]
         for i in range(0, len(vertices) - 1):
-            dxc = point.x - vertices[i].x
-            dyc = point.y - vertices[i].y
-            dx1 = vertices[i + 1].x - vertices[i].x
-            dy1 = vertices[i + 1].y - vertices[i].y
+            dxc = point.xd - vertices[i].xd
+            dyc = point.yd - vertices[i].yd
+            dx1 = vertices[i + 1].xd - vertices[i].xd
+            dy1 = vertices[i + 1].yd - vertices[i].yd
 
             cross = dxc * dy1 - dyc * dx1
 
@@ -153,16 +153,16 @@ class Polygon(Subject):
 
         vertices = self.points + self.points[0:1]
 
-        x = point.x
-        y = point.y
+        x = point.xd
+        y = point.yd
         inside = False
 
         for i in range(0, len(vertices) - 1):
             j = i + 1
-            xi = vertices[i].x
-            yi = vertices[i].y
-            xj = vertices[j].x
-            yj = vertices[j].y
+            xi = vertices[i].xd
+            yi = vertices[i].yd
+            xj = vertices[j].xd
+            yj = vertices[j].yd
 
             intersect = ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
             if intersect:

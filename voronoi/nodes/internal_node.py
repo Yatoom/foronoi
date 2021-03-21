@@ -9,7 +9,7 @@ class InternalNode(SmartNode):
         return f"Internal({self.data}, left={self.left}, right={self.right})"
 
     def get_key(self, sweep_line=None):
-        return self.data.get_intersection(sweep_line).x
+        return self.data.get_intersection(sweep_line).xd
 
     def get_value(self, **kwargs):
         return self.data

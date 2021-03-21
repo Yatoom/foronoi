@@ -10,7 +10,7 @@ class LeafNode(SmartNode):
         return f"Leaf({self.data}, left={self.left}, right={self.right})"
 
     def get_key(self, sweep_line=None):
-        return self.data.origin.x
+        return self.data.origin.xd
 
     def get_value(self, **kwargs):
         return self.data

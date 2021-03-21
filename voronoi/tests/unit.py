@@ -1,4 +1,4 @@
-from voronoi import DecimalCoordinate
+from voronoi import Coordinate
 from voronoi.algorithm import Algorithm
 from voronoi.graph import Polygon
 from voronoi.graph.bounding_box import BoundingBox
@@ -454,7 +454,7 @@ def _test_vertices_correct(polygon, points, expected, remove_zero_length_edges):
 
     result = [
         [
-            [edge.get_origin().as_float_tuple(), edge.twin.get_origin().as_float_tuple()]
+            [edge.get_origin().xy, edge.twin.get_origin().xy]
             for edge in sorted(vertex.connected_edges, key=_sort_edges)
         ]
         for vertex in sorted(v.vertices, key=_sort_vertices)
@@ -464,11 +464,11 @@ def _test_vertices_correct(polygon, points, expected, remove_zero_length_edges):
 
 
 def _sort_vertices(vertex):
-    return vertex.y, vertex.x
+    return vertex.yd, vertex.xd
 
 
 def _sort_edges(edge):
-    return edge.get_origin().y, edge.get_origin().x
+    return edge.get_origin().yd, edge.get_origin().xd
 
 
 def test_vertices_correct():
