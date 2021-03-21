@@ -1,15 +1,11 @@
-class Vertex:
-    def __init__(self, connected_edges=None, coordinate=None):
-        if connected_edges is None:
-            connected_edges = []
+from voronoi.graph.coordinate import DecimalCoordinate
 
-        self.connected_edges = connected_edges
 
-        self.coordinate = coordinate
+class Vertex(DecimalCoordinate):
+    def __init__(self, x, y, connected_edges=None):
+        super().__init__(x, y)
+
+        self.connected_edges = connected_edges or []
 
     def __repr__(self):
-        return f"Vertex({self.coordinate})"
-
-    @property
-    def position(self):
-        return self.coordinate
+        return f"Vertex({self.x:.2f}, {self.y:.2f})"

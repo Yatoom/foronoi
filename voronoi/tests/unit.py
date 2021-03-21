@@ -462,8 +462,9 @@ def _test_vertices_correct(polygon, points, expected, remove_zero_length_edges):
 
     assert result == expected, f"\nResult=\n{result}\n\n Expected=\n{expected}"
 
+
 def _sort_vertices(vertex):
-    return vertex.coordinate.y, vertex.coordinate.x
+    return vertex.y, vertex.x
 
 
 def _sort_edges(edge):

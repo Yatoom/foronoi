@@ -13,14 +13,14 @@ class DecimalCoordinate(Coordinate):
         :param x: (float) The x-coordinate
         :param y: (float) The y-coordinate
         """
-        self._x: Decimal = Decimal(str(x)) if x is not None else Decimal()
-        self._y: Decimal = Decimal(str(y)) if y is not None else Decimal()
+        self._x: Decimal = Decimal(str(x)) if x is not None else None
+        self._y: Decimal = Decimal(str(y)) if y is not None else None
 
     def __sub__(self, other):
         return DecimalCoordinate(x=self.x - other.x, y=self.y - other.y)
 
     def __repr__(self):
-        return f"Coord('{self.x:.2f}', '{self.y:.2f}')"
+        return f"Coord({self.x:.2f}, {self.y:.2f})"
 
     @property
     def x(self):

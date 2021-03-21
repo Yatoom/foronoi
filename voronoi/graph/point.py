@@ -27,7 +27,7 @@ class Point(DecimalCoordinate):
     def __repr__(self):
         if self.name is not None:
             return f"P{self.name}"
-        return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
+        return f"Point({self.x:.2f}, {self.x:.2f})"
 
     def cell_size(self, digits=None):
         """
@@ -42,25 +42,24 @@ class Point(DecimalCoordinate):
 
         return self._shoelace(x, y)
 
-    # Only returns answer when voronoi construction is complete, None otherwise
     def get_borders(self):
+        if self.first_edge is None:
+            return None
         edge = self.first_edge
         edges = [edge]
         while edge.next != self.first_edge:
-            edge = edge.next
-            edges.append(edge)
             if edge.next is None:
                 return None
+            edge = edge.next
+            edges.append(edge)
         return edges
 
-    # Only returns answer when voronoi construction is complete, None otherwise
     def get_vertices(self):
         borders = self.get_borders()
         if borders is None:
             return None
         return [border.origin for border in borders if isinstance(border.origin, Vertex)]
 
-    # Only returns answer when voronoi construction is complete, None otherwise
     def get_coordinates(self):
         borders = self.get_borders()
         if borders is None:

@@ -87,8 +87,8 @@ class Visualizer:
     def plot_vertices(self, vertices=None, **kwargs):
         vertices = vertices or self.voronoi.vertices
 
-        xs = [vertex.position.x for vertex in vertices]
-        ys = [vertex.position.y for vertex in vertices]
+        xs = [vertex.x for vertex in vertices]
+        ys = [vertex.y for vertex in vertices]
 
         # Scatter points
         self.canvas.scatter(xs, ys, s=50, color=Colors.VERTICES, zorder=10, **kwargs)

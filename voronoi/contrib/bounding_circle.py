@@ -107,7 +107,7 @@ class BoundingCircle(Polygon):
         if point is None:
             return False
         # Create vertex
-        v = Vertex(coordinate=point)
+        v = Vertex(point.x, point.y)
         v.connected_edges.append(edge)
         edge.origin = v
         self.polygon_vertices.append(v)
@@ -138,7 +138,7 @@ class BoundingCircle(Polygon):
         if edge.twin.get_origin() is None:
             ray_start = center
         else:
-            ray_start = edge.twin.origin.coordinate
+            ray_start = edge.twin.origin
         a, b, c = self.get_line(ray_start, center)
 
         if DEBUG:

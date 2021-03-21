@@ -16,7 +16,7 @@ class VoronoiObserver(Observer, ABC):
         self.visualize_steps = visualize_steps
         self.visualize_before_clipping = visualize_before_clipping
         self.visualize_result = visualize_result
-        self.callback = callback or (lambda _: plt.show(block=True))
+        self.callback = callback or (lambda a, b: plt.show(block=True))
         self.n_messages = 0
         self.messages = []
         self.settings = settings or {}

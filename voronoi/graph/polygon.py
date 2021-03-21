@@ -21,16 +21,16 @@ class Polygon(Subject):
         self.points = self.order_points(self.points)
         self.polygon_vertices = []
         for point in self.points:
-            self.polygon_vertices.append(Vertex(coordinate=point))
+            self.polygon_vertices.append(Vertex(point.x, point.y))
 
     def order_points(self, points):
         clockwise = sorted(points, key=lambda point: (-180 - Algebra.calculate_angle(point, self.center)) % 360)
         return clockwise
 
     def get_ordered_vertices(self, vertices):
-        vertices = [vertex for vertex in vertices if vertex.position is not None]
+        vertices = [vertex for vertex in vertices if vertex.x is not None]
         clockwise = sorted(vertices,
-                           key=lambda vertex: (-180 - Algebra.calculate_angle(vertex.position, self.center)) % 360)
+                           key=lambda vertex: (-180 - Algebra.calculate_angle(vertex, self.center)) % 360)
         return clockwise
 
     @staticmethod
@@ -42,7 +42,7 @@ class Polygon(Subject):
     def finish_polygon(self, edges, existing_vertices, points):
         vertices = self.get_ordered_vertices(self.polygon_vertices)
         vertices = vertices + [vertices[0]]
-        cell = self.get_closest_point(vertices[0].position, points)
+        cell = self.get_closest_point(vertices[0], points)
         previous_edge = None
         for index in range(0, len(vertices) - 1):
 
@@ -79,7 +79,7 @@ class Polygon(Subject):
             # Set previous edge
             previous_edge = edge
 
-        existing_vertices = [i for i in existing_vertices if self.inside(i.position)]
+        existing_vertices = [i for i in existing_vertices if self.inside(i)]
 
         return edges, vertices + existing_vertices
 
@@ -122,7 +122,7 @@ class Polygon(Subject):
         point = self.get_intersection_point(end, start)
 
         # Create vertex
-        v = Vertex(coordinate=point)
+        v = Vertex(point.x, point.y) if point is not None else Vertex(None, None)
         v.connected_edges.append(edge)
         edge.origin = v
         self.polygon_vertices.append(v)

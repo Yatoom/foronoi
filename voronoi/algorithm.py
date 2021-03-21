@@ -270,7 +270,7 @@ class Algorithm(Subject):
         # Note: we only create the new edge if the vertex is still inside the bounding box
         # if self.bounding_poly.inside(event.center):
         # Create a vertex
-        v = Vertex(coordinate=convergence_point)
+        v = Vertex(convergence_point.x, convergence_point.y)
         self.vertices.append(v)
 
         # Connect the two old edges to the vertex
