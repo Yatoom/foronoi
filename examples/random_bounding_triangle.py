@@ -31,7 +31,7 @@ while len(points) < n_points:
 if print_input:
     print("points = [")
     for point in points:
-        print(f"    Point({point.x}, {point.y}),")
+        print(f"    Point({point.xd}, {point.yd}),")
     print("]")
 
 points = [
@@ -66,7 +66,7 @@ v.attach_observer(
 
 # Start the procedure
 v.create_diagram(
-    points=[(p.x, p.y) for p in points],
+    points=[(p.xd, p.yd) for p in points],
 )
 
 

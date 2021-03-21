@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from voronoi import Polygon
 from voronoi.algorithm import Algorithm
-from voronoi.graph import Point, DecimalCoordinate, Vertex
+from voronoi.graph import Point, Coordinate, Vertex
 
 DEBUG = True
 
@@ -18,7 +18,7 @@ class BoundingCircle(Polygon):
         self.y = Decimal(str(y))
         self.radius = Decimal(str(radius))
         self.polygon_vertices = []
-        self.center = DecimalCoordinate(self.x, self.y)
+        self.center = Coordinate(self.x, self.y)
         self.max_x = self.x + 2 * self.radius
         self.min_x = self.x - 2 * self.radius
         self.max_y = self.y + 2 * self.radius
@@ -37,7 +37,7 @@ class BoundingCircle(Polygon):
         """)
 
     def inside(self, point):
-        return (self.x - point.x) ** 2 + (self.y - point.y) ** 2 < self.radius ** 2
+        return (self.x - point.xd) ** 2 + (self.y - point.yd) ** 2 < self.radius ** 2
 
     def finish_edges(self, edges, vertices=None, points=None, event_queue=None):
         resulting_edges = []
@@ -115,25 +115,25 @@ class BoundingCircle(Polygon):
         return True
 
     def get_line(self, A, B):
-        if (B.y - A.y) == 0:
+        if (B.yd - A.yd) == 0:
             a = Decimal("0")
             b = Decimal("1")
-            c = A.y
-        elif (B.x - A.x) == 0:
+            c = A.yd
+        elif (B.xd - A.xd) == 0:
             a = Decimal("1")
             b = Decimal("0")
-            c = A.x
+            c = A.xd
         else:
-            a = -(B.y - A.y) / (B.x - A.x)
+            a = -(B.yd - A.yd) / (B.xd - A.xd)
             b = Decimal("1")
-            c = A.x * a + A.y
+            c = A.xd * a + A.yd
 
         return a, b, c
 
     def get_ray(self, edge):
         A = edge.origin.breakpoint[0]
         B = edge.origin.breakpoint[1]
-        center = Point(x=(A.x + B.x) / 2, y=(A.y + B.y) / 2)
+        center = Point(x=(A.xd + B.xd) / 2, y=(A.yd + B.yd) / 2)
 
         if edge.twin.get_origin() is None:
             ray_start = center
@@ -153,8 +153,8 @@ class BoundingCircle(Polygon):
         def is_on(a, b, c):
             "Return true iff point c intersects the line segment from a to b."
             # (or the degenerate case that all 3 points are coincident)
-            return ((within(a.x, c.x, b.x) if a.x != b.x else
-                     within(a.y, c.y, b.y)))
+            return ((within(a.xd, c.xd, b.xd) if a.xd != b.xd else
+                     within(a.yd, c.yd, b.yd)))
 
         def within(p, q, r):
             "Return true iff q is between p and r (inclusive)."
@@ -185,8 +185,8 @@ class BoundingCircle(Polygon):
         elif len(points) == 1:
             return points[0]
         else:
-            dist_0 = (A.x - points[0].x) ** 2 + (A.y - points[0].y) ** 2
-            dist_1 = (A.x - points[1].x) ** 2 + (A.y - points[1].y) ** 2
+            dist_0 = (A.xd - points[0].xd) ** 2 + (A.yd - points[0].yd) ** 2
+            dist_1 = (A.xd - points[1].xd) ** 2 + (A.yd - points[1].yd) ** 2
             if dist_0 < dist_1:
                 return points[0]
             else:

@@ -1,4 +1,6 @@
-from voronoi import Voronoi, Polygon, Visualizer
+from typing import List
+from voronoi import Voronoi, Polygon, Visualizer, Point
+from voronoi.graph import HalfEdge, Vertex
 
 # Define some points (a.k.a sites or cell points)
 points = [
@@ -24,14 +26,30 @@ Visualizer(v) \
     .show()
 
 # Some examples of how to access properties from the Voronoi diagram:
-edges = v.edges                    # A list of all edges
-vertices = v.vertices              # A list of all vertices
-sites = v.sites                    # A list of all cell points (a.k.a. sites)
-v.sites[0].cell_size()             # Calculate cell size for a cell point
-v.sites[0].get_coordinates()       # Get the coordinates of the borders around a cell point
-v.sites[0].get_borders()           # Get the borders around the cell point
-v.sites[0].get_vertices()          # Get the vertices of the borders
-v.vertices[0].connected_edges()    # Get all the edges that are connected to this vertex
-position = v.vertices[0].position  # Get the position of this vertex
-origin = v.edges[0].origin         # Get the vertex that the edge originates in
-target = v.edges[0].target         # Get the vertex that the edge points to
+edges: List[HalfEdge] = v.edges                    # A list of all edges
+vertices: List[Vertex] = v.vertices                # A list of all vertices
+sites: List[Point] = v.sites                       # A list of all cell points (a.k.a. sites)
+
+edge, vertex, site = edges[0], vertices[0], sites[0]
+
+# Edge operations
+origin: Vertex = edge.origin              # The vertex in which the edge originates
+target: Vertex = edge.twin.origin         # The twin is the edge that goes in the other direction
+target_alt: Vertex = edge.target          # Same as above, but more convenient
+twin: HalfEdge = edge.twin                # Get the twin of this edge
+next: HalfEdge = edge.next                # Get the next edge
+prev: HalfEdge = edge.twin.next           # Get the previous edge
+prev_alt: HalfEdge = edge.prev            # Same as above, but more convenient
+
+# Site operations
+size: float = site.area()                 # The area of the cell
+borders: List[HalfEdge] = site.borders()  # A list of all the borders that surround this cell point
+vertices: List[Vertex] = site.vertices()  # A list of all the vertices around this cell point
+site_x: float = site.x                    # X-coordinate of the site
+site_xy: [float, float] = site.xy         # (x, y)-coordinates of the site
+
+# Vertex operations
+connected_edges: List[HalfEdge] = vertex.connected_edges  # A list of all edges that are connected to this vertex
+vertex_x: float = vertex.x                                # x-coordinate of the vertex
+vertex_xy: [float, float] = vertex.xy                     # (x, y)-coordinates of the vertex
+print()

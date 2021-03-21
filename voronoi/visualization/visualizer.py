@@ -133,7 +133,7 @@ class Visualizer:
         # Add descriptions
         if show_labels:
             for point in points:
-                self.canvas.text(point.xd, point.yd, s=f"{point} (A={point.cell_size(digits=2)})", zorder=15)
+                self.canvas.text(point.xd, point.yd, s=f"{point} (A={point.area(digits=2)})", zorder=15)
 
         return self
 

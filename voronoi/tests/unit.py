@@ -19,7 +19,7 @@ def _triangle(x, y):
 def _execute(polygon, points, sizes):
     v = Algorithm(polygon)
     v.create_diagram(points=points)
-    calculated = [p.cell_size(2) for p in v.sites]
+    calculated = [p.area(2) for p in v.sites]
     assert sizes == calculated, f"\nResult=\n{calculated}\n\n Expected=\n{sizes}"
 
 

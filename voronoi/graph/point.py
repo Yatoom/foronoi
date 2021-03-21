@@ -29,7 +29,7 @@ class Point(Coordinate):
             return f"P{self.name}"
         return f"Point({self.xd:.2f}, {self.xd:.2f})"
 
-    def cell_size(self, digits=None):
+    def area(self, digits=None):
         """
         Calculate cell size if the point is a site.
         :param digits: (int) number of digits to round to
@@ -40,9 +40,9 @@ class Point(Coordinate):
         if digits is not None:
             return round(self._shoelace(x, y), digits)
 
-        return self._shoelace(x, y)
+        return float(self._shoelace(x, y))
 
-    def get_borders(self):
+    def borders(self):
         if self.first_edge is None:
             return None
         edge = self.first_edge
@@ -54,29 +54,14 @@ class Point(Coordinate):
             edges.append(edge)
         return edges
 
-    def get_vertices(self):
-        borders = self.get_borders()
+    def vertices(self):
+        borders = self.borders()
         if borders is None:
             return None
         return [border.origin for border in borders if isinstance(border.origin, Vertex)]
 
-    # def get_coordinates(self):
-    #     borders = self.get_borders()
-    #     if borders is None:
-    #         return None
-    #     coordinates = []
-    #     for border in borders:
-    #
-    #         # During construction, not all origins are vertices yet.
-    #         origin = border.get_origin()
-    #         if origin is None:
-    #             return None
-    #
-    #         coordinates.append(origin)
-    #     return coordinates
-
     def _get_xy(self):
-        coordinates = self.get_vertices()
+        coordinates = self.vertices()
         if coordinates is None:
             return [], []
         x = [coordinate.x for coordinate in coordinates]
