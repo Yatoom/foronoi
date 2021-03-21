@@ -1,3 +1,4 @@
+import os
 import random
 from voronoi import Voronoi, Polygon, Point, VoronoiObserver
 
@@ -34,18 +35,19 @@ if print_input:
         print(f"    Point({point.xd}, {point.yd}),")
     print("]")
 
-points = [
-    Point(27, 89),
-    Point(15, 95),
-    Point(49, 8),
-    Point(79, 63),
-    Point(54, 12),
-    Point(77, 92),
-    Point(62, 82),
-    Point(83, 71),
-    Point(58, 33),
-    Point(53, 59),
-]
+# Example:
+# points = [
+#     Point(27, 89),
+#     Point(15, 95),
+#     Point(49, 8),
+#     Point(79, 63),
+#     Point(54, 12),
+#     Point(77, 92),
+#     Point(62, 82),
+#     Point(83, 71),
+#     Point(58, 33),
+#     Point(53, 59),
+# ]
 
 # Initialize the algorithm
 v = Voronoi(triangle)
@@ -64,24 +66,11 @@ v.attach_observer(
     )
 )
 
+# Make the output directory
+if not os.path.exists("output"):
+    os.mkdir("output")
+
 # Start the procedure
 v.create_diagram(
     points=[(p.xd, p.yd) for p in points],
 )
-
-
-"""
-Used for the example in the README:
-points = [
-    Point(57, 86),
-    Point(14, 77),
-    Point(44, 79),
-    Point(62, 27),
-    Point(49, 71),
-    Point(22, 91),
-    Point(49, 85),
-    Point(79, 65),
-    Point(64, 97),
-    Point(50, 13),
-]
-"""

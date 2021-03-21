@@ -5,7 +5,7 @@ from voronoi import Polygon
 from voronoi.algorithm import Algorithm
 from voronoi.graph import Point, Coordinate, Vertex
 
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     from voronoi.visualization import Visualizer
@@ -14,15 +14,15 @@ if DEBUG:
 class BoundingCircle(Polygon):
 
     def __init__(self, x, y, radius):
-        self.x = Decimal(str(x))
-        self.y = Decimal(str(y))
+        self.xd = Decimal(str(x))
+        self.yd = Decimal(str(y))
         self.radius = Decimal(str(radius))
         self.polygon_vertices = []
-        self.center = Coordinate(self.x, self.y)
-        self.max_x = self.x + 2 * self.radius
-        self.min_x = self.x - 2 * self.radius
-        self.max_y = self.y + 2 * self.radius
-        self.min_y = self.y - 2 * self.radius
+        self.center = Coordinate(self.xd, self.yd)
+        self.max_x = self.xd + 2 * self.radius
+        self.min_x = self.xd - 2 * self.radius
+        self.max_y = self.yd + 2 * self.radius
+        self.min_y = self.yd - 2 * self.radius
         self.voronoi = Algorithm(self)  # A dummy for visualization
         self.voronoi.sweep_line = self.min_y - abs(self.max_y)
 
@@ -37,7 +37,7 @@ class BoundingCircle(Polygon):
         """)
 
     def inside(self, point):
-        return (self.x - point.xd) ** 2 + (self.y - point.yd) ** 2 < self.radius ** 2
+        return (self.xd - point.xd) ** 2 + (self.yd - point.yd) ** 2 < self.radius ** 2
 
     def finish_edges(self, edges, vertices=None, points=None, event_queue=None):
         resulting_edges = []
@@ -193,18 +193,18 @@ class BoundingCircle(Polygon):
                 return points[1]
 
     def cut_circle(self, a, b, c):
-        d = c - a * self.x - b * self.y
+        d = c - a * self.xd - b * self.yd
         a_sq_b_sq = a ** 2 + b ** 2
         try:
             big_sqrt = Decimal.sqrt(self.radius ** 2 * a_sq_b_sq - d ** 2).real
         except ValueError:
             return None, None
 
-        x1 = self.x + (a * d + b * big_sqrt) / a_sq_b_sq
-        y1 = self.y + (b * d - a * big_sqrt) / a_sq_b_sq
+        x1 = self.xd + (a * d + b * big_sqrt) / a_sq_b_sq
+        y1 = self.yd + (b * d - a * big_sqrt) / a_sq_b_sq
         point1 = Point(x=x1, y=y1)
-        x2 = self.x + (a * d - b * big_sqrt) / a_sq_b_sq
-        y2 = self.y + (b * d + a * big_sqrt) / a_sq_b_sq
+        x2 = self.xd + (a * d - b * big_sqrt) / a_sq_b_sq
+        y2 = self.yd + (b * d + a * big_sqrt) / a_sq_b_sq
         point2 = Point(x=x2, y=y2)
 
         return point1, point2
