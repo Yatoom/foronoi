@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 setup(
   name='voronoi',
   packages=['voronoi', 'voronoi.visualization', 'voronoi.tree', 'voronoi.nodes', "voronoi.graph", "voronoi.events", "voronoi.tests"],
@@ -10,7 +10,5 @@ setup(
   download_url='',
   keywords=['voronoi', 'polygon', 'fortune', 'algorithm'],
   classifiers=[],
-  install_requires=[
-    "numpy", "matplotlib",
-  ]
+  install_requires=find_packages()
 )
