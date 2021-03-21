@@ -29,6 +29,17 @@ class Colors:
     FIRST_EDGE = "#2ecc71"
 
 
+class Presets:
+    # A minimalistic preset that is useful during construction
+    construction = dict(polygon=True, events=True, beach_line=True, sweep_line=True)
+
+    # A minimalistic preset that is useful during clipping
+    clipping = dict(polygon=True)
+
+    # A minimalistic preset that is useful to show the final result
+    final = dict()
+
+
 class Visualizer:
 
     def __init__(self, voronoi, canvas_offset=1, figsize=(8, 8)):
@@ -52,9 +63,10 @@ class Visualizer:
         plt.show(block=block, **kwargs)
         return self
 
-    def plot_all(self, polygon=True, edges=True, vertices=True, sites=True,
-                 outgoing_edges=False, events=True, beach_line=True, arcs=True, border_to_site=False, scale=1,
-                 edge_labels=True, site_labels=True, triangles=False, sweep_line=True, arc_labels=True):
+    def plot_all(self, polygon=False, edges=True, vertices=True, sites=True,
+                 outgoing_edges=False, border_to_site=False, scale=1,
+                 edge_labels=False, site_labels=False, triangles=False, arcs=False, sweep_line=False, events=False,
+                 arc_labels=False, beach_line=False):
 
         self.plot_sweep_line() if sweep_line else False
         self.plot_polygon() if polygon else False
@@ -72,7 +84,8 @@ class Visualizer:
         if hasattr(self.voronoi.bounding_poly, 'radius'):
             # Draw bounding box
             self.canvas.add_patch(
-                patches.Circle((self.voronoi.bounding_poly.xd, self.voronoi.bounding_poly.xd), self.voronoi.bounding_poly.radius,
+                patches.Circle((self.voronoi.bounding_poly.xd, self.voronoi.bounding_poly.xd),
+                               self.voronoi.bounding_poly.radius,
                                fill=False,
                                edgecolor=Colors.BOUNDING_BOX)
             )
@@ -95,8 +108,9 @@ class Visualizer:
 
         return self
 
-    def plot_outgoing_edges(self, vertices=None, scale=1, **kwargs):
+    def plot_outgoing_edges(self, vertices=None, scale=0.5, **kwargs):
         vertices = vertices or self.voronoi.vertices
+        scale = Decimal(str(scale))
 
         for vertex in vertices:
             for edge in vertex.connected_edges:
@@ -116,8 +130,9 @@ class Visualizer:
                 direction = (x_diff / length, y_diff / length)
                 new_end = Coordinate(start.xd + direction[0] * scale, start.yd + direction[1] * scale)
 
-                props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=1, **kwargs)
-                self.canvas.annotate(text='', xy=(new_end.xd, new_end.yd), xytext=(start.xd, start.yd), arrowprops=props)
+                props = dict(arrowstyle="->", color=Colors.EDGE_DIRECTION, linewidth=3, **kwargs)
+                self.canvas.annotate(text='', xy=(new_end.xd, new_end.yd), xytext=(start.xd, start.yd),
+                                     arrowprops=props)
 
         return self
 
@@ -133,7 +148,7 @@ class Visualizer:
         # Add descriptions
         if show_labels:
             for point in points:
-                self.canvas.text(point.xd, point.yd, s=f"{point} (A={point.area(digits=2)})", zorder=15)
+                self.canvas.text(point.xd, point.yd, s=f"P{point.name if point.name is not None else ''}", zorder=15)
 
         return self
 

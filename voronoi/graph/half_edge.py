@@ -26,7 +26,7 @@ class HalfEdge:
 
     def set_next(self, next):
         if next:
-            next.prev = self
+            next.prev_edge = self
         self.next = next
 
     def get_origin(self, y=None, max_y=None):

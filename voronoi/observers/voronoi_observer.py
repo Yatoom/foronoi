@@ -5,12 +5,12 @@ from voronoi.observers.message import Message
 from voronoi.observers.observer import Observer
 import matplotlib.pyplot as plt
 
-from voronoi.visualization.visualizer import Visualizer
+from voronoi.visualization.visualizer import Visualizer, Presets
 
 
 class VoronoiObserver(Observer, ABC):
     def __init__(self, visualize_steps=True, visualize_before_clipping=False, visualize_result=True, callback=None,
-                 figsize=(8, 8), canvas_offset=5, settings=None):
+                 figsize=(8, 8), canvas_offset=1, settings=None):
         self.canvas_offset = canvas_offset
         self.figsize = figsize
         self.visualize_steps = visualize_steps
@@ -28,20 +28,20 @@ class VoronoiObserver(Observer, ABC):
 
         if message == Message.STEP_FINISHED and self.visualize_steps:
             vis = Visualizer(subject, canvas_offset=self.canvas_offset)
-            settings = dict(outgoing_edges=False)
+            settings = Presets.construction
             settings.update(self.settings)
             assert subject.sweep_line == subject.event.yd
             result = vis.plot_all(**settings)
             plt.title(str(subject.event) + "\n")
         elif message == Message.SWEEP_FINISHED and self.visualize_before_clipping:
             vis = Visualizer(subject, canvas_offset=self.canvas_offset)
-            settings = dict(events=False, beach_line=False, outgoing_edges=False)
+            settings = Presets.clipping
             settings.update(self.settings)
             result = vis.plot_all(**settings)
             plt.title("Sweep finished\n")
         elif message == Message.VORONOI_FINISHED and self.visualize_result:
             vis = Visualizer(subject, canvas_offset=self.canvas_offset)
-            settings = dict(events=False, outgoing_edges=False, arcs=False, beach_line=False, sweep_line=False)
+            settings = Presets.final
             settings.update(self.settings)
             result = vis.plot_all(**settings)
             plt.title("Voronoi completed\n")
