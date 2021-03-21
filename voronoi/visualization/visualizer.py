@@ -54,7 +54,7 @@ class Visualizer:
 
     def plot_all(self, polygon=True, edges=True, vertices=True, sites=True,
                  outgoing_edges=False, events=True, beach_line=True, arcs=True, border_to_site=False, scale=1,
-                 edge_labels=True, site_labels=True, triangles=False, sweep_line=True):
+                 edge_labels=True, site_labels=True, triangles=False, sweep_line=True, arc_labels=True):
 
         self.plot_sweep_line() if sweep_line else False
         self.plot_polygon() if polygon else False
@@ -64,7 +64,7 @@ class Visualizer:
         self.plot_sites(show_labels=site_labels) if sites else False
         self.plot_outgoing_edges(scale=scale) if outgoing_edges else False
         self.plot_event(triangles) if events else False
-        self.plot_arcs(plot_arcs=arcs) if beach_line else False
+        self.plot_arcs(plot_arcs=arcs, show_labels=arc_labels) if beach_line else False
         self.set_limits()
         return self
 
@@ -155,7 +155,7 @@ class Visualizer:
 
         return self
 
-    def plot_arcs(self, arcs=None, sweep_line=None, plot_arcs=True):
+    def plot_arcs(self, arcs=None, sweep_line=None, plot_arcs=False, show_labels=True):
         arcs = arcs or self.voronoi.arcs
         sweep_line = sweep_line or self.voronoi.sweep_line
 
@@ -182,7 +182,22 @@ class Visualizer:
 
         # Plot the bottom of all the arcs
         if len(plot_lines) > 0:
-            self.canvas.plot(x, np.min(plot_lines, axis=0), color=Colors.BEACH_LINE)
+            bottom = np.min(plot_lines, axis=0)
+            self.canvas.plot(x, bottom, color=Colors.BEACH_LINE)
+
+            if show_labels:
+                self._plot_arc_labels(x, plot_lines, bottom, sweep_line, arcs)
+
+        return self
+
+    def _plot_arc_labels(self, x, plot_lines, bottom, sweep_line, arcs):
+        indices = np.nanargmin(plot_lines, axis=0)
+        unique_indices = np.unique(indices)
+
+        for index in unique_indices:
+            x_mean = np.nanmedian(x[(indices == index) & (bottom < self.max_y)])
+            y = arcs[index].get_plot(x_mean, sweep_line)
+            self.canvas.text(x_mean, y, s=f"{arcs[index].origin.name}", size=12, color=Colors.VALID_CIRCLE, zorder=15)
 
         return self
 
