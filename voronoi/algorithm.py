@@ -42,7 +42,7 @@ class Algorithm(Subject):
         self.arcs = []
 
         # Store points for visualization
-        self.points = None
+        self.sites = None
 
         # Half edges for visualization
         self.edges = []
@@ -56,7 +56,7 @@ class Algorithm(Subject):
     def initialize(self, points):
 
         # Store the points for visualization
-        self.points = points
+        self.sites = points
 
         # Initialize event queue with all site events.
         for index, point in enumerate(points):
@@ -134,9 +134,9 @@ class Algorithm(Subject):
 
         # Finish with the bounding box
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(
-            edges=self.edges, vertices=self.vertices, points=self.points, event_queue=self.event_queue
+            edges=self.edges, vertices=self.vertices, points=self.sites, event_queue=self.event_queue
         )
-        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
+        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.sites)
 
         if self.remove_zero_length_edges:
             self.clean_up_zero_length_edges()
@@ -270,7 +270,7 @@ class Algorithm(Subject):
         # Note: we only create the new edge if the vertex is still inside the bounding box
         # if self.bounding_poly.inside(event.center):
         # Create a vertex
-        v = Vertex(point=convergence_point)
+        v = Vertex(coordinate=convergence_point)
         self.vertices.append(v)
 
         # Connect the two old edges to the vertex

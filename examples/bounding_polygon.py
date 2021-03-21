@@ -55,7 +55,7 @@ v.create_diagram(points=points)
 edges = v.edges
 vertices = v.vertices
 arcs = v.arcs
-points = v.points
+points = v.sites
 
 # Plotting
 Visualizer(v, canvas_offset=1) \

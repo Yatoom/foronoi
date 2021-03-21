@@ -1,5 +1,6 @@
 import numpy as np
 
+from voronoi.graph.vertex import Vertex
 from voronoi.graph.coordinate import DecimalCoordinate
 
 
@@ -41,21 +42,38 @@ class Point(DecimalCoordinate):
 
         return self._shoelace(x, y)
 
-    def get_coordinates(self):
-        """
-        Find the coordinates of the associated cell's vertices.
-        """
-        coordinates = []
+    # Only returns answer when voronoi construction is complete, None otherwise
+    def get_borders(self):
         edge = self.first_edge
-        start = True
-        while edge != self.first_edge or start:
-            if edge is None or edge.get_origin() is None:
+        edges = [edge]
+        while edge.next != self.first_edge:
+            edge = edge.next
+            edges.append(edge)
+            if edge.next is None:
+                return None
+        return edges
+
+    # Only returns answer when voronoi construction is complete, None otherwise
+    def get_vertices(self):
+        borders = self.get_borders()
+        if borders is None:
+            return None
+        return [border.origin for border in borders if isinstance(border.origin, Vertex)]
+
+    # Only returns answer when voronoi construction is complete, None otherwise
+    def get_coordinates(self):
+        borders = self.get_borders()
+        if borders is None:
+            return None
+        coordinates = []
+        for border in borders:
+
+            # During construction, not all origins are vertices yet.
+            origin = border.get_origin()
+            if origin is None:
                 return None
 
-            coordinates.append(edge.get_origin().as_floats())
-            edge = edge.next
-            start = False
-
+            coordinates.append(origin.as_floats())
         return coordinates
 
     def _get_xy(self):

@@ -31,7 +31,7 @@ class Colors:
 
 class Visualizer:
 
-    def __init__(self, voronoi, canvas_offset, figsize=(8, 8)):
+    def __init__(self, voronoi, canvas_offset=1, figsize=(8, 8)):
         self.voronoi = voronoi
         self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(voronoi.bounding_poly, canvas_offset)
         plt.close("all")  # Prevents previous created plots from showing up
@@ -122,7 +122,7 @@ class Visualizer:
         return self
 
     def plot_sites(self, points=None, show_labels=True, color=Colors.CELL_POINTS, zorder=10):
-        points = points or self.voronoi.points
+        points = points or self.voronoi.sites
 
         xs = [point.x for point in points]
         ys = [point.y for point in points]

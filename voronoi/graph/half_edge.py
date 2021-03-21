@@ -39,7 +39,7 @@ class HalfEdge:
         :return: The point of origin, or None
         """
         if isinstance(self.origin, Vertex):
-            return self.origin.point
+            return self.origin.coordinate
 
         if y is not None:
             return self.origin.get_intersection(y, max_y=max_y)
@@ -57,6 +57,12 @@ class HalfEdge:
             twin._twin = self
 
         self._twin = twin
+
+    @property
+    def target(self):
+        if self.twin is None:
+            return None
+        return self.twin.origin
 
     def delete(self):
         """

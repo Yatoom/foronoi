@@ -19,8 +19,8 @@ def _triangle(x, y):
 def _execute(polygon, points, sizes):
     v = Algorithm(polygon)
     v.create_diagram(points=points)
-    calculated = [p.cell_size(2) for p in v.points]
-    assert sizes == calculated, calculated
+    calculated = [p.cell_size(2) for p in v.sites]
+    assert sizes == calculated, f"\nResult=\n{calculated}\n\n Expected=\n{sizes}"
 
 
 # -----------
@@ -463,7 +463,7 @@ def _test_vertices_correct(polygon, points, expected, remove_zero_length_edges):
     assert result == expected, f"\nResult=\n{result}\n\n Expected=\n{expected}"
 
 def _sort_vertices(vertex):
-    return vertex.point.y, vertex.point.x
+    return vertex.coordinate.y, vertex.coordinate.x
 
 
 def _sort_edges(edge):

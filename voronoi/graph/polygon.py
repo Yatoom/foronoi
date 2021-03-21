@@ -21,7 +21,7 @@ class Polygon(Subject):
         self.points = self.order_points(self.points)
         self.polygon_vertices = []
         for point in self.points:
-            self.polygon_vertices.append(Vertex(point=point))
+            self.polygon_vertices.append(Vertex(coordinate=point))
 
     def order_points(self, points):
         clockwise = sorted(points, key=lambda point: (-180 - Algebra.calculate_angle(point, self.center)) % 360)
@@ -122,7 +122,7 @@ class Polygon(Subject):
         point = self.get_intersection_point(end, start)
 
         # Create vertex
-        v = Vertex(point=point)
+        v = Vertex(coordinate=point)
         v.connected_edges.append(edge)
         edge.origin = v
         self.polygon_vertices.append(v)

@@ -76,7 +76,7 @@ Visualizer(voronoi, canvas_offset=1)\
 
 ### Calculate the shell size for each point
 ```python
-for point in v.points:
+for point in v.sites:
     print(f"{(point.x, point.y)} \t {point.cell_size()}")
 ```
 Output:
@@ -94,7 +94,7 @@ More examples can be found in the `voronoi/examples` folder.
 
 ### Get coordinates of the cell borders for a point
 ```python
-v.points[0].get_coordinates()
+v.sites[0].get_coordinates()
 ```
 Output:
 ```python
