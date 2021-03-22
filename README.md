@@ -49,24 +49,27 @@ polygon = Polygon([
 v = Voronoi(polygon)
 
 # Attach a Voronoi Observer that monitors and visualizes the construction of 
-# the Voronoi Diagram step-by-step
-v.attach_observer(VoronoiObserver(visualize_steps=True))
+# the Voronoi Diagram step-by-step. See for more information 
+# examples/quickstart.py or examples/observers.py.
+v.attach_observer(VoronoiObserver())
 
 # Create the diagram
 v.create_diagram(points=points)
 
-# Get properties
+# Get properties. See more examples in examples/quickstart.py
 edges = v.edges
 vertices = v.vertices
 arcs = v.arcs
 points = v.points
 
 # Plotting
+# Note: plot_border_to_site() indicates with dashed line to which site a border 
+# belongs. The site's first edge is colored green.
 Visualizer(voronoi, canvas_offset=1)\
     .plot_sites(show_labels=True)\
     .plot_edges(show_labels=False)\
     .plot_vertices()\
-    .plot_border_to_site()\ # Indicates with dashed line to which site a border belongs
+    .plot_border_to_site()\ 
     .show()
 
 ```
@@ -77,7 +80,7 @@ Visualizer(voronoi, canvas_offset=1)\
 ### Calculate the shell size for each point
 ```python
 for point in v.sites:
-    print(f"{(point.xd, point.yd)} \t {point.area()}")
+    print(f"{point.xy} \t {point.area()}")
 ```
 Output:
 ```
@@ -94,7 +97,9 @@ More examples can be found in the `voronoi/examples` folder.
 
 ### Get coordinates of the cell borders for a point
 ```python
-v.sites[0].get_coordinates()
+vertices = v.sites[0].get_vertices()
+coords = [(vertex.x, vertex.y) for vertex in vertices]
+print(coords)
 ```
 Output:
 ```python
