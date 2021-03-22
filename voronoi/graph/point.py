@@ -1,9 +1,10 @@
 import numpy as np
 
-from voronoi.graph.coordinate import DecimalCoordinate
+from voronoi.graph.vertex import Vertex
+from voronoi.graph.coordinate import Coordinate
 
 
-class Point(DecimalCoordinate):
+class Point(Coordinate):
 
     def __init__(self, x=None, y=None, metadata=None, name=None, first_edge=None):
         """
@@ -26,9 +27,9 @@ class Point(DecimalCoordinate):
     def __repr__(self):
         if self.name is not None:
             return f"P{self.name}"
-        return f"Point({round(self.x, 3)}, {round(self.y, 3)})"
+        return f"Point({self.xd:.2f}, {self.xd:.2f})"
 
-    def cell_size(self, digits=None):
+    def area(self, digits=None):
         """
         Calculate cell size if the point is a site.
         :param digits: (int) number of digits to round to
@@ -39,27 +40,28 @@ class Point(DecimalCoordinate):
         if digits is not None:
             return round(self._shoelace(x, y), digits)
 
-        return self._shoelace(x, y)
+        return float(self._shoelace(x, y))
 
-    def get_coordinates(self):
-        """
-        Find the coordinates of the associated cell's vertices.
-        """
-        coordinates = []
+    def borders(self):
+        if self.first_edge is None:
+            return None
         edge = self.first_edge
-        start = True
-        while edge != self.first_edge or start:
-            if edge is None or edge.get_origin() is None:
+        edges = [edge]
+        while edge.next != self.first_edge:
+            if edge.next is None:
                 return None
-
-            coordinates.append(edge.get_origin().as_floats())
             edge = edge.next
-            start = False
+            edges.append(edge)
+        return edges
 
-        return coordinates
+    def vertices(self):
+        borders = self.borders()
+        if borders is None:
+            return None
+        return [border.origin for border in borders if isinstance(border.origin, Vertex)]
 
     def _get_xy(self):
-        coordinates = self.get_coordinates()
+        coordinates = self.vertices()
         if coordinates is None:
             return [], []
         x = [coordinate.x for coordinate in coordinates]
@@ -67,7 +69,7 @@ class Point(DecimalCoordinate):
         return x, y
 
     def __sub__(self, other):
-        return Point(x=self.x-other.x, y=self.y-other.y)
+        return Point(x=self.xd - other.xd, y=self.yd - other.yd)
 
     @staticmethod
     def _shoelace(x, y):

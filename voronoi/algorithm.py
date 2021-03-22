@@ -1,24 +1,33 @@
-import warnings
 from queue import PriorityQueue
 
-from voronoi.graph import Point
-from voronoi.graph import HalfEdge, Vertex, Algebra
-from voronoi.graph.bounding_circle import BoundingCircle
-from voronoi.nodes import LeafNode, Arc, Breakpoint, InternalNode
-from voronoi.events import CircleEvent, SiteEvent
-from voronoi.tree import SmartTree, SmartNode
-from voronoi.visualization import vis
-from voronoi.visualization import Tell
+from voronoi.observers.message import Message
+from voronoi.observers.subject import Subject
+from voronoi.graph.point import Point
+from voronoi.graph.half_edge import HalfEdge
+from voronoi.graph.vertex import Vertex
+from voronoi.graph.algebra import Algebra
+from voronoi.graph.polygon import Polygon
+from voronoi.nodes.leaf_node import LeafNode
+from voronoi.nodes.arc import Arc
+from voronoi.nodes.breakpoint import Breakpoint
+from voronoi.nodes.internal_node import InternalNode
+from voronoi.events.circle_event import CircleEvent
+from voronoi.events.site_event import SiteEvent
+from voronoi.tree.smart_node import SmartNode
+from voronoi.tree.smart_tree import SmartTree
 
 
-class Algorithm:
-    def __init__(self, bounding_poly=None):
+class Algorithm(Subject):
+    def __init__(self, bounding_poly: Polygon = None, remove_zero_length_edges=True):
+        super().__init__()
 
         # The bounding box around the edge
-        self.bounding_poly = bounding_poly
+        self.bounding_poly: Polygon = bounding_poly
+        self.bounding_poly.inherit_observers_from(self)
 
         # Event queue for upcoming site and circle events
         self.event_queue = PriorityQueue()
+        self.event = None
 
         # Root of beach line
         self.beach_line: SmartNode = None
@@ -33,7 +42,7 @@ class Algorithm:
         self.arcs = []
 
         # Store points for visualization
-        self.points = None
+        self.sites = None
 
         # Half edges for visualization
         self.edges = []
@@ -41,10 +50,13 @@ class Algorithm:
         # List of vertices
         self.vertices = []
 
+        # Whether to remove zero length edges
+        self.remove_zero_length_edges = remove_zero_length_edges
+
     def initialize(self, points):
 
         # Store the points for visualization
-        self.points = points
+        self.sites = points
 
         # Initialize event queue with all site events.
         for index, point in enumerate(points):
@@ -54,17 +66,11 @@ class Algorithm:
 
         return self.event_queue
 
-    def create_diagram(self, points: list, vis_steps=False, vis_result=False, vis_tree=False,
-                       vis_before_clipping=False, verbose=False):
+    def create_diagram(self, points: list):
         """
         Create the Voronoi diagram.
 
         :param points: (list) The list of cell points to make the diagram for
-        :param vis_steps: (bool) Visualize intermediate steps
-        :param vis_result: (bool) Visualize the final result
-        :param vis_tree: (bool) Visualize the status of the binary tree (text-based)
-        :param vis_before_clipping: Visualize the intermediate final result before clipping
-        :param verbose: (bool) Print debug information
         """
 
         points = [Point(x, y) for x, y in points]
@@ -78,8 +84,6 @@ class Algorithm:
 
         while not self.event_queue.empty():
 
-            Tell.print_queue(self.event_queue, verbose)
-
             # Pop the event queue with the highest priority
             event = self.event_queue.get()
 
@@ -89,26 +93,16 @@ class Algorithm:
             # Handle circle events
             if isinstance(event, CircleEvent) and event.is_valid:
                 # Update sweep line position
-                self.sweep_line = event.y
+                self.sweep_line = event.yd
 
                 # Debugging
-                Tell.print(
-                    verbose,
-                    f"-> Handle circle event at {event.y} with center {event.center} and arcs {event.point_triple}"
+                self.notify_observers(
+                    Message.DEBUG,
+                    payload=f"# Handle circle event at {event.yd:.3f} with center= {event.center} and arcs= {event.point_triple}"
                 )
 
                 # Handle the event
-                self.handle_circle_event(event, verbose=verbose)
-
-                # Visualization
-                if vis_steps and vis_tree:
-                    self.beach_line.visualize()
-
-                if vis_steps:
-                    vis.visualize(self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
-                                  points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                                  event_queue=self.event_queue)
-
+                self.handle_circle_event(event)
 
             # Handle site events
             elif isinstance(event, SiteEvent):
@@ -118,44 +112,40 @@ class Algorithm:
                 index += 1
 
                 # Update sweep line position
-                self.sweep_line = event.y
+                self.sweep_line = event.yd
 
                 # Debugging
-                Tell.print(verbose, f"-> Handle site event at {event.y} with point {event.point}")
+                self.notify_observers(
+                    Message.DEBUG,
+                    payload=f"# Handle site event at y={event.yd:.3f} with point {event.point}"
+                )
 
                 # Handle the event
-                self.handle_site_event(event, verbose=verbose)
+                self.handle_site_event(event)
+            else:
+                # Skip the step if circle event is no longer valid
+                continue
 
-                # Visualization
-                if vis_steps and vis_tree:
-                    self.beach_line.visualize()
+            self.event = event
+            self.notify_observers(Message.STEP_FINISHED)
 
-                if vis_steps:
-                    vis.visualize(y=self.sweep_line, current_event=event, bounding_poly=self.bounding_poly,
-                                  points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                                  event_queue=self.event_queue)
-
-        if vis_before_clipping:
-            vis.visualize(y=-1000, current_event="Before clipping", bounding_poly=self.bounding_poly,
-                          points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                          event_queue=self.event_queue)
+        self.notify_observers(Message.DEBUG, payload="# Sweep finished")
+        self.notify_observers(Message.SWEEP_FINISHED)
 
         # Finish with the bounding box
         self.edges, polygon_vertices = self.bounding_poly.finish_edges(
-            edges=self.edges, verbose=verbose, vertices=self.vertices, points=self.points, event_queue=self.event_queue
+            edges=self.edges, vertices=self.vertices, points=self.sites, event_queue=self.event_queue
         )
-        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.points)
+        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.sites)
+
+        if self.remove_zero_length_edges:
+            self.clean_up_zero_length_edges()
 
         # Final visualization
-        if vis_result:
-            # Cell size calculation is not supported for bounding circles
-            calc_cell_sizes = not isinstance(self.bounding_poly, BoundingCircle)
+        self.notify_observers(Message.DEBUG, payload="# Voronoi finished")
+        self.notify_observers(Message.VORONOI_FINISHED)
 
-            vis.visualize(-1000, current_event="Final result", bounding_poly=self.bounding_poly,
-                          points=self.points, vertices=self.vertices, edges=self.edges, arc_list=self.arcs,
-                          event_queue=self.event_queue, calc_cell_sizes=calc_cell_sizes)
-
-    def handle_site_event(self, event: SiteEvent, verbose=False):
+    def handle_site_event(self, event: SiteEvent):
 
         # Create a new arc
         new_point = event.point
@@ -168,12 +158,12 @@ class Algorithm:
             return
 
         # 2. Search the beach line tree for the arc above the point
-        arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.x, sweep_line=self.sweep_line)
+        arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.xd, sweep_line=self.sweep_line)
         arc_above_point = arc_node_above_point.get_value()
 
         # 3. Remove potential false alarm
         if arc_above_point.circle_event is not None:
-            arc_above_point.circle_event.remove(verbose=verbose)
+            arc_above_point.circle_event.remove()
 
         # 4. Replace leaf with new sub tree that represents the two new intersections on the arc above the point
         #
@@ -238,14 +228,17 @@ class Algorithm:
         node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
         node_c, node_d, node_e = node_c, root.right.right, root.right.right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e), verbose)
+        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e))
 
         # 7. Rebalance the tree
         self.beach_line = SmartTree.balance_and_propagate(root)
 
-    def handle_circle_event(self, event: CircleEvent, verbose=False):
+    def handle_circle_event(self, event: CircleEvent):
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
+        arc = event.arc_pointer.data
+        if arc in self.arcs:
+            self.arcs.remove(arc)
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
@@ -262,6 +255,7 @@ class Algorithm:
         def remove(neighbor_event):
             if neighbor_event is None:
                 return None
+            self.notify_observers(Message.DEBUG, payload=f"Circle event for {neighbor_event.yd} removed.")
             return neighbor_event.remove()
 
         remove(predecessor.get_value().circle_event)
@@ -276,7 +270,7 @@ class Algorithm:
         # Note: we only create the new edge if the vertex is still inside the bounding box
         # if self.bounding_poly.inside(event.center):
         # Create a vertex
-        v = Vertex(point=convergence_point)
+        v = Vertex(convergence_point.xd, convergence_point.yd)
         self.vertices.append(v)
 
         # Connect the two old edges to the vertex
@@ -294,9 +288,9 @@ class Algorithm:
         new_edge = HalfEdge(breakpoint_a, origin=v, twin=HalfEdge(breakpoint_b, origin=updated))
 
         # Set previous and next
-        left.edge.twin.set_next(new_edge)    # yellow
+        left.edge.twin.set_next(new_edge)  # yellow
         right.edge.twin.set_next(left.edge)  # orange
-        new_edge.twin.set_next(right.edge)   # blue
+        new_edge.twin.set_next(right.edge)  # blue
 
         # Add to list for visualization
         self.edges.append(new_edge)
@@ -314,28 +308,26 @@ class Algorithm:
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
         node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f), verbose)
+        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f))
 
-    def check_circles(self, triple_left, triple_right, verbose=False):
+    def check_circles(self, triple_left, triple_right):
         node_a, node_b, node_c = triple_left
         node_d, node_e, node_f = triple_right
 
-        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line,
-                                                     verbose=verbose)
-        right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line,
-                                                      verbose=verbose)
+        left_event = CircleEvent.create_circle_event(node_a, node_b, node_c, sweep_line=self.sweep_line)
+        right_event = CircleEvent.create_circle_event(node_d, node_e, node_f, sweep_line=self.sweep_line)
 
         # Check if the circles converge
         if left_event:
             if not Algebra.check_clockwise(node_a.data.origin, node_b.data.origin, node_c.data.origin,
                                            left_event.center):
-                Tell.print(verbose, f"Circle {left_event.point_triple} not clockwise.")
+                self.notify_observers(Message.DEBUG, payload=f"Circle {left_event.point_triple} not clockwise.")
                 left_event = None
 
         if right_event:
             if not Algebra.check_clockwise(node_d.data.origin, node_e.data.origin, node_f.data.origin,
                                            right_event.center):
-                Tell.print(verbose, f"Circle {right_event.point_triple} not clockwise.")
+                self.notify_observers(Message.DEBUG, payload=f"Circle {right_event.point_triple} not clockwise.")
                 right_event = None
 
         if left_event is not None:
@@ -347,9 +339,11 @@ class Algorithm:
             node_e.data.circle_event = right_event
 
         if left_event is not None:
-            Tell.print(verbose, f"Left circle event created for {left_event.y}. Arcs: {left_event.point_triple}")
+            self.notify_observers(Message.DEBUG,
+                                  payload=f"Left circle event created for {left_event.yd}. Arcs: {left_event.point_triple}")
         if right_event is not None:
-            Tell.print(verbose, f"Right circle event created for {right_event.y}. Arcs: {right_event.point_triple}")
+            self.notify_observers(Message.DEBUG,
+                                  payload=f"Right circle event created for {right_event.yd}. Arcs: {right_event.point_triple}")
 
         return left_event, right_event
 
@@ -413,3 +407,36 @@ class Algorithm:
             right = updated
 
         return root, updated, removed, left, right
+
+    def clean_up_zero_length_edges(self):
+        """
+        Removes zero length edges and vertices with the same coordinate
+        that are produced when two site-events happen at the same time.
+        """
+
+        resulting_edges = []
+        for edge in self.edges:
+            start = edge.get_origin()
+            end = edge.twin.get_origin()
+            if start.xd == end.xd and start.yd == end.yd:
+
+                # Combine the vertices
+                v1: Vertex = edge.origin
+                v2: Vertex = edge.twin.origin
+
+                # Move connected edges from v1 to v2
+                for connected in v1.connected_edges:
+                    connected.origin = v2
+                    v1.connected_edges.remove(connected)
+                    v2.connected_edges.append(connected)
+
+                # Remove vertex v1
+                self.vertices.remove(v1)
+
+                # Delete the edge
+                edge.delete()
+                edge.twin.delete()
+
+            else:
+                resulting_edges.append(edge)
+            self.edges = resulting_edges
