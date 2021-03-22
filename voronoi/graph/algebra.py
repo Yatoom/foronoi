@@ -1,14 +1,14 @@
 import numpy as np
-from voronoi.graph import DecimalCoordinate
+from voronoi.graph import Coordinate
 
 
 class Algebra:
     @staticmethod
     def distance(point_a, point_b):
-        x1 = point_a.x
-        x2 = point_b.x
-        y1 = point_a.y
-        y2 = point_b.y
+        x1 = point_a.xd
+        x2 = point_b.xd
+        y1 = point_a.yd
+        y2 = point_b.yd
 
         return np.sqrt((x2 - x1) ** 2 + (y2 - y1)**2)
 
@@ -48,21 +48,21 @@ class Algebra:
         return []
 
     @staticmethod
-    def get_intersection(orig: DecimalCoordinate, end: DecimalCoordinate, p1: DecimalCoordinate, p2: DecimalCoordinate):
+    def get_intersection(orig: Coordinate, end: Coordinate, p1: Coordinate, p2: Coordinate):
         if not orig or not end:
             return None
 
-        point = Algebra.line_ray_intersection_point([orig.x, orig.y], [end.x, end.y], [p1.x, p1.y], [p2.x, p2.y])
+        point = Algebra.line_ray_intersection_point([orig.xd, orig.yd], [end.xd, end.yd], [p1.xd, p1.yd], [p2.xd, p2.yd])
 
         if len(point) == 0:
             return None
 
-        return DecimalCoordinate(point[0][0], point[0][1])
+        return Coordinate(point[0][0], point[0][1])
 
     @staticmethod
     def calculate_angle(point, center):
-        dx = point.x - center.x
-        dy = point.y - center.y
+        dx = point.xd - center.xd
+        dy = point.yd - center.yd
         return np.math.degrees(np.math.atan2(dy, dx)) % 360
 
     @staticmethod

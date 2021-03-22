@@ -2,27 +2,27 @@ class Event:
     circle_event = False
 
     @property
-    def x(self):
+    def xd(self):
         return 0
 
     @property
-    def y(self):
+    def yd(self):
         return 0
 
     def __lt__(self, other):
-        if self.y == other.y and self.x == other.x:
+        if self.yd == other.yd and self.xd == other.xd:
             return self.circle_event and not other.circle_event
 
-        if self.y == other.y:
-            return self.x < other.x
+        if self.yd == other.yd:
+            return self.xd < other.xd
 
         # Switch y axis
-        return self.y > other.y
+        return self.yd > other.yd
 
     def __eq__(self, other):
         if other is None:
             return None
-        return self.y == other.y and self.x == other.x
+        return self.yd == other.yd and self.xd == other.xd
 
     def __ne__(self, other):
         return not self.__eq__(other)

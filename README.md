@@ -1,7 +1,7 @@
 # Voronoi
 [![Build Status](https://travis-ci.org/Yatoom/voronoi.svg?branch=master)](https://travis-ci.org/Yatoom/voronoi)
 
-![](https://raw.githubusercontent.com/Yatoom/voronoi/master/triangle.gif)
+![](voronoi.gif)
 
 A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
 
@@ -19,10 +19,10 @@ Note: you need to use `sudo python3 setup.py install` on most Linux distribution
 
 Example that uses a polygon as a bounding box.
 
-```python
-from voronoi import Voronoi, Polygon
+```python3
+from voronoi import Voronoi, Polygon, Visualizer, VoronoiObserver
 
-# Define a set of points
+# Define some points (a.k.a sites or cell points)
 points = [
     (2.5, 2.5),
     (4, 7.5),
@@ -33,7 +33,7 @@ points = [
     (6, 3),
 ]
 
-# Define a bounding box
+# Define a bounding box / polygon
 polygon = Polygon([
     (2.5, 10),
     (5, 10),
@@ -48,21 +48,39 @@ polygon = Polygon([
 # Initialize the algorithm
 v = Voronoi(polygon)
 
-# Create the diagram
-v.create_diagram(points=points, vis_steps=False, verbose=False, vis_result=True, vis_tree=True)
+# Attach a Voronoi Observer that monitors and visualizes the construction of 
+# the Voronoi Diagram step-by-step. See for more information 
+# examples/quickstart.py or examples/observers.py.
+v.attach_observer(VoronoiObserver())
 
-# Get properties
+# Create the diagram
+v.create_diagram(points=points)
+
+# Get properties. See more examples in examples/quickstart.py
 edges = v.edges
 vertices = v.vertices
 arcs = v.arcs
 points = v.points
+
+# Plotting
+# Note: plot_border_to_site() indicates with dashed line to which site a border 
+# belongs. The site's first edge is colored green.
+Visualizer(voronoi, canvas_offset=1)\
+    .plot_sites(show_labels=True)\
+    .plot_edges(show_labels=False)\
+    .plot_vertices()\
+    .plot_border_to_site()\ 
+    .show()
+
 ```
-![](https://raw.githubusercontent.com/Yatoom/voronoi/master/example.png)
+![image](https://user-images.githubusercontent.com/4205641/111237517-8a609800-85f5-11eb-8095-09001dd7b00e.png)
+
+
 
 ### Calculate the shell size for each point
 ```python
-for point in v.points:
-    print(f"{(point.x, point.y)} \t {point.cell_size()}")
+for point in v.sites:
+    print(f"{point.xy} \t {point.area()}")
 ```
 Output:
 ```
@@ -77,9 +95,11 @@ Output:
 
 More examples can be found in the `voronoi/examples` folder.
 
-### Get coordinates for a point
+### Get coordinates of the cell borders for a point
 ```python
-v.points[0].get_coordinates()
+vertices = v.sites[0].get_vertices()
+coords = [(vertex.x, vertex.y) for vertex in vertices]
+print(coords)
 ```
 Output:
 ```python

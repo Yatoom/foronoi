@@ -1,4 +1,4 @@
-from voronoi.graph import Polygon, DecimalCoordinate
+from voronoi.graph import Polygon, Coordinate
 
 
 class BoundingBox(Polygon):

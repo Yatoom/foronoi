@@ -1,4 +1,2 @@
-from voronoi.visualization.tell import Tell
-from voronoi.visualization.visual import Visualization
-
-vis = Visualization()
+from voronoi.visualization.visualizer import Visualizer
+from voronoi.visualization.visualizer import Presets
