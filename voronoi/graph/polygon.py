@@ -41,7 +41,7 @@ class Polygon(Subject):
 
     def finish_polygon(self, edges, existing_vertices, points):
         vertices = self.get_ordered_vertices(self.polygon_vertices)
-        vertices = vertices + [vertices[0]]
+        vertices = vertices + [vertices[0]]  # <- The extra vertex added here, should be removed later
         cell = self.get_closest_point(vertices[0], points)
         previous_edge = None
         for index in range(0, len(vertices) - 1):
@@ -81,7 +81,7 @@ class Polygon(Subject):
 
         existing_vertices = [i for i in existing_vertices if self.inside(i)]
 
-        return edges, vertices + existing_vertices
+        return edges, vertices[:-1] + existing_vertices
 
     def get_coordinates(self):
         return [(i.xd, i.yd) for i in self.points]
