@@ -41,25 +41,65 @@ class Presets:
 
 
 class Visualizer:
+    """
+    Visualizer
+    """
 
     def __init__(self, voronoi, canvas_offset=1, figsize=(8, 8)):
+        """
+        A visualizer for your voronoi diagram.
+
+        Parameters
+        ----------
+        voronoi: Voronoi
+            The voronoi object
+        canvas_offset: Int
+            The space around the bounding object
+        figsize: float, float
+            Width, height in inches
+        """
         self.voronoi = voronoi
-        self.min_x, self.max_x, self.min_y, self.max_y = self.canvas_size(voronoi.bounding_poly, canvas_offset)
+        self.min_x, self.max_x, self.min_y, self.max_y = self._canvas_size(voronoi.bounding_poly, canvas_offset)
         plt.close("all")  # Prevents previous created plots from showing up
         fig, ax = plt.subplots(figsize=figsize)
         self.canvas = ax
 
-    def set_limits(self):
+    def _set_limits(self):
         self.canvas.set_ylim(self.min_y, self.max_y)
         self.canvas.set_xlim(self.min_x, self.max_x)
         return self
 
     def get_canvas(self):
-        self.set_limits()
+        """
+        Retrieve the figure.
+
+        Returns
+        -------
+        Figure: matplotlib.figure.Figure
+        """
+        self._set_limits()
         return self.canvas.figure
 
     def show(self, block=True, **kwargs):
-        self.set_limits()
+        """
+        Display all open figures.
+
+        Parameters
+        ----------
+        block : bool, optional
+
+            If `True` block and run the GUI main loop until all windows
+            are closed.
+
+            If `False` ensure that all windows are displayed and return
+            immediately.  In this case, you are responsible for ensuring
+            that the event loop is running to have responsive figures.
+
+        Returns
+        -------
+        self: Visualizer
+        """
+        self._set_limits()
         plt.show(block=block, **kwargs)
         return self
 
@@ -67,6 +107,52 @@ class Visualizer:
                  outgoing_edges=False, border_to_site=False, scale=1,
                  edge_labels=False, site_labels=False, triangles=False, arcs=False, sweep_line=False, events=False,
                  arc_labels=False, beach_line=False):
+        """
+        Convenience method that calls other methods to display parts of the diagram.
+
+        Parameters
+        ----------
+        polygon: bool
+            Display the polygon outline.
+            *Only useful during construction.*
+        edges: bool
+            Display the borders of the cells.
+        vertices: bool
+            Display the intersections of the edges.
+        sites: bool
+            Display the cell points (a.k.a. sites)
+        outgoing_edges: bool
+            Show arrows of length `scale` in the direction of the outgoing edges for each vertex.
+        border_to_site: bool
+            Indicate with dashed line to which site a border belongs. The site's first edge is colored green.
+        scale: float
+            Used to set the length of the `outgoing_edges`.
+        edge_labels: bool
+            Display edge labels of format "`A/B`", where the edge is `A`'s border and the edge's twin is `B`'s border.
+        site_labels: bool
+            Display the labels of the cell points, of format "`P#`", where `#` is the `n`th point from top to bottom.
+        triangles: bool
+            Display the triangle of the 3 points responsible for causing a circle event.
+            *Only useful during construction.*
+        arcs: bool
+            Display each arc for each point. Only used if `beach_line` is also `True`.
+            *Only useful during construction.*
+        sweep_line: bool
+            Display the sweep line.
+            *Only useful during construction.*
+        events: bool
+            Display circles for circle events.
+            *Only useful during construction.*
+        arc_labels: bool
+            Display labels on the arcs.
+            *Only useful during construction.*
+        beach_line: bool
+            Display the beach line.
+            *Only useful during construction.*
+        Returns
+        -------
+        self: Visualizer
+        """
 
         self.plot_sweep_line() if sweep_line else False
         self.plot_polygon() if polygon else False
@@ -77,10 +163,18 @@ class Visualizer:
         self.plot_outgoing_edges(scale=scale) if outgoing_edges else False
         self.plot_event(triangles) if events else False
         self.plot_arcs(plot_arcs=arcs, show_labels=arc_labels) if beach_line else False
-        self.set_limits()
+        self._set_limits()
         return self
 
     def plot_polygon(self):
+        """
+        Display the polygon outline.
+        *Only useful during construction.*
+
+        Returns
+        -------
+        self: Visualizer
+        """
         if hasattr(self.voronoi.bounding_poly, 'radius'):
             # Draw bounding box
             self.canvas.add_patch(
@@ -98,6 +192,18 @@ class Visualizer:
         return self
 
     def plot_vertices(self, vertices=None, **kwargs):
+        """
+        Display the intersections of the edges.
+
+        Parameters
+        ----------
+        vertices: list(:ref:`Vertex`), optional
+            The vertices to display. By default, the `voronoi`'s vertices will be used.
+
+        Returns
+        -------
+        self: Visualizer
+        """
         vertices = vertices or self.voronoi.vertices
 
         xs = [vertex.xd for vertex in vertices]
@@ -109,6 +215,21 @@ class Visualizer:
         return self
 
     def plot_outgoing_edges(self, vertices=None, scale=0.5, **kwargs):
+        """
+        Show arrows of length `scale` in the direction of the outgoing edges for each vertex.
+
+        Parameters
+        ----------
+        vertices: list(:ref:`Vertex`), optional
+            The vertices for which to display the outgoing edges. By default, the `voronoi`'s vertices will be used.
+        scale: float
+            Used to set the length of the `outgoing_edges`.
+        kwargs
+            Optional arguments that are passed to arrowprops
+        Returns
+        -------
+        self: Visualizer
+        """
         vertices = vertices or self.voronoi.vertices
         scale = Decimal(str(scale))
 
@@ -137,6 +258,24 @@ class Visualizer:
         return self
 
     def plot_sites(self, points=None, show_labels=True, color=Colors.CELL_POINTS, zorder=10):
+        """
+        Display the cell points (a.k.a. sites).
+
+        Parameters
+        ----------
+        points: list(:ref:`Point`), optional
+            The vertices to display. By default, the `voronoi`'s vertices will be used.
+        show_labels: bool
+            Display the labels of the cell points, of format "`P#`", where `#` is the `n`th point from top to bottom.
+        color: str
+            Color of the sites in hex format (e.g. "#bdc3c7").
+        zorder: int
+            Higher order will be shown on top of a lower layer.
+
+        Returns
+        -------
+        self: Visualizer
+        """
         points = points or self.voronoi.sites
 
         xs = [point.xd for point in points]
@@ -153,6 +292,25 @@ class Visualizer:
         return self
 
     def plot_edges(self, edges=None, sweep_line=None, show_labels=True, color=Colors.EDGE, **kwargs):
+        """
+        Display the borders of the cells.
+
+        Parameters
+        ----------
+        edges: list(:ref:`HalfEdge`), optional
+            The edges to display. By default, the `voronoi`'s edges will be used.
+        sweep_line: Decimal
+            The y-coordinate of the sweep line, used to calculate the positions of unfinished edges. By default, the
+            `voronoi`'s sweep_line will be used.
+        show_labels: bool
+            Display edge labels of format "`A/B`", where the edge is `A`'s border and the edge's twin is `B`'s border.
+        color: str
+            Color of the sites in hex format (e.g. "#636e72").
+
+        Returns
+        -------
+        self: Visualizer
+        """
         edges = edges or self.voronoi.edges
         sweep_line = sweep_line or self.voronoi.sweep_line
         for edge in edges:
@@ -162,6 +320,22 @@ class Visualizer:
         return self
 
     def plot_border_to_site(self, edges=None, sweep_line=None):
+        """
+        Indicate with dashed line to which site a border belongs. The site's first edge is colored green.
+
+        Parameters
+        ----------
+        edges: list(:ref:`HalfEdge`), optional
+            The edges to display. By default, the `voronoi`'s edges will be used.
+            
+        sweep_line: Decimal
+            The y-coordinate of the sweep line, used to calculate the positions of unfinished edges. By default, the
+            `voronoi`'s sweep_line will be used.
+
+        Returns
+        -------
+        self: Visualizer
+        """
         edges = edges or self.voronoi.edges
         sweep_line = sweep_line or self.voronoi.sweep_line
         for edge in edges:
@@ -171,6 +345,26 @@ class Visualizer:
         return self
 
     def plot_arcs(self, arcs=None, sweep_line=None, plot_arcs=False, show_labels=True):
+        """
+        Display each arc for each point. Only used if `beach_line` is also `True`.
+        *Only useful during construction.*
+        
+        Parameters
+        ----------
+        arcs: list(:ref:`Arc`)
+        sweep_line: Decimal
+            The y-coordinate of the sweep line, used to calculate the positions of the arcs. By default, the
+            `voronoi`'s sweep_line will be used.
+        plot_arcs: bool
+            Display each arc for each point
+        show_labels: bool
+            Display labels on the arcs.
+
+        Returns
+        -------
+        self: Visualizer
+
+        """
         arcs = arcs or self.voronoi.arcs
         sweep_line = sweep_line or self.voronoi.sweep_line
 
@@ -217,6 +411,18 @@ class Visualizer:
         return self
 
     def plot_sweep_line(self, sweep_line=None):
+        """
+        Plot the sweep line.
+        
+        Parameters
+        ----------
+        sweep_line: Decimal
+            The y-coordinate of the sweep line. By default, the `voronoi`'s sweep_line will be used.
+
+        Returns
+        -------
+        self: Visualizer
+        """
         sweep_line = sweep_line or self.voronoi.sweep_line
 
         # Get axis limits
@@ -227,6 +433,21 @@ class Visualizer:
         return self
 
     def plot_event(self, event=None, triangles=False):
+        """
+        Display circles for circle events.
+        *Only useful during construction.*
+
+        Parameters
+        ----------
+        event: Event
+            A circle event. Other events will be ignored.
+        triangles: bool
+            Display the triangle of the 3 points responsible for causing a circle event.
+
+        Returns
+        -------
+        self: Visualizer
+        """
         event = event or self.voronoi.event
         if isinstance(event, CircleEvent):
             self._plot_circle(event, show_triangle=triangles)
@@ -299,7 +520,7 @@ class Visualizer:
         return start, end
 
     @staticmethod
-    def canvas_size(bounding_polygon, offset):
+    def _canvas_size(bounding_polygon, offset):
         max_y = bounding_polygon.max_y + offset
         max_x = bounding_polygon.max_x + offset
         min_x = bounding_polygon.min_x - offset
