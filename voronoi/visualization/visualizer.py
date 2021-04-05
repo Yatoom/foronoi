@@ -49,6 +49,30 @@ class Visualizer:
         """
         A visualizer for your voronoi diagram.
 
+        Examples
+        --------
+        Quickly plot individual components of the graph.
+
+        >>> vis = Visualizer(voronoi, canvas_offset=1)
+        >>> vis.plot_sites(show_labels=True)
+        >>> vis.plot_edges(show_labels=False)
+        >>> vis.plot_vertices()
+        >>> vis.plot_border_to_site()
+        >>> vis.show()
+
+        Chaining commands
+
+        >>> Visualizer(voronoi, 1).plot_sites().plot_edges().plot_vertices().show()
+
+        Plot all components that are useful to visualize during construction of the diagram
+
+        >>> from voronoi.visualization import Presets
+        >>> Visualizer(voronoi, 1).plot_all(**Presets.construction)
+
+        Plot all components that are useful to visualize when the diagram is constructed
+
+        >>> Visualizer(voronoi, 1).plot_all()
+
         Parameters
         ----------
         voronoi: Voronoi
