@@ -19,6 +19,15 @@ from voronoi.tree.smart_tree import SmartTree
 
 class Algorithm(Subject):
     def __init__(self, bounding_poly: Polygon = None, remove_zero_length_edges=True):
+        """
+
+        Parameters
+        ----------
+        bounding_poly: Polygon
+            The bounding box or bounding polygon around the voronoi diagram
+        remove_zero_length_edges: bool
+            Removes zero length edges and combines vertices with the same location into one
+        """
         super().__init__()
 
         # The bounding box around the edge
