@@ -4,7 +4,7 @@ from voronoi.graph.coordinate import Coordinate
 class Vertex(Coordinate):
     def __init__(self, x, y, connected_edges=None):
         """
-        A vertex is a fixed cross point between borders.
+        A vertex is a fixed cross point between borders. Extends the :class:`Coordinate` class.
 
         Examples
         --------

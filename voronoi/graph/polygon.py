@@ -8,6 +8,15 @@ from voronoi.observers.subject import Subject
 
 class Polygon(Subject):
     def __init__(self, tuples):
+        """
+        A bounding polygon that will clip the edges and fit around the Voronoi diagram.
+
+        Parameters
+        ----------
+        tuples: (float, float)
+            x,y-coordinates of the polygon's vertices
+        """
+
         super().__init__()
         points = [Coordinate(x, y) for x, y in tuples]
         self.points = points
@@ -18,31 +27,50 @@ class Polygon(Subject):
         center = Coordinate((max_x + min_x) / 2, (max_y + min_y) / 2)
         self.min_y, self.min_x, self.max_y, self.max_x, self.center = min_y, min_x, max_y, max_x, center
 
-        self.points = self.order_points(self.points)
+        self.points = self._order_points(self.points)
         self.polygon_vertices = []
         for point in self.points:
             self.polygon_vertices.append(Vertex(point.xd, point.yd))
 
-    def order_points(self, points):
+    def _order_points(self, points):
         clockwise = sorted(points, key=lambda point: (-180 - Algebra.calculate_angle(point, self.center)) % 360)
         return clockwise
 
-    def get_ordered_vertices(self, vertices):
+    def _get_ordered_vertices(self, vertices):
         vertices = [vertex for vertex in vertices if vertex.xd is not None]
         clockwise = sorted(vertices,
                            key=lambda vertex: (-180 - Algebra.calculate_angle(vertex, self.center)) % 360)
         return clockwise
 
     @staticmethod
-    def get_closest_point(position, points):
+    def _get_closest_point(position, points):
         distances = [Algebra.distance(position, p) for p in points]
         index = np.argmin(distances)
         return points[index]
 
     def finish_polygon(self, edges, existing_vertices, points):
-        vertices = self.get_ordered_vertices(self.polygon_vertices)
+        """
+        Creates half-edges on the bounding polygon that link with Voronoi diagram's half-edges and existing vertices.
+
+        Parameters
+        ----------
+        edges: set(HalfEdge)
+            The list of clipped edges from the Voronoi diagram
+        existing_vertices: set(Vertex)
+            The list of vertices that already exists in the clipped Voronoi diagram, and vertices
+        points: set(Point)
+            The list of cell points
+
+        Returns
+        -------
+        edges: list(HalfEdge)
+            The list of all edges including the bounding polygon's edges
+        vertices: list(Vertex)
+            The list of all vertices including the
+        """
+        vertices = self._get_ordered_vertices(self.polygon_vertices)
         vertices = list(vertices) + [vertices[0]]  # <- The extra vertex added here, should be removed later
-        cell = self.get_closest_point(vertices[0], points)
+        cell = self._get_closest_point(vertices[0], points)
         previous_edge = None
         for index in range(0, len(vertices) - 1):
 
@@ -87,14 +115,28 @@ class Polygon(Subject):
         return [(i.xd, i.yd) for i in self.points]
 
     def finish_edges(self, edges, **kwargs):
+        """
+        Clip the edges to the bounding box/polygon, and remove edges and vertices that are fully outside.
+        Inserts vertices at the clipped edges' endings.
+
+        Parameters
+        ----------
+        edges: set(HalfEdge)
+            A list of edges in the Voronoi diagram. Every edge should be presented only by one half edge.
+
+        Returns
+        -------
+        clipped_edges: set(HalfEdge)
+            A list of clipped edges
+        """
         resulting_edges = set()
         for edge in edges:
 
             if edge.get_origin() is None or not self.inside(edge.get_origin()):
-                self.finish_edge(edge)
+                self._finish_edge(edge)
 
             if edge.twin.get_origin() is None or not self.inside(edge.twin.get_origin()):
-                self.finish_edge(edge.twin)
+                self._finish_edge(edge.twin)
 
             if edge.get_origin() is not None and edge.twin.get_origin() is not None:
                 resulting_edges.add(edge)
@@ -103,12 +145,9 @@ class Polygon(Subject):
                 edge.twin.delete()
                 self.notify_observers(Message.DEBUG, payload=f"Edges {edge} and {edge.twin} deleted!")
 
-        # Re-order polygon vertices
-        self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
+        return resulting_edges
 
-        return resulting_edges, list(self.polygon_vertices)
-
-    def finish_edge(self, edge):
+    def _finish_edge(self, edge):
         # Sweep line position
         sweep_line = self.min_y - abs(self.max_y)
 
@@ -119,7 +158,7 @@ class Polygon(Subject):
         end = edge.twin.get_origin(y=sweep_line, max_y=self.max_y)
 
         # Get point of intersection
-        point = self.get_intersection_point(end, start)
+        point = self._get_intersection_point(end, start)
 
         # Create vertex
         v = Vertex(point.x, point.y) if point is not None else Vertex(None, None)
@@ -129,7 +168,7 @@ class Polygon(Subject):
 
         return edge
 
-    def on_edge(self, point):
+    def _on_edge(self, point):
         vertices = self.points + self.points[0:1]
         for i in range(0, len(vertices) - 1):
             dxc = point.xd - vertices[i].xd
@@ -144,12 +183,19 @@ class Polygon(Subject):
         return False
 
     def inside(self, point):
-        # if self.on_edge(point):
-        #     return False
+        """Tests whether a point is inside a polygon.
+        Based on the Javascript implementation from https://github.com/substack/point-in-polygon
 
-        # Ray-casting algorithm based on
-        # http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-        # Javascript implementation from https://github.com/substack/point-in-polygon
+        Parameters
+        ----------
+        point: Point
+            The point for which to check if it it is inside the polygon
+
+        Returns
+        -------
+        inside: bool
+            Whether the point is inside or not
+        """
 
         vertices = self.points + self.points[0:1]
 
@@ -170,7 +216,7 @@ class Polygon(Subject):
 
         return inside
 
-    def get_intersection_point(self, orig, end):
+    def _get_intersection_point(self, orig, end):
         p = self.points + [self.points[0]]
         points = []
 

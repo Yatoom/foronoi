@@ -1,9 +1,9 @@
 ==============
-Public classes
+Private classes
 ==============
 
 .. toctree::
   :maxdepth: 2
   :glob:
 
-  public/*
+  private/*

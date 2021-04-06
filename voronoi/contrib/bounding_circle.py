@@ -88,7 +88,7 @@ class BoundingCircle(Polygon):
                     .show()
 
         # Re-order polygon vertices
-        self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
+        self.polygon_vertices = self._get_ordered_vertices(self.polygon_vertices)
 
         if DEBUG:
             Visualizer(self.voronoi, 1) \

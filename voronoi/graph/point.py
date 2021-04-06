@@ -8,7 +8,7 @@ class Point(Coordinate):
 
     def __init__(self, x=None, y=None, name=None, first_edge=None):
         """
-        A cell point a.k.a. a site.
+        A cell point a.k.a. a site. Extends the :class:`Coordinate` class.
 
         Examples
         --------

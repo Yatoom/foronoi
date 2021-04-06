@@ -212,10 +212,15 @@ class Algorithm(Subject):
         self.notify_observers(Message.SWEEP_FINISHED)
 
         # Finish with the bounding box
-        self._edges, polygon_vertices = self.bounding_poly.finish_edges(
+        self._edges = self.bounding_poly.finish_edges(
             edges=self._edges, vertices=self._vertices, points=self.sites, event_queue=self.event_queue
         )
+
+        self.notify_observers(Message.SWEEP_FINISHED)
+
         self._edges, self._vertices = self.bounding_poly.finish_polygon(self._edges, self._vertices, self.sites)
+
+        self.notify_observers(Message.SWEEP_FINISHED)
 
         if self.remove_zero_length_edges:
             self.clean_up_zero_length_edges()
@@ -333,7 +338,7 @@ class Algorithm(Subject):
         node_a, node_b, node_c = root.left.predecessor, root.left, root.right.left
         node_c, node_d, node_e = node_c, root.right.right, root.right.right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e))
+        self._check_circles((node_a, node_b, node_c), (node_c, node_d, node_e))
 
         # X. Rebalance the tree
         self.status_tree = Tree.balance_and_propagate(root)
@@ -377,7 +382,7 @@ class Algorithm(Subject):
         successor = arc_node.successor
 
         # Update breakpoints
-        self.status_tree, updated, removed, left, right = self.update_breakpoints(
+        self.status_tree, updated, removed, left, right = self._update_breakpoints(
             self.status_tree, self.sweep_line, arc_node, predecessor, successor)
 
         if updated is None:
@@ -441,9 +446,9 @@ class Algorithm(Subject):
         node_a, node_b, node_c = former_left.predecessor, former_left, former_left.successor
         node_d, node_e, node_f = former_right.predecessor, former_right, former_right.successor
 
-        self.check_circles((node_a, node_b, node_c), (node_d, node_e, node_f))
+        self._check_circles((node_a, node_b, node_c), (node_d, node_e, node_f))
 
-    def check_circles(self, triple_left, triple_right):
+    def _check_circles(self, triple_left, triple_right):
         node_a, node_b, node_c = triple_left
         node_d, node_e, node_f = triple_right
 
@@ -481,7 +486,7 @@ class Algorithm(Subject):
         return left_event, right_event
 
     @staticmethod
-    def update_breakpoints(root, sweep_line, arc_node, predecessor, successor):
+    def _update_breakpoints(root, sweep_line, arc_node, predecessor, successor):
 
         # If the arc node is a left child, then its parent is the node with right_breakpoint
         if arc_node.is_left_child():
