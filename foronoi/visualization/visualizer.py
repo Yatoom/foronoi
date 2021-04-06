@@ -221,7 +221,7 @@ class Visualizer:
 
         Parameters
         ----------
-        vertices: list(:class:`voronoi.graph.Vertex`), optional
+        vertices: list(:class:`foronoi.graph.Vertex`), optional
             The vertices to display. By default, the `voronoi`'s vertices will be used.
 
         Returns
@@ -244,7 +244,7 @@ class Visualizer:
 
         Parameters
         ----------
-        vertices: list(:class:`voronoi.graph.Vertex`), optional
+        vertices: list(:class:`foronoi.graph.Vertex`), optional
             The vertices for which to display the outgoing edges. By default, the `voronoi`'s vertices will be used.
         scale: float
             Used to set the length of the `outgoing_edges`.
@@ -287,7 +287,7 @@ class Visualizer:
 
         Parameters
         ----------
-        points: list(:class:`voronoi.graph.Point`), optional
+        points: list(:class:`foronoi.graph.Point`), optional
             The vertices to display. By default, the `voronoi`'s vertices will be used.
         show_labels: bool
             Display the labels of the cell points, of format "`P#`", where `#` is the `n`th point from top to bottom.
@@ -321,7 +321,7 @@ class Visualizer:
 
         Parameters
         ----------
-        edges: list(:class:`voronoi.graph.HalfEdge`), optional
+        edges: list(:class:`foronoi.graph.HalfEdge`), optional
             The edges to display. By default, the `voronoi`'s edges will be used.
         sweep_line: Decimal
             The y-coordinate of the sweep line, used to calculate the positions of unfinished edges. By default, the
@@ -349,7 +349,7 @@ class Visualizer:
 
         Parameters
         ----------
-        edges: list(:class:`voronoi.graph.HalfEdge`), optional
+        edges: list(:class:`foronoi.graph.HalfEdge`), optional
             The edges to display. By default, the `voronoi`'s edges will be used.
             
         sweep_line: Decimal

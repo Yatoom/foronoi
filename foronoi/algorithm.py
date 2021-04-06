@@ -43,11 +43,11 @@ class Algorithm(Subject):
             status structure which represents the beach line as a balanced binary search tree.
         sweep_line: Decimal
             The y-coordinate
-        arcs: list(:class:`voronoi.nodes.Arc`)
+        arcs: list(:class:`foronoi.nodes.Arc`)
             List of arcs
-        sites: list(:class:`voronoi.graph.Point`)
+        sites: list(:class:`foronoi.graph.Point`)
             List of points
-        vertices: list(:class:`voronoi.graph.Vertex`)
+        vertices: list(:class:`foronoi.graph.Vertex`)
             List of vertices
 
         """
