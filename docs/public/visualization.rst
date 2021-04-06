@@ -2,5 +2,5 @@
 
 Visualizer
 ==========
-.. automodule:: voronoi.visualization.visualizer
+.. automodule:: foronoi.visualization.visualizer
    :members:

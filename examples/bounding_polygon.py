@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 
-from voronoi import Voronoi, Polygon, Visualizer, TreeVisualizer, VoronoiObserver, TreeObserver
+from foronoi import Voronoi, Polygon, Visualizer, TreeVisualizer, VoronoiObserver, TreeObserver
 
 # Define some points (a.k.a sites or cell points)
 points = [

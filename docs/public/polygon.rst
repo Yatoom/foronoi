@@ -2,5 +2,5 @@
 
 Polygon
 =======
-.. autoclass:: voronoi.graph.Polygon
+.. autoclass:: foronoi.graph.Polygon
    :members:

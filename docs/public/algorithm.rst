@@ -2,6 +2,6 @@
 
 Algorithm
 =========
-.. autoclass:: voronoi.algorithm.Algorithm
+.. autoclass:: foronoi.algorithm.Algorithm
    :members:
 

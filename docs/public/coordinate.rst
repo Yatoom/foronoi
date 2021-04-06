@@ -2,6 +2,6 @@
 
 Coordinate
 ==========
-.. autoclass:: voronoi.graph.Coordinate
+.. autoclass:: foronoi.graph.Coordinate
    :members:
 

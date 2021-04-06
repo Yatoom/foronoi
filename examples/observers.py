@@ -1,7 +1,7 @@
 import os
 
-from voronoi import Polygon, Voronoi, VoronoiObserver, TreeObserver, DebugObserver
-from voronoi.visualization import Presets
+from foronoi import Polygon, Voronoi, VoronoiObserver, TreeObserver, DebugObserver
+from foronoi.visualization import Presets
 
 # Define some points (a.k.a sites or cell points)
 points = [

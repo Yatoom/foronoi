@@ -2,5 +2,5 @@
 
 Point
 =========
-.. autoclass:: voronoi.graph.Point
+.. autoclass:: foronoi.graph.Point
    :members:

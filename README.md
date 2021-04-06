@@ -1,16 +1,29 @@
-# Voronoi
+# Foronoi
+Fortune's algorithm for Voronoi diagrams. 
+
 [![Build Status](https://travis-ci.org/Yatoom/voronoi.svg?branch=master)](https://travis-ci.org/Yatoom/voronoi)
+[![Documentation Status](https://readthedocs.org/projects/voronoi/badge/?version=latest)](https://voronoi.readthedocs.io/en/latest/?badge=latest)
+
 
 ![](voronoi.gif)
 
-A Python implementation of Fortune's algorithm based on the description of "Computational Geometry: Algorithms and Applications" by de Berg et al. The algorithm handles the special cases described in the book. The bounding box is generalized to handle a convex polygon.
+Foronoi is a Python implementation of the Fortune’s algorithm based on the description of “Computational Geometry: Algorithms and Applications” by de Berg et al.
+
+This algorithm is a sweep line algorithm that scans top down over the cell points and traces out the lines via breakpoints in between parabola’s (arcs). When lines converge, a circle event happens which inserts a new vertex.
+
+[Documentation can be found here](https://voronoi.readthedocs.io/en/latest/i).
+
+## Pip Installation
+```bash
+pip install foronoi
+```
 
 ## Manual Installation
 
 First, clone the repository and then install the package.
 ```bash
 git clone https://github.com/Yatoom/voronoi.git
-cd voronoi
+cd foronoi
 python setup.py install
 ```
 Note: you need to use `sudo python3 setup.py install` on most Linux distributions.
@@ -20,7 +33,7 @@ Note: you need to use `sudo python3 setup.py install` on most Linux distribution
 Example that uses a polygon as a bounding box.
 
 ```python3
-from voronoi import Voronoi, Polygon, Visualizer, VoronoiObserver
+from foronoi import Voronoi, Polygon, Visualizer, VoronoiObserver
 
 # Define some points (a.k.a sites or cell points)
 points = [
@@ -65,7 +78,7 @@ points = v.points
 # Plotting
 # Note: plot_border_to_site() indicates with dashed line to which site a border 
 # belongs. The site's first edge is colored green.
-Visualizer(voronoi, canvas_offset=1)\
+Visualizer(v, canvas_offset=1)\
     .plot_sites(show_labels=True)\
     .plot_edges(show_labels=False)\
     .plot_vertices()\
@@ -109,5 +122,5 @@ Output:
 ## Testing
 To run unit tests, run the following comand.
 ```
-python3 -m "nose" voronoi/tests/unit.py
+python3 -m "nose" foronoi/tests/unit.py
 ```

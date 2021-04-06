@@ -1,6 +1,6 @@
 import os
 import random
-from voronoi import Voronoi, Polygon, Point, VoronoiObserver
+from foronoi import Voronoi, Polygon, Point, VoronoiObserver
 
 # Width and height of the triangle
 width = 100

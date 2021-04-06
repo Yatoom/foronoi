@@ -2,5 +2,5 @@
 
 Arc
 =========
-.. autoclass:: voronoi.nodes.Arc
+.. autoclass:: foronoi.nodes.Arc
    :members:

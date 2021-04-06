@@ -2,5 +2,5 @@
 
 Voronoi
 =========
-.. autoclass:: voronoi.Voronoi
+.. autoclass:: foronoi.Voronoi
    :members:

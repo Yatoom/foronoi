@@ -1,5 +1,5 @@
-from voronoi import Voronoi, Visualizer
-from voronoi.contrib import BoundingCircle
+from foronoi import Voronoi, Visualizer
+from foronoi.contrib import BoundingCircle
 
 # Define a set of points
 points = [

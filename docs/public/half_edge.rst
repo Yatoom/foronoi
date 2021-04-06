@@ -2,5 +2,5 @@
 
 HalfEdge
 =========
-.. autoclass:: voronoi.graph.HalfEdge
+.. autoclass:: foronoi.graph.HalfEdge
    :members:

@@ -1,4 +1,4 @@
-from voronoi import Voronoi, Polygon
+from foronoi import Voronoi, Polygon
 import cProfile
 import pstats
 

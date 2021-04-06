@@ -1,6 +1,6 @@
 from typing import List
-from voronoi import Voronoi, Polygon, Visualizer, Point, VoronoiObserver
-from voronoi.graph import HalfEdge, Vertex
+from foronoi import Voronoi, Polygon, Visualizer, Point, VoronoiObserver
+from foronoi.graph import HalfEdge, Vertex
 
 # Define some points (a.k.a sites or cell points)
 points = [

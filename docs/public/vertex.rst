@@ -2,5 +2,5 @@
 
 Vertex
 =========
-.. autoclass:: voronoi.graph.Vertex
+.. autoclass:: foronoi.graph.Vertex
    :members:
