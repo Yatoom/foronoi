@@ -22,6 +22,11 @@ class Vertex(Coordinate):
             y-coordinate
         connected_edges: list(:class:`HalfEdge`)
             List of edges connected to this vertex.
+
+        Attributes
+        ----------
+        connected_edges: list(:class:`HalfEdge`)
+            List of edges connected to this vertex.
         """
 
         super().__init__(x, y)

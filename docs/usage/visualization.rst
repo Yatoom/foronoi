@@ -1,6 +1,6 @@
 .. _visualization:
 
-Visualization
-=============
+Visualizer
+==========
 .. automodule:: voronoi.visualization.visualizer
    :members:

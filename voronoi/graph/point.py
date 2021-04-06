@@ -6,7 +6,7 @@ from voronoi.graph.coordinate import Coordinate
 
 class Point(Coordinate):
 
-    def __init__(self, x=None, y=None, metadata=None, name=None, first_edge=None):
+    def __init__(self, x=None, y=None, name=None, first_edge=None):
         """
         A cell point a.k.a. a site.
 
@@ -33,13 +33,16 @@ class Point(Coordinate):
             A name to easily identify this point
         first_edge: HalfEdge
             Pointer to the first edge
+
+        Attributes
+        ----------
+        name: str
+            A name to easily identify this point
+        first_edge: HalfEdge
+            Pointer to the first edge
         """
         super().__init__(x, y)
 
-        if metadata is None:
-            metadata = {}
-
-        self.metadata = metadata
         self.name = name
         self.first_edge = first_edge
 

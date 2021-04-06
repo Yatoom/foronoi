@@ -46,6 +46,15 @@ class HalfEdge:
         origin: Breakpoint or Vertex
             The origin of the half edge. Can be a Breakpoint or a Vertex during construction, and only Vertex when
             the diagram is finished.
+
+        Attributes
+        ----------
+        origin: :class:`Breakpoint` or :class:`Vertex`
+            Pointer to the origin. Can be breakpoint or vertex.
+        next: :class:`HalfEdge`
+            Pointer to the next edge
+        prev: :class:`HalfEdge`
+            Pointer to the previous edge
         """
 
         # Pointer to the origin. Can be breakpoint or vertex.

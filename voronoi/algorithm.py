@@ -20,6 +20,8 @@ from voronoi.tree.smart_tree import SmartTree
 class Algorithm(Subject):
     def __init__(self, bounding_poly: Polygon = None, remove_zero_length_edges=True):
         """
+        A Python implementation of Fortune's algorithm based on the description of "Computational Geometry:
+        Algorithms and Applications" by de Berg et al.
 
         Parameters
         ----------
@@ -27,6 +29,24 @@ class Algorithm(Subject):
             The bounding box or bounding polygon around the voronoi diagram
         remove_zero_length_edges: bool
             Removes zero length edges and combines vertices with the same location into one
+
+        Attributes
+        ----------
+        bounding_poly: Polygon
+            The bounding box (or polygon) around the edge
+        event_queue: PriorityQueue
+            Event queue for upcoming site and circle events
+        beach_line: SmartNode
+            Root node of the beach line
+        sweep_line: Decimal
+            The y-coordinate
+        arcs: list(:class:`voronoi.nodes.Arc`)
+            List of arcs
+        sites: list(:class:`voronoi.graph.Point`)
+            List of points
+        vertices: list(:class:`voronoi.graph.Vertex`)
+            List of vertices
+
         """
         super().__init__()
 
@@ -79,7 +99,29 @@ class Algorithm(Subject):
         """
         Create the Voronoi diagram.
 
-        :param points: (list) The list of cell points to make the diagram for
+        The overall structure of the algorithm is as follows.
+
+        1. Initialize the event queue `event_queue` with all site events, initialize an empty status structure
+           `beach_line` and an empty doubly-connected edge list `D`.
+        2. **while** `event_queue` is not empty.
+        3.  **do** Remove the event with largest `y`-coordinate from `event_queue`.
+        4.   **if** the event is a site event, occurring at site `point`
+        5.    **then** :func:`~handle_site_event`
+        6.    **else** :func:`handle_circle_event`
+        7. The internal nodes still present in `beach_line` correspond to the half-infinite edges of the Voronoi
+           diagram. Compute a bounding box (or polygon) that contains all vertices of  bounding box by updating the
+           doubly-connected edge list appropriately.
+        8. **If** `remove_zero_length_edges` is true.
+        9.  Call :func:`~clean_up_zero_length_edges` which removes zero length edges and combines vertices with the same location into one.
+
+        Parameters
+        ----------
+        points: list(Point)
+            A set of point sites in the plane.
+
+        Returns
+        -------
+        Output. The Voronoi diagram `Vor(P)` given inside a bounding box in a doublyconnected edge list `D`.
         """
 
         points = [Point(x, y) for x, y in points]
@@ -155,6 +197,35 @@ class Algorithm(Subject):
         self.notify_observers(Message.VORONOI_FINISHED)
 
     def handle_site_event(self, event: SiteEvent):
+        """
+        Handle a site event.
+
+        1. If T is empty, insert pi into it (so that T consists of a single leaf storing pi)
+           and return. Otherwise, continue with steps 2– 5.
+        2. Search in T for the arc α vertically above pi. If the leaf representing α has
+           a pointer to a circle event in Q, then this circle event is a false alarm and it
+           must be deleted from Q.
+        3. Replace the leaf of T that represents α with a subtree having three leaves.
+           The middle leaf stores the new site pi and the other two leaves store the site
+           pj that was originally stored with α. Store the tuples pj, pi and pi, pj
+           representing the new breakpoints at the two new internal nodes. Perform
+           rebalancing operations on T if necessary.
+        4. Create new half-edge records in the Voronoi diagram structure for the
+           edge separating V(pi) and V(pj), which will be traced out by the two new
+           breakpoints.
+        5. Check the triple of consecutive arcs where the new arc for pi is the left arc
+           to see if the breakpoints converge. If so, insert the circle event into Q and
+           add pointers between the node in T and the node in Q. Do the same for the
+           triple where the new arc is the right arc.
+
+        Parameters
+        ----------
+        event
+
+        Returns
+        -------
+
+        """
 
         # Create a new arc
         new_point = event.point
@@ -243,6 +314,17 @@ class Algorithm(Subject):
         self.beach_line = SmartTree.balance_and_propagate(root)
 
     def handle_circle_event(self, event: CircleEvent):
+        """
+        Handle a circle event
+
+        Parameters
+        ----------
+        event
+
+        Returns
+        -------
+
+        """
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
         arc = event.arc_pointer.data
