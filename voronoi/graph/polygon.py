@@ -41,7 +41,7 @@ class Polygon(Subject):
 
     def finish_polygon(self, edges, existing_vertices, points):
         vertices = self.get_ordered_vertices(self.polygon_vertices)
-        vertices = vertices + [vertices[0]]  # <- The extra vertex added here, should be removed later
+        vertices = list(vertices) + [vertices[0]]  # <- The extra vertex added here, should be removed later
         cell = self.get_closest_point(vertices[0], points)
         previous_edge = None
         for index in range(0, len(vertices) - 1):
@@ -106,7 +106,7 @@ class Polygon(Subject):
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
-        return resulting_edges, set(self.polygon_vertices)
+        return resulting_edges, list(self.polygon_vertices)
 
     def finish_edge(self, edge):
         # Sweep line position
