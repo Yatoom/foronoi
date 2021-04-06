@@ -77,7 +77,7 @@ class Algorithm(Subject):
         self.sites = None
 
         # Half edges for visualization
-        self._edges = set()
+        self.edges = list()
 
         # List of vertices
         self._vertices = set()
@@ -88,10 +88,6 @@ class Algorithm(Subject):
     @property
     def arcs(self) -> List[Arc]:
         return list(self._arcs)
-
-    @property
-    def edges(self) -> List[HalfEdge]:
-        return list(self._edges)
 
     @property
     def vertices(self) -> List[Vertex]:
@@ -212,15 +208,11 @@ class Algorithm(Subject):
         self.notify_observers(Message.SWEEP_FINISHED)
 
         # Finish with the bounding box
-        self._edges = self.bounding_poly.finish_edges(
-            edges=self._edges, vertices=self._vertices, points=self.sites, event_queue=self.event_queue
+        self.edges = self.bounding_poly.finish_edges(
+            edges=self.edges, vertices=self._vertices, points=self.sites, event_queue=self.event_queue
         )
 
-        self.notify_observers(Message.SWEEP_FINISHED)
-
-        self._edges, self._vertices = self.bounding_poly.finish_polygon(self._edges, self._vertices, self.sites)
-
-        self.notify_observers(Message.SWEEP_FINISHED)
+        self.edges, self._vertices = self.bounding_poly.finish_polygon(self.edges, self._vertices, self.sites)
 
         if self.remove_zero_length_edges:
             self.clean_up_zero_length_edges()
@@ -314,7 +306,7 @@ class Algorithm(Subject):
         BA.edge = HalfEdge(A, origin=BA, twin=AB.edge)
 
         # Append one of the edges to the list (we can get the other by using twin)
-        self._edges.add(AB.edge)
+        self.edges.append(AB.edge)
 
         # Add first edges
         B.first_edge = B.first_edge or AB.edge
@@ -431,7 +423,7 @@ class Algorithm(Subject):
         new_edge.twin.set_next(right.edge)  # blue
 
         # Add to list for visualization
-        self._edges.add(new_edge)
+        self.edges.append(new_edge)
 
         # Add the new_edge to the list of connected edges of the vertex
         v.connected_edges.append(new_edge)
@@ -553,7 +545,7 @@ class Algorithm(Subject):
         """
 
         resulting_edges = []
-        for edge in self._edges:
+        for edge in self.edges:
             start = edge.get_origin()
             end = edge.twin.get_origin()
             if start.xd == end.xd and start.yd == end.yd:
@@ -577,4 +569,4 @@ class Algorithm(Subject):
 
             else:
                 resulting_edges.append(edge)
-            self._edges = resulting_edges
+            self.edges = resulting_edges

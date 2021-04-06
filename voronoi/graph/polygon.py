@@ -54,7 +54,7 @@ class Polygon(Subject):
 
         Parameters
         ----------
-        edges: set(HalfEdge)
+        edges: list(HalfEdge)
             The list of clipped edges from the Voronoi diagram
         existing_vertices: set(Vertex)
             The list of vertices that already exists in the clipped Voronoi diagram, and vertices
@@ -102,7 +102,7 @@ class Polygon(Subject):
                 previous_edge.set_next(edge)
 
             # Add the edge to the list
-            edges.add(edge)
+            edges.append(edge)
 
             # Set previous edge
             previous_edge = edge
@@ -121,15 +121,15 @@ class Polygon(Subject):
 
         Parameters
         ----------
-        edges: set(HalfEdge)
+        edges: list(HalfEdge)
             A list of edges in the Voronoi diagram. Every edge should be presented only by one half edge.
 
         Returns
         -------
-        clipped_edges: set(HalfEdge)
+        clipped_edges: list(HalfEdge)
             A list of clipped edges
         """
-        resulting_edges = set()
+        resulting_edges = list()
         for edge in edges:
 
             if edge.get_origin() is None or not self.inside(edge.get_origin()):
@@ -139,7 +139,7 @@ class Polygon(Subject):
                 self._finish_edge(edge.twin)
 
             if edge.get_origin() is not None and edge.twin.get_origin() is not None:
-                resulting_edges.add(edge)
+                resulting_edges.append(edge)
             else:
                 edge.delete()
                 edge.twin.delete()
