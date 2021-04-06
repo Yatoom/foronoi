@@ -31,7 +31,8 @@ v.attach_observer(
 
         # Callback that saves the figure every step
         # If no callback is provided, it will simply display the figure in a matplotlib window
-        callback=lambda observer, figure: figure.savefig(f"output/voronoi/{observer.n_messages:02d}.png")
+        callback=lambda observer, figure: figure.savefig(f"output/voronoi/{observer.n_messages:02d}.png"),
+        visualize_before_clipping=True
     )
 )
 

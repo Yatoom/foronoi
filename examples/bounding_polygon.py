@@ -67,5 +67,5 @@ Visualizer(v, canvas_offset=1) \
 
 # Visualize the tree
 TreeVisualizer() \
-    .plot(v.beach_line) \
+    .plot(v.status_tree) \
     .render("output/tree.dot", view=True)

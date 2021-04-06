@@ -1,4 +1,4 @@
-class SmartNode:
+class Node:
     def __init__(self, data):
         """
         A smart tree node with some extra functionality over standard nodes.
@@ -14,11 +14,11 @@ class SmartNode:
         return f"Node({self.data}, left={self.left}, right={self.right})"
 
     @property
-    def left(self) -> "SmartNode":
+    def left(self) -> "Node":
         return self._left
 
     @property
-    def right(self) -> "SmartNode":
+    def right(self) -> "Node":
         return self._right
 
     @property
@@ -125,7 +125,7 @@ class SmartNode:
     def minimum(self):
         """
         Determines the node with the smallest key in the subtree rooted by this node.
-        :return: (SmartNode) Node with the smallest key
+        :return: (Node) Node with the smallest key
         """
         current = self
         while current.left is not None:
@@ -135,7 +135,7 @@ class SmartNode:
     def maximum(self):
         """
         Determines the node with the largest key in the subtree rooted by this node.
-        :return: (SmartNode) Node with the largest key
+        :return: (Node) Node with the largest key
         """
         current = self
         while current.right is not None:
@@ -193,9 +193,9 @@ class SmartNode:
         Replace the node by a replacement tree.
         Requires the current node to be a leaf.
 
-        :param replacement: (SmartNode) The root node of the replacement sub tree
-        :param root: (SmartNode) The root of the tree
-        :return: (SmartNode) The root of the updated tree
+        :param replacement: (Node) The root node of the replacement sub tree
+        :param root: (Node) The root of the tree
+        :return: (Node) The root of the updated tree
         """
 
         # Give the parent of the node to the replacement

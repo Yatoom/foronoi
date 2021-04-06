@@ -4,17 +4,27 @@ from voronoi.graph.coordinate import Coordinate
 
 
 class Arc:
-    """
-    Each leaf of beach line, representing an arc α, stores one pointer to a node in the event queue, namely, the node
-    that represents the circle event in which α will disappear. This pointer is None if no circle event exists where α
-    will disappear, or this circle event has not been detected yet.
-    """
-
     def __init__(self, origin: Coordinate, circle_event=None):
         """
-        :param origin: The point that caused the arc
-        :param circle_event: The pointer to the circle event in which the arc will disappear
+        Each leaf of beach line, representing an arc `α`, stores one pointer to a node in the event queue, namely, the
+        node that represents the circle event in which `α` will disappear. This pointer is None if no circle event
+        exists where `α` will disappear, or this circle event has not been detected yet.
+
+        Parameters
+        ----------
+        origin: Point
+            The point that caused the arc
+        circle_event: CircleEvent
+            The pointer to the circle event in which the arc will disappear
+
+        Attributes
+        ----------
+        origin: Point
+            The point that caused the arc
+        circle_event: CircleEvent
+            The pointer to the circle event in which the arc will disappear
         """
+
         self.origin = origin
         self.circle_event = circle_event
 
@@ -23,11 +33,18 @@ class Arc:
 
     def get_plot(self, x, sweep_line):
         """
-        Method for plotting the arc.
-        Will return the y-coordinates for all the x coordinates that are given as input.
-        :param x: The input x-coordinates
-        :param sweep_line: The y-coordinate of the sweep line
-        :return: A list of y-values
+        Computes all `y`-coordinates for given `x`-coordinates and the sweep line's `y`-coordinate.
+
+        Parameters
+        ----------
+        x: np.array
+            The input x-coordinates
+        sweep_line: Decimal, float
+            The y-coordinate of the sweep line
+        Returns
+        -------
+        y: number, array-like
+            A list of y-values
         """
         sweep_line = float(sweep_line)
         i = self.origin

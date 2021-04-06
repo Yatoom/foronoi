@@ -1,14 +1,14 @@
 from voronoi.nodes import Arc, Breakpoint
-from voronoi.tree.smart_node import SmartNode
+from voronoi.tree.node import Node
 
 
-class SmartTree:
+class Tree:
     """
     Self-balancing Binary Search Tree.
     """
 
     @staticmethod
-    def find(root: SmartNode, key, **kwargs):
+    def find(root: Node, key, **kwargs):
 
         node = root
         while node is not None:
@@ -23,16 +23,16 @@ class SmartTree:
         return node
 
     @staticmethod
-    def find_value(root: SmartNode, query: SmartNode, compare=lambda x, y: x == y, **kwargs):
+    def find_value(root: Node, query: Node, compare=lambda x, y: x == y, **kwargs):
         """
         Find an item using a query node and a comparison function.
 
-        :param root: (SmartNode) The root to start searching from
+        :param root: (Node) The root to start searching from
         :param query: The query
         :param compare: (lambda) Lambda expression to compare the node against the query. Will be called as
         compare(node.data, query.data).
         :param kwargs: Optional arguments to be passed to the get_key() functions
-        :return: (SmartNode or None) Returns the node that corresponds to the query or None
+        :return: (Node or None) Returns the node that corresponds to the query or None
         """
         key = query.get_key(**kwargs)
         node = root
@@ -42,9 +42,9 @@ class SmartTree:
                 if compare(node.data, query.data):
                     return node
 
-                left = SmartTree.find_value(node.left, query, compare, **kwargs)
+                left = Tree.find_value(node.left, query, compare, **kwargs)
                 if left is None:
-                    right = SmartTree.find_value(node.right, query, compare, **kwargs)
+                    right = Tree.find_value(node.right, query, compare, **kwargs)
                     return right
 
                 return left
@@ -53,26 +53,26 @@ class SmartTree:
                 # Normally, the three should go left and find the correct value there,
                 # but due to rounding errors, it sometimes takes the wrong turn. So if the left
                 # branch doesn't get a result, we try the other branch.
-                return SmartTree.find_value(node.left, query, compare, **kwargs) or \
-                       SmartTree.find_value(node.right, query, compare, **kwargs)
+                return Tree.find_value(node.left, query, compare, **kwargs) or \
+                       Tree.find_value(node.right, query, compare, **kwargs)
             else:
                 # Normally, the three should go right and find the correct value there,
                 # but due to rounding errors, it sometimes takes the wrong turn. So if the right
                 # branch doesn't get a result, we try the other branch.
-                return SmartTree.find_value(node.right, query, compare, **kwargs) or \
-                       SmartTree.find_value(node.left, query, compare, **kwargs)
+                return Tree.find_value(node.right, query, compare, **kwargs) or \
+                       Tree.find_value(node.left, query, compare, **kwargs)
 
     @staticmethod
-    def find_leaf_node(root: SmartNode, key, **kwargs):
+    def find_leaf_node(root: Node, key, **kwargs):
         """
         Follows a path downward between the internal nodes using the key until it
         reaches a leaf node. If it is unclear which path to take, the left path is
         taken.
 
-        :param root: (SmartNode) The root of the (sub)tree to travel down
+        :param root: (Node) The root of the (sub)tree to travel down
         :param key: The key to use to determine the path
         :param kwargs: Optional arguments passed to the get_key() functions
-        :return: (SmartNode) The node found at the end of the journey
+        :return: (Node) The node found at the end of the journey
         """
 
         node = root
@@ -102,7 +102,7 @@ class SmartTree:
         return node
 
     @staticmethod
-    def insert(root: SmartNode, node: SmartNode, **kwargs):
+    def insert(root: Node, node: Node, **kwargs):
 
         # Get keys once
         node_key = node.get_key(**kwargs) if node is not None else None
@@ -112,48 +112,48 @@ class SmartTree:
         if root is None:
             return node
         elif node_key < root_key:
-            root.left = SmartTree.insert(root.left, node, **kwargs)
+            root.left = Tree.insert(root.left, node, **kwargs)
         else:
-            root.right = SmartTree.insert(root.right, node, **kwargs)
+            root.right = Tree.insert(root.right, node, **kwargs)
 
         # Update the height of the ancestor node
         root.update_height()
 
         # If the node is unbalanced, then try out the 4 cases
         balance = root.balance
-        # root = SmartTree.balance(root)
+        # root = Tree.balance(root)
 
         # Case 1 - Left Left
         if balance > 1 and node_key < root.left.get_key(**kwargs):
-            return SmartTree.rotate_right(root)
+            return Tree.rotate_right(root)
 
         # Case 2 - Right Right
         if balance < -1 and node_key > root.right.get_key(**kwargs):
-            return SmartTree.rotate_left(root)
+            return Tree.rotate_left(root)
 
         # Case 3 - Left Right
         if balance > 1 and node_key > root.left.get_key(**kwargs):
-            root.left = SmartTree.rotate_left(root.left)
-            return SmartTree.rotate_right(root)
+            root.left = Tree.rotate_left(root.left)
+            return Tree.rotate_right(root)
 
         # Case 4 - Right Left
         if balance < -1 and node_key < root.right.get_key(**kwargs):
-            root.right = SmartTree.rotate_right(root.right)
-            return SmartTree.rotate_left(root)
+            root.right = Tree.rotate_right(root.right)
+            return Tree.rotate_left(root)
 
         return root
 
     @staticmethod
-    def delete(root: SmartNode, key: int, **kwargs):
+    def delete(root: Node, key: int, **kwargs):
 
         if root is None:
             return root
 
         elif key < root.get_key():
-            root.left = SmartTree.delete(root.left, key)
+            root.left = Tree.delete(root.left, key)
 
         elif key > root.get_key():
-            root.right = SmartTree.delete(root.right, key)
+            root.right = Tree.delete(root.right, key)
 
         else:
             if root.left is None:
@@ -164,7 +164,7 @@ class SmartTree:
 
             temp = root.right.minimum()
             root.data = temp.data
-            root.right = SmartTree.delete(root.right, temp.value.get_key(**kwargs))
+            root.right = Tree.delete(root.right, temp.value.get_key(**kwargs))
 
         # If the tree has only one node, simply return it
         if root is None:
@@ -174,7 +174,7 @@ class SmartTree:
         root.update_height()
 
         # Balance the tree
-        root = SmartTree.balance(root)
+        root = Tree.balance(root)
 
         return root
 
@@ -187,12 +187,12 @@ class SmartTree:
         :return: The root of the balanced tree
         """
 
-        node = SmartTree.balance(node)
+        node = Tree.balance(node)
 
         if node.parent is None:
             return node
 
-        return SmartTree.balance_and_propagate(node.parent)
+        return Tree.balance_and_propagate(node.parent)
 
     @staticmethod
     def balance(node):
@@ -206,21 +206,21 @@ class SmartTree:
 
         # Case 1 - Left Left
         if node.balance > 1 and node.left.balance >= 0:
-            return SmartTree.rotate_right(node)
+            return Tree.rotate_right(node)
 
         # Case 2 - Right Right
         if node.balance < -1 and node.right.balance <= 0:
-            return SmartTree.rotate_left(node)
+            return Tree.rotate_left(node)
 
         # Case 3 - Left Right
         if node.balance > 1 and node.left.balance < 0:
-            node.left = SmartTree.rotate_left(node.left)
-            return SmartTree.rotate_right(node)
+            node.left = Tree.rotate_left(node.left)
+            return Tree.rotate_right(node)
 
         # Case 4 - Right Left
         if node.balance < -1 and node.right.balance > 0:
-            node.right = SmartTree.rotate_right(node.right)
-            return SmartTree.rotate_left(node)
+            node.right = Tree.rotate_right(node.right)
+            return Tree.rotate_left(node)
 
         return node
 
@@ -307,3 +307,20 @@ class SmartTree:
 
         # Return the new root
         return y
+
+    @staticmethod
+    def get_leaves(root: Node, leaves=None):
+        if leaves is None:
+            leaves = []
+
+        # Base case
+        if root.is_leaf():
+            leaves.append(root)
+            return leaves
+
+        # Step
+        if root.left is not None:
+            leaves += Tree.get_leaves(root.left, None)
+        if root.right is not None:
+            leaves += Tree.get_leaves(root.right, None)
+        return leaves
