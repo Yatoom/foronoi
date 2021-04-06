@@ -1,8 +1,8 @@
 from voronoi.nodes import Arc
-from voronoi.tree.smart_node import SmartNode
+from voronoi.tree.node import Node
 
 
-class LeafNode(SmartNode):
+class LeafNode(Node):
     def __init__(self, data: "Arc"):
         super().__init__(data)
 

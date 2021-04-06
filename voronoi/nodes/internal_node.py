@@ -1,7 +1,7 @@
-from voronoi.tree.smart_node import SmartNode
+from voronoi.tree.node import Node
 
 
-class InternalNode(SmartNode):
+class InternalNode(Node):
     def __init__(self, data: "Breakpoint"):
         super().__init__(data)
 

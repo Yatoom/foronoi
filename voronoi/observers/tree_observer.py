@@ -22,13 +22,13 @@ class TreeObserver(Observer, ABC):
            (message == Message.VORONOI_FINISHED and self.visualize_result) or \
            (message == Message.SWEEP_FINISHED and self.visualize_before_clipping):
             if self.text_based:
-                visualized_in_text = subject.beach_line.visualize()
+                visualized_in_text = subject.status_tree.visualize()
                 if self.callback is not None:
                     self.callback(visualized_in_text)
                 else:
                     print(visualized_in_text)
             else:
-                self.visualize(subject.beach_line)
+                self.visualize(subject.status_tree)
             self.n_messages += 1
             self.messages.append(message)
 

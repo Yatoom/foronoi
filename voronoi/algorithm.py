@@ -13,8 +13,8 @@ from voronoi.nodes.breakpoint import Breakpoint
 from voronoi.nodes.internal_node import InternalNode
 from voronoi.events.circle_event import CircleEvent
 from voronoi.events.site_event import SiteEvent
-from voronoi.tree.smart_node import SmartNode
-from voronoi.tree.smart_tree import SmartTree
+from voronoi.tree.node import Node
+from voronoi.tree.tree import Tree
 
 
 class Algorithm(Subject):
@@ -36,8 +36,10 @@ class Algorithm(Subject):
             The bounding box (or polygon) around the edge
         event_queue: PriorityQueue
             Event queue for upcoming site and circle events
-        beach_line: SmartNode
-            Root node of the beach line
+        status_tree: Node
+            The status structure is a data structure that stores the relevant situation at the current position of
+            the sweep line. This attribute points to the root of the balanced binary search tree that functions as a
+            status structure which represents the beach line as a balanced binary search tree.
         sweep_line: Decimal
             The y-coordinate
         arcs: list(:class:`voronoi.nodes.Arc`)
@@ -59,7 +61,7 @@ class Algorithm(Subject):
         self.event = None
 
         # Root of beach line
-        self.beach_line: SmartNode = None
+        self.status_tree: Node = None
 
         # Doubly connected edge list
         self.doubly_connected_edge_list = []
@@ -83,6 +85,19 @@ class Algorithm(Subject):
         self.remove_zero_length_edges = remove_zero_length_edges
 
     def initialize(self, points):
+        """
+        Initialize the event queue `event_queue` with all site events.
+
+        Parameters
+        ----------
+        points: list(Point)
+            The list of cell points to initialize
+
+        Returns
+        -------
+        event_queue: PriorityQueue
+            Event queue for upcoming site and circle events
+        """
 
         # Store the points for visualization
         self.sites = points
@@ -102,13 +117,13 @@ class Algorithm(Subject):
         The overall structure of the algorithm is as follows.
 
         1. Initialize the event queue `event_queue` with all site events, initialize an empty status structure
-           `beach_line` and an empty doubly-connected edge list `D`.
+           `status_tree` and an empty doubly-connected edge list `D`.
         2. **while** `event_queue` is not empty.
         3.  **do** Remove the event with largest `y`-coordinate from `event_queue`.
         4.   **if** the event is a site event, occurring at site `point`
         5.    **then** :func:`~handle_site_event`
         6.    **else** :func:`handle_circle_event`
-        7. The internal nodes still present in `beach_line` correspond to the half-infinite edges of the Voronoi
+        7. The internal nodes still present in `status_tree` correspond to the half-infinite edges of the Voronoi
            diagram. Compute a bounding box (or polygon) that contains all vertices of  bounding box by updating the
            doubly-connected edge list appropriately.
         8. **If** `remove_zero_length_edges` is true.
@@ -200,52 +215,50 @@ class Algorithm(Subject):
         """
         Handle a site event.
 
-        1. If T is empty, insert pi into it (so that T consists of a single leaf storing pi)
-           and return. Otherwise, continue with steps 2– 5.
-        2. Search in T for the arc α vertically above pi. If the leaf representing α has
-           a pointer to a circle event in Q, then this circle event is a false alarm and it
-           must be deleted from Q.
-        3. Replace the leaf of T that represents α with a subtree having three leaves.
-           The middle leaf stores the new site pi and the other two leaves store the site
-           pj that was originally stored with α. Store the tuples pj, pi and pi, pj
-           representing the new breakpoints at the two new internal nodes. Perform
-           rebalancing operations on T if necessary.
+        1. Let :obj:`point_i = event.point`. If :attr:`status_tree` is empty, insert :obj:`point_i` into it (so that
+           :attr:`status_tree` consists of a single leaf storing :obj:`point_i`) and return. Otherwise, continue with
+           steps 2– 5.
+        2. Search in :attr:`status_tree` for the arc :obj:`α` vertically above :obj:`point_i`. If the leaf
+           representing :obj:`α` has a pointer to a circle event in :attr:`event_queue`, then this circle event is a
+           false alarm and it must be deleted from :attr:`status_tree`.
+        3. Replace the leaf of :attr:`status_tree` that represents :obj:`α` with a subtree having three leaves.
+           The middle leaf stores the new site :obj:`point_i` and the other two leaves store the site
+           :obj:`point_j` that was originally stored with :obj:`α`. Store the breakpoints
+           (:obj:`point_j`, :obj:`point_i`) and (:obj:`point_i`, :obj:`point_j`) representing the new breakpoints at the
+           two new internal nodes. Perform rebalancing operations on :attr:`status_tree` if necessary.
         4. Create new half-edge records in the Voronoi diagram structure for the
-           edge separating V(pi) and V(pj), which will be traced out by the two new
+           edge separating the faces for :obj:`point_i` and :obj:`point_j`, which will be traced out by the two new
            breakpoints.
         5. Check the triple of consecutive arcs where the new arc for pi is the left arc
-           to see if the breakpoints converge. If so, insert the circle event into Q and
-           add pointers between the node in T and the node in Q. Do the same for the
+           to see if the breakpoints converge. If so, insert the circle event into :attr:`status_tree` and
+           add pointers between the node in :attr:`status_tree` and the node in :attr:`event_queue`. Do the same for the
            triple where the new arc is the right arc.
 
         Parameters
         ----------
-        event
-
-        Returns
-        -------
-
+        event: SiteEvent
+            The site event to handle.
         """
 
         # Create a new arc
-        new_point = event.point
-        new_arc = Arc(origin=new_point)
+        point_i = event.point
+        new_arc = Arc(origin=point_i)
         self.arcs.append(new_arc)
 
         # 1. If the beach line tree is empty, we insert point
-        if self.beach_line is None:
-            self.beach_line = LeafNode(new_arc)
+        if self.status_tree is None:
+            self.status_tree = LeafNode(new_arc)
             return
 
         # 2. Search the beach line tree for the arc above the point
-        arc_node_above_point = SmartTree.find_leaf_node(self.beach_line, key=new_point.xd, sweep_line=self.sweep_line)
+        arc_node_above_point = Tree.find_leaf_node(self.status_tree, key=point_i.xd, sweep_line=self.sweep_line)
         arc_above_point = arc_node_above_point.get_value()
 
-        # 3. Remove potential false alarm
+        # Remove potential false alarm
         if arc_above_point.circle_event is not None:
             arc_above_point.circle_event.remove()
 
-        # 4. Replace leaf with new sub tree that represents the two new intersections on the arc above the point
+        # 3. Replace leaf with new sub tree that represents the two new intersections on the arc above the point
         #
         #            (p_j, p_i)
         #              /     \
@@ -254,7 +267,6 @@ class Algorithm(Subject):
         #                   /     \
         #                  /       \
         #                p_i       p_j
-        point_i = new_point
         point_j = arc_above_point.origin
         breakpoint_left = Breakpoint(breakpoint=(point_j, point_i))
         breakpoint_right = Breakpoint(breakpoint=(point_i, point_j))
@@ -270,9 +282,9 @@ class Algorithm(Subject):
         else:
             root.right = LeafNode(new_arc)
 
-        self.beach_line = arc_node_above_point.replace_leaf(replacement=root, root=self.beach_line)
+        self.status_tree = arc_node_above_point.replace_leaf(replacement=root, root=self.status_tree)
 
-        # 5. Create half edge records
+        # 4. Create half edge records
         A, B = point_j, point_i
         AB = breakpoint_left
         BA = breakpoint_right
@@ -290,7 +302,7 @@ class Algorithm(Subject):
         B.first_edge = B.first_edge or AB.edge
         A.first_edge = A.first_edge or BA.edge
 
-        # 6. Check if breakpoints are going to converge with the arcs to the left and to the right
+        # 5. Check if breakpoints are going to converge with the arcs to the left and to the right
         #
         #            (p_j, p_i)
         #  \           /     \
@@ -310,12 +322,29 @@ class Algorithm(Subject):
 
         self.check_circles((node_a, node_b, node_c), (node_c, node_d, node_e))
 
-        # 7. Rebalance the tree
-        self.beach_line = SmartTree.balance_and_propagate(root)
+        # X. Rebalance the tree
+        self.status_tree = Tree.balance_and_propagate(root)
 
     def handle_circle_event(self, event: CircleEvent):
         """
-        Handle a circle event
+        Handle a circle event.
+
+        1. Delete the leaf :obj:`γ` that represents the disappearing arc :obj:`α` from :attr:`status_tree`. Update
+           the tuples representing the breakpoints at the internal nodes. Perform
+           rebalancing operations on :attr:`status_tree` if necessary. Delete all circle events involving
+           :obj:`α` from :attr:`event_queue`; these can be found using the pointers from the predecessor and
+           the successor of :obj:`γ` in :attr:`status_tree`. (The circle event where :obj:`α` is the middle arc is
+           currently being handled, and has already been deleted from :attr:`event_queue`.)
+        2. Add the center of the circle causing the event as a vertex record to the
+           doubly-connected edge list :obj:`D` storing the Voronoi diagram under construction. Create two half-edge
+           records corresponding to the new breakpoint
+           of the beach line. Set the pointers between them appropriately. Attach the
+           three new records to the half-edge records that end at the vertex.
+        3. Check the new triple of consecutive arcs that has the former left neighbor
+           of :obj:`α` as its middle arc to see if the two breakpoints of the triple converge.
+           If so, insert the corresponding circle event into :attr:`event_queue`. and set pointers between
+           the new circle event in :attr:`event_queue` and the corresponding leaf of :attr:`status_tree`. Do the same
+           for the triple where the former right neighbor is the middle arc.
 
         Parameters
         ----------
@@ -335,8 +364,8 @@ class Algorithm(Subject):
         successor = arc_node.successor
 
         # Update breakpoints
-        self.beach_line, updated, removed, left, right = self.update_breakpoints(
-            self.beach_line, self.sweep_line, arc_node, predecessor, successor)
+        self.status_tree, updated, removed, left, right = self.update_breakpoints(
+            self.status_tree, self.sweep_line, arc_node, predecessor, successor)
 
         if updated is None:
             # raise Exception("Oh.")
@@ -452,13 +481,13 @@ class Algorithm(Subject):
             right = removed
 
             # Rebalance the tree
-            root = SmartTree.balance_and_propagate(root)
+            root = Tree.balance_and_propagate(root)
 
             # Find the left breakpoint
             left_breakpoint = Breakpoint(breakpoint=(predecessor.get_value().origin, arc_node.get_value().origin))
             query = InternalNode(left_breakpoint)
             compare = lambda x, y: hasattr(x, "breakpoint") and x.breakpoint == y.breakpoint
-            breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
+            breakpoint: InternalNode = Tree.find_value(root, query, compare, sweep_line=sweep_line)
 
             # Update the breakpoint
             # assert(breakpoint is not None)
@@ -480,13 +509,13 @@ class Algorithm(Subject):
             left = removed
 
             # Rebalance the tree
-            root = SmartTree.balance_and_propagate(root)
+            root = Tree.balance_and_propagate(root)
 
             # Find the right breakpoint
             right_breakpoint = Breakpoint(breakpoint=(arc_node.get_value().origin, successor.get_value().origin))
             query = InternalNode(right_breakpoint)
             compare = lambda x, y: hasattr(x, "breakpoint") and x.breakpoint == y.breakpoint
-            breakpoint: InternalNode = SmartTree.find_value(root, query, compare, sweep_line=sweep_line)
+            breakpoint: InternalNode = Tree.find_value(root, query, compare, sweep_line=sweep_line)
 
             # Update the breakpoint
             # assert(breakpoint is not None)
