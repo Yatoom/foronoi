@@ -307,3 +307,20 @@ class Tree:
 
         # Return the new root
         return y
+
+    @staticmethod
+    def get_leaves(root: Node, leaves=None):
+        if leaves is None:
+            leaves = []
+
+        # Base case
+        if root.is_leaf():
+            leaves.append(root)
+            return leaves
+
+        # Step
+        if root.left is not None:
+            leaves += Tree.get_leaves(root.left, None)
+        if root.right is not None:
+            leaves += Tree.get_leaves(root.right, None)
+        return leaves

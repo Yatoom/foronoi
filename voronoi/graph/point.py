@@ -16,7 +16,7 @@ class Point(Coordinate):
 
         >>> size: float = site.area()                 # The area of the cell
         >>> borders: List[HalfEdge] = site.borders()  # Borders around this cell point
-        >>> vertices: List[Vertex] = site.vertices()  # Vertices around this cell point
+        >>> vertices: List[Vertex] = site._vertices()  # Vertices around this cell point
         >>> site_x: float = site.x                    # X-coordinate of the site
         >>> site_xy: [float, float] = site.xy         # (x, y)-coordinates of the site
         >>> first_edge: HalfEdge = site.first_edge    # First edge of the site's border
@@ -84,12 +84,12 @@ class Point(Coordinate):
         """
 
         if self.first_edge is None:
-            return None
+            return []
         edge = self.first_edge
         edges = [edge]
         while edge.next != self.first_edge:
             if edge.next is None:
-                return None
+                return edges
             edge = edge.next
             edges.append(edge)
         return edges

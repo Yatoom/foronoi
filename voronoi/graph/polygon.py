@@ -74,7 +74,7 @@ class Polygon(Subject):
                 previous_edge.set_next(edge)
 
             # Add the edge to the list
-            edges.append(edge)
+            edges.add(edge)
 
             # Set previous edge
             previous_edge = edge
@@ -87,7 +87,7 @@ class Polygon(Subject):
         return [(i.xd, i.yd) for i in self.points]
 
     def finish_edges(self, edges, **kwargs):
-        resulting_edges = []
+        resulting_edges = set()
         for edge in edges:
 
             if edge.get_origin() is None or not self.inside(edge.get_origin()):
@@ -97,7 +97,7 @@ class Polygon(Subject):
                 self.finish_edge(edge.twin)
 
             if edge.get_origin() is not None and edge.twin.get_origin() is not None:
-                resulting_edges.append(edge)
+                resulting_edges.add(edge)
             else:
                 edge.delete()
                 edge.twin.delete()
@@ -106,7 +106,7 @@ class Polygon(Subject):
         # Re-order polygon vertices
         self.polygon_vertices = self.get_ordered_vertices(self.polygon_vertices)
 
-        return resulting_edges, self.polygon_vertices
+        return resulting_edges, set(self.polygon_vertices)
 
     def finish_edge(self, edge):
         # Sweep line position

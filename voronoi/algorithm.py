@@ -1,4 +1,5 @@
 from queue import PriorityQueue
+from typing import List
 
 from voronoi.observers.message import Message
 from voronoi.observers.subject import Subject
@@ -70,19 +71,31 @@ class Algorithm(Subject):
         self.sweep_line = float("inf")
 
         # Store arcs for visualization
-        self.arcs = []
+        self._arcs = set()
 
         # Store points for visualization
         self.sites = None
 
         # Half edges for visualization
-        self.edges = []
+        self._edges = set()
 
         # List of vertices
-        self.vertices = []
+        self._vertices = set()
 
         # Whether to remove zero length edges
         self.remove_zero_length_edges = remove_zero_length_edges
+
+    @property
+    def arcs(self) -> List[Arc]:
+        return list(self._arcs)
+
+    @property
+    def edges(self) -> List[HalfEdge]:
+        return list(self._edges)
+
+    @property
+    def vertices(self) -> List[Vertex]:
+        return list(self._vertices)
 
     def initialize(self, points):
         """
@@ -199,10 +212,10 @@ class Algorithm(Subject):
         self.notify_observers(Message.SWEEP_FINISHED)
 
         # Finish with the bounding box
-        self.edges, polygon_vertices = self.bounding_poly.finish_edges(
-            edges=self.edges, vertices=self.vertices, points=self.sites, event_queue=self.event_queue
+        self._edges, polygon_vertices = self.bounding_poly.finish_edges(
+            edges=self._edges, vertices=self._vertices, points=self.sites, event_queue=self.event_queue
         )
-        self.edges, self.vertices = self.bounding_poly.finish_polygon(self.edges, self.vertices, self.sites)
+        self._edges, self._vertices = self.bounding_poly.finish_polygon(self._edges, self._vertices, self.sites)
 
         if self.remove_zero_length_edges:
             self.clean_up_zero_length_edges()
@@ -243,7 +256,7 @@ class Algorithm(Subject):
         # Create a new arc
         point_i = event.point
         new_arc = Arc(origin=point_i)
-        self.arcs.append(new_arc)
+        self._arcs.add(new_arc)
 
         # 1. If the beach line tree is empty, we insert point
         if self.status_tree is None:
@@ -296,7 +309,7 @@ class Algorithm(Subject):
         BA.edge = HalfEdge(A, origin=BA, twin=AB.edge)
 
         # Append one of the edges to the list (we can get the other by using twin)
-        self.edges.append(AB.edge)
+        self._edges.add(AB.edge)
 
         # Add first edges
         B.first_edge = B.first_edge or AB.edge
@@ -357,8 +370,8 @@ class Algorithm(Subject):
 
         # 1. Delete the leaf γ that represents the disappearing arc α from T.
         arc = event.arc_pointer.data
-        if arc in self.arcs:
-            self.arcs.remove(arc)
+        if arc in self._arcs:
+            self._arcs.remove(arc)
         arc_node: LeafNode = event.arc_pointer
         predecessor = arc_node.predecessor
         successor = arc_node.successor
@@ -391,7 +404,7 @@ class Algorithm(Subject):
         # if self.bounding_poly.inside(event.center):
         # Create a vertex
         v = Vertex(convergence_point.xd, convergence_point.yd)
-        self.vertices.append(v)
+        self._vertices.add(v)
 
         # Connect the two old edges to the vertex
         updated.edge.origin = v
@@ -413,7 +426,7 @@ class Algorithm(Subject):
         new_edge.twin.set_next(right.edge)  # blue
 
         # Add to list for visualization
-        self.edges.append(new_edge)
+        self._edges.add(new_edge)
 
         # Add the new_edge to the list of connected edges of the vertex
         v.connected_edges.append(new_edge)
@@ -535,7 +548,7 @@ class Algorithm(Subject):
         """
 
         resulting_edges = []
-        for edge in self.edges:
+        for edge in self._edges:
             start = edge.get_origin()
             end = edge.twin.get_origin()
             if start.xd == end.xd and start.yd == end.yd:
@@ -551,7 +564,7 @@ class Algorithm(Subject):
                     v2.connected_edges.append(connected)
 
                 # Remove vertex v1
-                self.vertices.remove(v1)
+                self._vertices.remove(v1)
 
                 # Delete the edge
                 edge.delete()
@@ -559,4 +572,4 @@ class Algorithm(Subject):
 
             else:
                 resulting_edges.append(edge)
-            self.edges = resulting_edges
+            self._edges = resulting_edges

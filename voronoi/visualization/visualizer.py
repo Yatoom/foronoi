@@ -389,7 +389,7 @@ class Visualizer:
         self: Visualizer
 
         """
-        arcs = arcs or self.voronoi.arcs
+        arcs = arcs or self.voronoi._arcs
         sweep_line = sweep_line or self.voronoi.sweep_line
 
         # Get axis limits
