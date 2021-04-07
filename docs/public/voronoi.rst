@@ -1,4 +1,4 @@
-.. _vertex:
+.. _voronoi:
 
 Voronoi
 =========
