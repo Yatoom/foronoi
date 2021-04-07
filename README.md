@@ -23,7 +23,7 @@ pip install foronoi
 First, clone the repository and then install the package.
 ```bash
 git clone https://github.com/Yatoom/voronoi.git
-cd foronoi
+cd voronoi
 python setup.py install
 ```
 Note: you need to use `sudo python3 setup.py install` on most Linux distributions.
@@ -106,7 +106,7 @@ Output:
 (6, 3) 	     9.423363095238095
 ```
 
-More examples can be found in the `voronoi/examples` folder.
+More examples can be found in the `examples/` folder.
 
 ### Get coordinates of the cell borders for a point
 ```python
