@@ -38,6 +38,7 @@ Table of contents
    installation
    api
    private
+   observers
 
 
 Indices and tables

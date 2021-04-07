@@ -3,6 +3,9 @@ from foronoi.observers.observer import Observer
 
 class Subject:
     def __init__(self):
+        """
+        An observable subject that you can attach observers to.
+        """
         self._observers = []
         self._children = []
         self._root_sender = self
@@ -11,6 +14,11 @@ class Subject:
     def attach_observer(self, observer: Observer):
         """
         Attach an observer to the subject.
+
+        Parameters
+        ----------
+        observer: Observer
+            An observer to attach to this subject
         """
         self._observers.append(observer)
         self._update_children()
@@ -19,6 +27,11 @@ class Subject:
     def detach_observer(self, observer: Observer):
         """
         Detach an observer from the subject.
+
+        Parameters
+        ----------
+        observer: Observer
+            An observer to remove from this subject
         """
         self._observers.remove(observer)
         self._update_children()
@@ -27,6 +40,11 @@ class Subject:
     def notify_observers(self, message, **kwargs):
         """
         Notify all observers about an event.
+
+        Parameters
+        ----------
+        message: Message
+            The message type
         """
         for observer in self._observers:
             observer.update(self._root_sender, message, **kwargs)
@@ -41,13 +59,18 @@ class Subject:
     def inherit_observers_from(self, parent):
         """
         Make this subject inherit observers from a parent.
-        Set the sender to self.
+        When the child sends an update to the observers, the parent will be passed as the sender.
+
+        Parameters
+        ----------
+        parent: Subject
+            The parent to inherit observers from
         """
-        parent.add_child(self)
+        parent._add_child(self)
         self._root_sender = parent
         self._child_sender = self
 
-    def add_child(self, child):
+    def _add_child(self, child):
         """
         Add child
         """

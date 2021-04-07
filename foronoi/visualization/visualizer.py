@@ -77,7 +77,7 @@ class Visualizer:
         ----------
         voronoi: Voronoi
             The voronoi object
-        canvas_offset: Int
+        canvas_offset: float
             The space around the bounding object
         figsize: float, float
             Width, height in inches

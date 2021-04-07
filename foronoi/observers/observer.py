@@ -11,7 +11,15 @@ class Observer(ABC):
     @abstractmethod
     def update(self, subject, message: Message, **kwargs) -> None:
         """
-        Receive update from subject.
+
+        Parameters
+        ----------
+        subject: Subject
+            The sender of the update
+        message: Message
+            The message type
+        kwargs: dict
+            Any additional keyword arguments
         """
         pass
 

@@ -11,6 +11,51 @@ from foronoi.visualization.visualizer import Visualizer, Presets
 class VoronoiObserver(Observer, ABC):
     def __init__(self, visualize_steps=True, visualize_before_clipping=False, visualize_result=True, callback=None,
                  figsize=(8, 8), canvas_offset=1, settings=None):
+        """
+        Observers the state of the algorithm (:class:`foronoi.algorithm.Algorithm`) and visualizes
+        the result using the Visualizer (:class:`foronoi.visualization.visualizer.Visualizer`).
+
+        Parameters
+        ----------
+        visualize_steps: bool
+            Visualize all individual steps
+        visualize_before_clipping: bool
+            Visualize the result before the edges are clipped
+        visualize_result: bool
+            Visualize the final result
+        callback: function
+            By default, the VoronoiObserver shows or prints the result when
+            `text_based` is true. When a callback function is given, either the GraphViz diagram or the text-string
+            is passed to the callback.
+        figsize: (float, float)
+            Window size in inches
+        canvas_offset: float
+            The space around the bounding object
+        settings: dict
+            Visualizer settings to override the default presets used by the VoronoiObserver
+
+        Examples
+        --------
+        >>> from foronoi import Voronoi, VoronoiObserver, Polygon
+        >>> points = [
+        ...    (2.5, 2.5), (4, 7.5), (7.5, 2.5), (6, 7.5), (4, 4), (3, 3), (6, 3)
+        ... ]
+        >>> poly = Polygon(
+        ...    [(2.5, 10), (5, 10), (10, 5), (10, 2.5), (5, 0), (2.5, 0), (0, 2.5), (0, 5)]
+        ... )
+        >>> v = Voronoi(poly)
+        >>>
+        >>> # Define callback and settings
+        >>> def callback(observer, figure):
+        ...    figure.savefig(f"output/voronoi/{observer.n_messages:02d}.png")
+        >>> settings=dict(arc_labels=True, site_labels=True)
+        >>>
+        >>> # Attach observer
+        >>> v.attach_observer(VoronoiObserver(callback=callback, settings=settings))
+        >>>
+        >>> # Start diagram creation
+        >>> v.create_diagram(points)
+        """
         self.canvas_offset = canvas_offset
         self.figsize = figsize
         self.visualize_steps = visualize_steps
@@ -22,7 +67,16 @@ class VoronoiObserver(Observer, ABC):
         self.settings = settings or {}
 
     def update(self, subject: Algorithm, message: Message, **kwargs):
+        """
+        Send the updated state of the algorithm to the VoronoiObserver.
 
+        Parameters
+        ----------
+        subject: Algorithm
+            The algorithm to observe
+        message: Message
+            The message type
+        """
         if not isinstance(subject, Algorithm):
             return False
 

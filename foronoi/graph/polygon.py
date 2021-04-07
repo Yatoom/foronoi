@@ -13,7 +13,7 @@ class Polygon(Subject):
 
         Parameters
         ----------
-        tuples: (float, float)
+        tuples: list[(float, float)]
             x,y-coordinates of the polygon's vertices
         """
 
