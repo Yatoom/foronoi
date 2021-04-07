@@ -11,7 +11,7 @@ Foronoi is a Python implementation of the Fortune’s algorithm based on the des
 
 This algorithm is a sweep line algorithm that scans top down over the cell points and traces out the lines via breakpoints in between parabola’s (arcs). When lines converge, a circle event happens which inserts a new vertex.
 
-[Documentation can be found here](https://voronoi.readthedocs.io/en/latest/i).
+[Documentation can be found here](https://voronoi.readthedocs.io/en/latest/).
 
 ## Pip Installation
 ```bash

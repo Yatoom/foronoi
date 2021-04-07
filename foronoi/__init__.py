@@ -9,4 +9,4 @@ from foronoi.observers.debug_observer import DebugObserver
 from foronoi.observers.voronoi_observer import VoronoiObserver
 from foronoi.visualization.tree_visualizer import TreeVisualizer
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"

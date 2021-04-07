@@ -19,7 +19,7 @@ setup(
         "foronoi.events",
         "foronoi.tests"
     ],
-    version="1.0.2",
+    version="1.0.3",
     description="Fortune's algorithm for fast Voronoi diagram construction with extras.",
     long_description=long_description,
     long_description_content_type='text/markdown',
