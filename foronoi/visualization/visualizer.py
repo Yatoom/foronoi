@@ -487,7 +487,7 @@ class Visualizer:
         self.canvas.add_artist(circle)
 
         if show_triangle:
-            triangle = plt.Polygon(evt.get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1)
+            triangle = plt.Polygon(evt._get_triangle(), fill=False, color=Colors.TRIANGLE, linewidth=1)
             self.canvas.add_artist(triangle)
 
         points = evt.point_triple

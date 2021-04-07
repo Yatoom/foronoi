@@ -11,11 +11,16 @@ class Breakpoint:
 
     def __init__(self, breakpoint: tuple, edge=None):
         """
-        The breakpoint is stored by an ordered tuple of sites (p_i, p_j) where p_i defines the parabola left of the
-        breakpoint and p_j defines the parabola to the right. Furthermore, the internal node v has a pointer to the half
-        edge in the doubly connected edge list of the Voronoi diagram. More precisely, v has a pointer to one of the
-        half-edges of the edge being traced out by the breakpoint represented by v.
-        :param breakpoint: A tuple of two points that caused two arcs to intersect
+        The breakpoint is stored by an ordered tuple of sites (:obj:`p_i`, :obj:`p_j`) where :obj:`p_i` defines the
+        parabola left of the breakpoint and :obj:`p_j` defines the parabola to the right. Furthermore, the internal node
+        :obj:`v` has a pointer to the half edge in the doubly connected edge list of the Voronoi diagram. More
+        precisely, :obj:`v` has a pointer to one of the half-edges of the edge being traced out by the breakpoint
+        represented by :obj:`v`.
+
+        Parameters
+        ----------
+        breakpoint: (Point, Point)
+            A point where two arcs intersect, represented as a tuple of the two site points that the arcs refer to
         """
 
         # The tuple of the points whose arcs intersect
@@ -28,10 +33,18 @@ class Breakpoint:
     def __repr__(self):
         return f"Breakpoint({self.breakpoint[0].name}, {self.breakpoint[1].name})"
 
-    def tuple_name(self):
-        return self.breakpoint[0].name + self.breakpoint[1].name
-
     def does_intersect(self):
+        """
+        A guard that handles the edge-case where two arcs were initialized at the same time due to their sites
+        having the same :obj:`y`-coordinate. This guard makes sure that the left arc intersects once with the right arc
+        and not the other way around.
+
+        Returns
+        -------
+        intersects: bool
+            Returns false when :obj:`p_i` and :obj:`p_j` have the same y-coordinate and :obj:`p_j` is
+            situated left of `p_i`.
+        """
         i, j = self.breakpoint
         return not (i.yd == j.yd and j.xd < i.xd)
 
@@ -40,9 +53,17 @@ class Breakpoint:
         Calculate the coordinates of the intersection
         Modified from https://www.cs.hmc.edu/~mbrubeck/voronoi.html
 
-        :param max_y: Bounding box top for clipping infinite breakpoints
-        :param l: (float) The position (y-coordinate) of the sweep line
-        :return: (float) The coordinates of the breakpoint
+        Parameters
+        ----------
+        l: float
+            The y-coordinate of the sweep line
+        max_y: float
+            The top of the bounding box/polygon for clipping infinite breakpoints
+
+        Returns
+        --------
+        coordinate: Coordinate
+            The current coordinates of the breakpoint
         """
 
         # Get the points

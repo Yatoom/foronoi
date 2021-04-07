@@ -12,10 +12,20 @@ class CircleEvent(Event):
 
     def __init__(self, center: Coordinate, radius: Decimal, arc_node: LeafNode, point_triple=None, arc_triple=None):
         """
-        Circle event.
+        A circle event.
 
-        :param arc_node: Pointer to the node in the beach line tree that holds the arc that will disappear
-        :param point_triple: The tuple of points that caused the event
+        Parameters
+        ----------
+        center: Coordinate
+            The center coordinate of the circle (where the new vertex will appear)
+        radius: Decimal
+            The radius of the circle
+        arc_node: LeafNode
+            Pointer to the node in the beach line tree that holds the arc that will disappear
+        point_triple: (Point, Point, Point)
+            The triple of points that caused the event
+        arc_triple: (Arc, Arc, Arc)
+            The triple of arcs related to the points
         """
         self.center = center
         self.radius = radius
@@ -29,13 +39,27 @@ class CircleEvent(Event):
 
     @property
     def xd(self):
+        """
+        The x-coordinate (in Decimal format) of the center of the circle, which functions as the secondary priority of this event.
+
+        Returns
+        -------
+        x: Decimal
+        """
         return self.center.xd
 
     @property
     def yd(self):
+        """
+        The y-coordinate (in Decimal format) of the bottom of the circle, which functions as the primary priority of this event.
+
+        Returns
+        -------
+        y: Decimal
+        """
         return self.center.yd - self.radius
 
-    def get_triangle(self):
+    def _get_triangle(self):
         return (
             (self.point_triple[0].xd, self.point_triple[0].yd),
             (self.point_triple[1].xd, self.point_triple[1].yd),
@@ -43,6 +67,13 @@ class CircleEvent(Event):
         )
 
     def remove(self):
+        """
+        Mark this circle event as a false alarm.
+
+        Returns
+        -------
+        self: CircleEvent
+        """
         self.is_valid = False
         return self
 
@@ -50,11 +81,22 @@ class CircleEvent(Event):
     def create_circle_event(left_node: LeafNode, middle_node: LeafNode, right_node: LeafNode, sweep_line) -> "CircleEvent":
         """
         Checks if the breakpoints converge, and inserts circle event if required.
-        :param sweep_line: Y-coordinate of the sweep line
-        :param left_node: The node that represents the arc on the left
-        :param middle_node: The node that represents the arc on the middle
-        :param right_node: The node that represents the arc on the right
-        :return: The circle event or None if no circle event needs to be inserted
+
+        Parameters
+        ----------
+        left_node: LeafNode
+            The node that represents the arc on the left
+        middle_node: LeafNode
+            The node that represents the arc in the middle
+        right_node: LeafNode
+            The node that represents the arc on the right
+        sweep_line: Decimal
+            The y-coordinate of the sweep line
+
+        Returns
+        -------
+        circleEvent: CircleEvent or None
+            The circle event or None if no circle event needs to be inserted
         """
 
         # Check if any of the nodes is None
@@ -82,6 +124,24 @@ class CircleEvent(Event):
 
     @staticmethod
     def create_circle(a, b, c):
+        """
+        Create a circle from three coordinates.
+
+        Parameters
+        ----------
+        a: Coordinate
+        b: Coordinate
+        c: Coordinate
+
+        Returns
+        -------
+        x: Decimal
+            The x-coordinate of the center of the circle
+        y: Decimal
+            The y-coordinate of the center of the circle
+        radius: Decimal
+            The radius of the circle
+        """
 
         # Algorithm from O'Rourke 2ed p. 189
         A = b.xd - a.xd
