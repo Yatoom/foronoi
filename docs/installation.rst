@@ -13,6 +13,6 @@ First, clone the repository and then install the package.
 
 .. code-block:: bash
 
-   git clone https://github.com/Yatoom/foronoi.git
+   git clone https://github.com/Yatoom/voronoi.git
    cd foronoi
    python setup.py install
