@@ -3,9 +3,9 @@ Installation
 
 Via pip
 +++++++
-```bash
-pip install foronoi
-```
+.. code-block:: bash
+
+   pip install foronoi
 
 Manual
 ++++++
