@@ -1,5 +1,5 @@
 # Foronoi
-Fortune's algorithm for Voronoi diagrams. 
+**F**ortune's algorithm for V**oronoi** diagrams. 
 
 [![Build Status](https://travis-ci.org/Yatoom/voronoi.svg?branch=master)](https://travis-ci.org/Yatoom/voronoi)
 [![Documentation Status](https://readthedocs.org/projects/voronoi/badge/?version=latest)](https://voronoi.readthedocs.io/en/latest/?badge=latest)
