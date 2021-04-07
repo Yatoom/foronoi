@@ -7,3 +7,5 @@ Private classes
   :glob:
 
   private/*
+
+**Note:** More to be added soon!

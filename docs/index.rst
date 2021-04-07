@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Foronoi's documentation!
-===================================
+Foronoi
+=======
 
 Foronoi is a Python implementation of the Fortune's algorithm based on the description of "Computational Geometry:
 Algorithms and Applications" by de Berg et al.
@@ -35,7 +35,9 @@ Table of contents
    :maxdepth: 2
    :glob:
 
-   installation
+   self
+   pages/installation
+   pages/quickstart
    api
    private
    observers
