@@ -106,7 +106,7 @@ Output:
 (6, 3) 	     9.423363095238095
 ```
 
-More examples can be found in the `voronoi/examples` folder.
+More examples can be found in the `examples/` folder.
 
 ### Get coordinates of the cell borders for a point
 ```python
