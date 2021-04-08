@@ -22,8 +22,8 @@ pip install foronoi
 
 First, clone the repository and then install the package.
 ```bash
-git clone https://github.com/Yatoom/voronoi.git
-cd voronoi
+git clone https://github.com/Yatoom/foronoi.git
+cd foronoi
 python setup.py install
 ```
 Note: you need to use `sudo python3 setup.py install` on most Linux distributions.
