@@ -1,5 +1,5 @@
 # Foronoi
-Fortune's algorithm for Voronoi diagrams. 
+**F**ortune's algorithm for V**oronoi** diagrams. 
 
 [![Build Status](https://travis-ci.org/Yatoom/voronoi.svg?branch=master)](https://travis-ci.org/Yatoom/voronoi)
 [![Documentation Status](https://readthedocs.org/projects/voronoi/badge/?version=latest)](https://voronoi.readthedocs.io/en/latest/?badge=latest)
@@ -22,8 +22,8 @@ pip install foronoi
 
 First, clone the repository and then install the package.
 ```bash
-git clone https://github.com/Yatoom/voronoi.git
-cd voronoi
+git clone https://github.com/Yatoom/foronoi.git
+cd foronoi
 python setup.py install
 ```
 Note: you need to use `sudo python3 setup.py install` on most Linux distributions.
