@@ -9,10 +9,20 @@ Foronoi
 Foronoi is a Python implementation of the Fortune's algorithm based on the description of "Computational Geometry:
 Algorithms and Applications" by de Berg et al.
 
-This algorithm is a sweep line algorithm that scans top down over the
-cell points and traces out the lines via breakpoints in between parabola's (arcs). Once a new point is inserted, a check
-is done to see if it will converge with the lines on the left or right. If that's the case, it will insert a so-called
-circle-event which causes a new vertex (i.e. a cross-way between edges) to be created in the middle of the circle.
+This algorithm is a sweep line algorithm that scans top down over the cell points. Every time a new cell point is
+scanned, a corresponding parabola (arc) is added. The intersections of this arc with other arcs are so-called
+"breakpoints". These breakpoints trace out the borders between two cell points. At the same time when an arc is added,
+a check is done to see if this arc will converge with the two arcs on the left or the arcs on the right. If that’s the
+case, it will insert a so-called circle-event which causes a new vertex (i.e. a cross-way between edges) to be created
+in the middle of the circle.
+
+If you would like to play around with a simple example to get a better understanding, I recommend visiting
+|desmos|.
+
+.. |desmos| raw:: html
+
+   <a href="https://www.desmos.com/calculator/ejatebvup4" target="_blank">this toy example</a>
+
 
 The algorithm keeps track of the status (everything above the line is handled) in a so-called status-structure. This
 status-structure is a balanced binary search tree that keeps track of the positions of the arcs (in its leaf nodes) and
