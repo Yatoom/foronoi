@@ -49,7 +49,7 @@ class Point(Coordinate):
     def __repr__(self):
         if self.name is not None:
             return f"P{self.name}"
-        return f"Point({self.xd:.2f}, {self.xd:.2f})"
+        return f"Point({self.xd:.2f}, {self.yd:.2f})"
 
     def area(self, digits=None):
         """
