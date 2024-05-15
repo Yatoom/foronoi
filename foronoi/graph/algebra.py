@@ -25,11 +25,11 @@ class Algebra:
     @staticmethod
     def line_ray_intersection_point(ray_orig, ray_end, point_1, point_2):
         # Convert to numpy arrays
-        orig = np.array(ray_orig, dtype=np.float)
-        end = np.array(ray_end, dtype=np.float)
-        direction = np.array(Algebra.norm(end - orig), dtype=np.float)
-        point_1 = np.array(point_1, dtype=np.float)
-        point_2 = np.array(point_2, dtype=np.float)
+        orig = np.array(ray_orig, dtype=float)
+        end = np.array(ray_end, dtype=float)
+        direction = np.array(Algebra.norm(end - orig), dtype=float)
+        point_1 = np.array(point_1, dtype=float)
+        point_2 = np.array(point_2, dtype=float)
 
         # Ray-Line Segment Intersection Test in 2D
         # http://bit.ly/1CoxdrG
